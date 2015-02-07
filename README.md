@@ -29,7 +29,7 @@ The output will be something like this
 --> extracting observable information ... [DONE]
 ------
 Missing references for: object_2_object
-siemens_cert:File-01d04d81-697c-489c-8340-e1b93332b87c -> {'id': u'siemens_cert:HTTPSession-9765c645-8cdd-43e2-9df3-af6a66eb97ba', 'relationship': u'Connected_To'} 
+namespace:File-01d04d81-697c-489c-8340-e1b93332b87c -> {'id': u'namespace:HTTPSession-9765c645-8cdd-43e2-9df3-af6a66eb97ba', 'relationship': u'Connected_To'} 
 ------
 Missing stix elements:
 Missing stix element implementation: timestamp
