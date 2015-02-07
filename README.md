@@ -6,6 +6,9 @@ Currently, the basic database design is complete and a first parser for MITRE' s
 
 We also test the django REST framework to see if the capabilities suffice our needs. So far there is no graphical interface or website implemented, thus only the import of stix XML works at the moment.
 
+## Requirements
+Please refer to requirements.txt for an updated list of required packages.
+
 ## Roadmap
 The following items describe what is still planned but has no particular order:
 
