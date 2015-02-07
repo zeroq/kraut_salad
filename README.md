@@ -23,7 +23,7 @@ python manage.py load_stix report.xml
 ```
 
 The output will be something like this
-````python
+```
 --> performing version check ... found 1.1.1 ... [DONE]
 --> extracting stix package information ... [DONE]
 --> extracting observable information ... [DONE]
