@@ -1,0 +1,122 @@
+[
+    {
+        "model": "kraut_incident.asset_status",
+        "pk": 1,
+        "fields": {
+            "name": "Suspicious",
+            "description": "Asset is suspicious and should be analyzed"
+        }
+    },
+    {
+        "model": "kraut_incident.asset_status",
+        "pk": 2,
+        "fields": {
+            "name": "Requested",
+            "description": "Asset is requested for further analysis"
+        }
+    },
+    {
+        "model": "kraut_incident.asset_status",
+        "pk": 3,
+        "fields": {
+            "name": "Analysis",
+            "description": "Asset is currently analyzed"
+        }
+    },
+    {
+        "model": "kraut_incident.asset_status",
+        "pk": 4,
+        "fields": {
+            "name": "Compromised",
+            "description": "Asset is compromised"
+        }
+    },
+    {
+        "model": "kraut_incident.asset_status",
+        "pk": 5,
+        "fields": {
+            "name": "Clean",
+            "description": "Asset is clean"
+        }
+    },
+    {
+        "model": "kraut_incident.incident_status",
+        "pk": 1,
+        "fields": {
+            "name": "Open",
+            "description": "Incident is open and investigations are running"
+        }
+    },
+    {
+        "model": "kraut_incident.incident_status",
+        "pk": 2,
+        "fields": {
+            "name": "Closed",
+            "description": "Incident is closed and all investigations are finished"
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 1,
+        "fields": {
+            "name": "Exercise/Network Defense Testing",
+            "description": "This category is used during state, federal, national, international exercises and approved activity testing of internal/external network defenses or responses."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 2,
+        "fields": {
+            "name": "Unauthorized Access",
+            "description": "In this category an individual gains logical or physical access without permission to a federal agency network, system, application, data, or other resource."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 3,
+        "fields": {
+            "name": "Denial of Service",
+            "description": "An attack that successfully prevents or impairs the normal authorized functionality of networks, systems or applications by exhausting resources. This activity includes being the victim or participating in the DoS."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 4,
+        "fields": {
+            "name": "Malicious Code",
+            "description": "Installation of malicious software (e.g., virus, worm, Trojan horse, or other code-based malicious entity) that infects an operating system or application. Agencies are NOT required to report malicious logic that has been successfully quarantined by antivirus (AV) software."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 5,
+        "fields": {
+            "name": "Improper Usage",
+            "description": "A person violates acceptable computing use policies."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 6,
+        "fields": {
+            "name": "Scans/Probes/Attempted Access",
+            "description": "This category includes any activity that seeks to access or identify a federal agency computer, open ports, protocols, service, or any combination for later exploit. This activity does not directly result in a compromise or denial of service."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 7,
+        "fields": {
+            "name": "Investigation",
+            "description": "Unconfirmed incidents that are potentially malicious or anomalous activity deemed by the reporting entity to warrant further review."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 8,
+        "fields": {
+            "name": "Breach/APT",
+            "description": "Thei category includes major breaches of IT infrastructure as performed by APTs or state sponsored attacks."
+        }
+    }
+]
