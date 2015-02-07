@@ -22,6 +22,27 @@ To load a stix documents into the database either point at a particular file dir
 python manage.py load_stix report.xml
 ```
 
+The output will be something like this
+````python
+--> performing version check ... found 1.1.1 ... [DONE]
+--> extracting stix package information ... [DONE]
+--> extracting observable information ... [DONE]
+------
+Missing references for: object_2_object
+siemens_cert:File-01d04d81-697c-489c-8340-e1b93332b87c -> {'id': u'siemens_cert:HTTPSession-9765c645-8cdd-43e2-9df3-af6a66eb97ba', 'relationship': u'Connected_To'} 
+------
+Missing stix elements:
+Missing stix element implementation: timestamp
+------
+Missing Object Types:
+Missing object type implementation: HTTPSessionObjectType
+Missing object type implementation: WindowsExecutableFileObjectType
+------
+```
+
+The Kraut parser will tell you about missing object references, stix elements, and cybox objects at the end of the run.
+
+
 ## Roadmap
 The following items describe what is still planned but has no particular order:
 
