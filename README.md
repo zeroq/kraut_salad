@@ -9,6 +9,11 @@ We also test the django REST framework to see if the capabilities suffice our ne
 ## Requirements
 Please refer to requirements.txt for an updated list of required packages.
 
+## Test Documents
+Kraut Salad has been tested with
+* Mandiant APT1 Report (https://stix.mitre.org/downloads/APT1-STIX.zip)
+* FireEye Poison Ivy Report (https://stix.mitre.org/language/version1.0.1/samples/poison_ivy-stix.zip)
+
 ## Roadmap
 The following items describe what is still planned but has no particular order:
 
