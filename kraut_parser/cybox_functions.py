@@ -2,6 +2,8 @@
 
 import dateutil, pytz
 
+from kraut_parser.models import URI_Object, Port_Object
+
 def handle_email_object(email_obj):
     """extract all relevant information from a cybox email object
     @email_obj: cybox email object in json format
@@ -293,6 +295,57 @@ def handle_link_object(li_obj):
     if 'type' in li_obj:
         link_dict['link_type'] = li_obj.get('type', 'No Type')
     return link_dict
+
+def handle_http_session_object(http_obj):
+    """extract relevant information from a cybox http session object
+    @http_obj: cybox http session object in json format
+    returns: list of dictionaries
+    """
+    client_dict_list = []
+    if 'http_request_response' in http_obj:
+        for request in http_obj['http_request_response']:
+            client_dict = {
+                'raw_header': None,
+                'message_body': None,
+                'request_method': 'GET',
+                'request_uri': '/',
+                'request_version': '1.1',
+                'user_agent': None,
+                'domain_name': None,
+                'port': None,
+            }
+            # get message body
+            if 'http_client_request' in request and 'http_message_body' in request['http_client_request']:
+                client_dict['message_body'] = request['http_client_request']['http_message_body'].get('message_body', None)
+            # get raw header
+            if 'http_client_request' in request and 'http_request_header' in request['http_client_request']:
+                client_dict['raw_header'] = request['http_client_request']['http_request_header'].get('raw_header', None)
+                # get host information
+                if 'parsed_header' in request['http_client_request']['http_request_header']:
+                    host = request['http_client_request']['http_request_header']['parsed_header'].get('host', None)
+                    if host:
+                        if 'domain_name' in host:
+                            uri_dict = {
+                                'uri_value': host['domain_name'].get('value', 'No Value'),
+                                'uri_type': 'Domain Name',
+                                'condition': 'equals'
+                            }
+                            uri_object, uri_object_created = URI_Object.objects.get_or_create(**uri_dict)
+                            client_dict['domain_name'] = uri_object
+                        if 'port' in host:
+                            port_dict = {
+                                'port': host['port'].get('port_value', 'No Value')
+                            }
+                            port_object, port_object_created = Port_Object.objects.get_or_create(**port_dict)
+                            client_dict['port'] = port_object
+                    # get user agent information
+                    client_dict['user_agent'] = request['http_client_request']['http_request_header']['parsed_header'].get('user_agent', None)
+            if 'http_client_request' in request and 'http_request_line' in request['http_client_request']:
+                client_dict['request_method'] = request['http_client_request']['http_request_line'].get('http_method', 'GET')
+                client_dict['request_uri'] = request['http_client_request']['http_request_line'].get('value', '/')
+                client_dict['request_version'] = request['http_client_request']['http_request_line'].get('version', '1.1')
+            client_dict_list.append(client_dict)
+    return client_dict_list
 
 def handle_win_registry_object(re_obj):
     """extract all relevant information from a cybox windows registry object

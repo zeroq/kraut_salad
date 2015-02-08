@@ -352,4 +352,29 @@ class EmailMessage_Object(models.Model):
     class Meta:
         unique_together = (("raw_body", "raw_header", "subject", "message_id", "x_mailer", "user_agent", "mime_version", "content_type", "email_date"),)
 
+class Port_Object(models.Model):
+    port = models.IntegerField(unique=True)
 
+    def __unicode__(self):
+        return u"%s" % (self.port)
+
+class HTTPClientRequest(models.Model):
+    raw_header = models.TextField(null=True, blank=True)
+    message_body = models.TextField(null=True, blank=True)
+    request_method = models.CharField(max_length=10, null=True, blank=True)
+    request_uri = models.CharField(max_length=1024, null=True, blank=True)
+    request_version = models.CharField(max_length=10, null=True, blank=True)
+    user_agent = models.CharField(max_length=255, null=True, blank=True)
+    domain_name = models.ForeignKey(URI_Object, null=True, blank=True)
+    port = models.ForeignKey(Port_Object, null=True, blank=True)
+
+    def __unicode__(self):
+        if self.request_uri and self.domain_name:
+            return u"%s" % (self.request_uri)
+        else:
+            return u"HTTPClientRequest Object"
+
+class HTTPSession_Object(models.Model):
+    client_request = models.ForeignKey(HTTPClientRequest, null=True, blank=True)
+    # http server response not implemented
+    observables = models.ManyToManyField(Observable)

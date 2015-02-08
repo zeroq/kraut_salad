@@ -6,9 +6,9 @@ from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference
-from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient
+from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest
 # import helper functions
-from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object
+from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object
 
 class Command(BaseCommand):
     args = '<stix_xml>'
@@ -104,6 +104,8 @@ class Command(BaseCommand):
             db_object = Win_Registry_Object.objects.get(id=object_id)
         elif object_type == 'EmailMessageObjectType':
             db_object = EmailMessage_Object.objects.get(id=object_id)
+        elif object_type == 'HTTPSessionObjectType':
+            db_object = HTTPSession_Object.objects.get(id=object_id)
         return db_object
 
     def determine_create_object(self, observable_object, object_type, object_data, object_id):
@@ -211,7 +213,7 @@ class Command(BaseCommand):
                 self.id_mapping['objects'][object_id] = [{'object_id': link_object.id, 'object_type': object_type}]
             object_list.append(link_object)
         elif object_type == 'WindowsRegistryKeyObjectType':
-            # create code object
+            # create registry object
             reg_dict_list = handle_win_registry_object(object_data)
             for reg_dict in reg_dict_list:
                 reg_object, reg_object_created = Win_Registry_Object.objects.get_or_create(**reg_dict)
@@ -266,6 +268,23 @@ class Command(BaseCommand):
             else:
                 self.id_mapping['objects'][object_id] = [{'object_id': email_object.id, 'object_type': object_type}]
             object_list.append(email_object)
+        elif object_type == 'HTTPSessionObjectType':
+            # get http session dictionary
+            http_dict_list = handle_http_session_object(object_data)
+            for http_dict in http_dict_list:
+                # create http client request object
+                client_request_object, client_request_object_created = HTTPClientRequest.objects.get_or_create(**http_dict)
+                # create http session object
+                session_object, session_object_created = HTTPSession_Object.objects.get_or_create(client_request=client_request_object)
+                # add observable
+                session_object.observables.add(observable_object)
+                session_object.save()
+                # create object ID mapping
+                if object_id in self.id_mapping['objects']:
+                    self.id_mapping['objects'][object_id].append({'object_id': session_object.id, 'object_type': object_type})
+                else:
+                    self.id_mapping['objects'][object_id] = [{'object_id': session_object.id, 'object_type': object_type}]
+                object_list.append(session_object)
         else:
             self.missed_objects[object_type] = True
         return object_list
