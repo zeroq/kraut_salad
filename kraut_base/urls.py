@@ -1,10 +1,12 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
+from kraut_base import views
 
 urlpatterns = patterns('',
-    #url(r'^', include('kraut_parser.urls')),
-    url(r'^api/', include('kraut_api.urls')),
+    url(r'^$', views.home, name='home'),
+    url(r'^incidents/', include('kraut_incident.urls', namespace='incidents')),
+    url(r'^api/', include('kraut_api.urls', namespace='api')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/', include(admin.site.urls)),
 )
