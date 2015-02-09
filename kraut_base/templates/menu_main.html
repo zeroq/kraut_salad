@@ -1,0 +1,34 @@
+<ul class="nav navbar-nav">
+    {% for item in menu %}
+        {% if item.separator %}<li>------------</li>{% endif %}
+        {% if item.url == request.path %}
+            <li class="active">
+            {% if item.children|length > 0 %}
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="fa {{ item.icon }}"></i>&nbsp;{{ item.title }}
+                <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                {% for child in item.children %}
+                <li><a href="{{ child.url }}">{{ child.title }}</a>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <a href="{{ item.url }}"><i class="fa {{ item.icon }}"></i>&nbsp;{{ item.title }}</a>
+            {% endif %}
+            </li>
+        {% else %}
+            <li>
+            {% if item.children|length > 0 %}
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="fa {{ item.icon }}"></i>&nbsp;{{ item.title }}
+            <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                {% for child in item.children %}
+                <li><a href="{{ child.url }}">{{ child.title }}</a>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <a href="{{ item.url }}"><i class="fa {{ item.icon }}"></i>&nbsp;{{ item.title }}</a>
+            {% endif %}
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>
