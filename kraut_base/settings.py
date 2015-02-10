@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'kraut_api',
     'kraut_parser',
     'kraut_incident',
+    'kraut_intel'
 )
 
 MIDDLEWARE_CLASSES = (

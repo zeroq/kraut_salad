@@ -7,9 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-
     <title>Kraut Salad - Intelligence Platform</title>
-
     <!-- Bootstrap core CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
@@ -20,9 +18,7 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-
   <body>
-
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -37,14 +33,12 @@
         <div id="navbar" class="collapse navbar-collapse">
             {% with menu=menus.main %}{% include "menu_main.html" %}{% endwith %}
             {% with menu=menus.incident %}{% include "menu_main.html" %}{% endwith %}
+            {% with menu=menus.intel %}{% include "menu_main.html" %}{% endwith %}
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-
     <div class="container" id="main">{% block content %}{% endblock %}
     </div><!-- /.container -->
-
-
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
