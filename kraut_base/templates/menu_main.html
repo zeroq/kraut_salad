@@ -1,3 +1,4 @@
+{% spaceless %}
 <ul class="nav navbar-nav">
     {% for item in menu %}
         {% if item.separator %}<li>------------</li>{% endif %}
@@ -8,7 +9,11 @@
                 <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 {% for child in item.children %}
-                <li><a href="{{ child.url }}">{{ child.title }}</a>
+                    {% if child.url == request.path %}
+                        <li class="active"><a href="{{ child.url }}">{{ child.title }}</a>
+                    {% else %}
+                        <li><a href="{{ child.url }}">{{ child.title }}</a>
+                    {% endif %}
                 {% endfor %}
             </ul>
             {% else %}
@@ -32,3 +37,4 @@
         {% endif %}
     {% endfor %}
 </ul>
+{% endspaceless %}
