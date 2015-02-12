@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
 {% block content %}
-<h2>Packages</h2>
+<div class="page-header"><h2>Intelligence Packages</h2></div>
+<table class="table table-condensed">
+    <thead>
+        <th>Package Name</th><th>Operations</th>
+    </thead>
+    <tbody>
+    {% for package in packages %}
+    <tr><td>{{ package.name }}</td><td><button class="btn btn-primary btn-sm">details</button></tr>
+    {% endfor %}
+</table>
 {% endblock%}

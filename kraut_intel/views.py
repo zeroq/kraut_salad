@@ -3,6 +3,8 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+from kraut_parser.models import Package
+
 # Create your views here.
 
 def home(request):
@@ -10,7 +12,11 @@ def home(request):
     return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
 
 def packages(request):
-    context = {}
+    packages = Package.objects.all()
+    context = {
+        'packages': packages,
+    }
+
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
 def threatactors(request):
