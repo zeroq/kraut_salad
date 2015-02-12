@@ -43,6 +43,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'menu',
+    'django_tables2',
+    'django_filters',
     'kraut_base',
     'kraut_api',
     'kraut_parser',

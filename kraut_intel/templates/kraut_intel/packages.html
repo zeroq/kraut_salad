@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load render_table from django_tables2 %}
+{% load addcss %}
 {% block content %}
-<div class="page-header"><h2>Intelligence Packages</h2></div>
-<table class="table table-condensed">
-    <thead>
-        <th>Package Name</th><th>Operations</th>
-    </thead>
-    <tbody>
-    {% for package in packages %}
-    <tr><td>{{ package.name }}</td><td><button class="btn btn-primary btn-sm">details</button></tr>
-    {% endfor %}
-</table>
+<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Intelligence Packages</h2>browse recently submitted intelligence packages ...</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<div class="well">
+    <h5>Filter intelligence packages by name or date:</h5>
+    <form action="" method="get" role="form" class="form-inline">
+        {% for field in filter.form %}
+        <div class="form-group">
+            <label class="sr-only" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% with "form-control input-sm,"|add:field.label as myFilter %}
+            {{ field|addcss:myFilter }}
+            {% endwith %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    </form>
+</div>
+<p>{% render_table packages "kraut_intel/table_template.html" %}</p>
 {% endblock%}
