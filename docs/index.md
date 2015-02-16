@@ -28,16 +28,19 @@ understanding and overview of an incident.
 ## Quick Start
 
 * Kraut Salad is based on [Python Django](https://www.djangoproject.com)
+
 * Get the Kraut Salad sources from Github:
 
         ```
         git clone https://github.com/zeroq/kraut_salad.git
         ```
+
 * Install the requirements:
 
         ```
         pip install -r requirements.txt
         ```
+
 * In order to import a STIX document into Kraut Salad issue:
 
         ```
