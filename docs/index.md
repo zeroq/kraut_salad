@@ -27,7 +27,7 @@ understanding and overview of an incident.
 
 ## Quick Start
 
-* Kraut Salad is based on [Python Django](https://www.djangoproject.com)
+* Kraut Salad is based on [Python](http://www.python.org) and [Python Django](https://www.djangoproject.com)
 
 * Get the Kraut Salad sources from Github:
 
