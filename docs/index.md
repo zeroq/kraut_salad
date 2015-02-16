@@ -29,10 +29,29 @@ understanding and overview of an incident.
 
 * Kraut Salad is based on [Python Django](https://www.djangoproject.com)
 * Get the Kraut Salad sources from Github:
-```
-git clone https://github.com/zeroq/kraut_salad.git
-```
+        ```
+        git clone https://github.com/zeroq/kraut_salad.git
+        ```
 * Install the requirements:
-```
-pip install -r requirements.txt
-```
+        ```
+        pip install -r requirements.txt
+        ```
+* In order to import a STIX document into Kraut Salad issue:
+        ```
+        python manage.py load_stix <path_to_stix_xml>
+        ```
+
+## Current Status
+
+At its current development status Kraut Salad does not offer a
+graphical interface yet. We are working on a webinterface to
+browse, add, and modify imported data, but it is not in a usable
+status at this time. However, we integrated the [Django REST
+Framework](http://www.django-rest-framework.org) to have an
+API to interact with the imported data.
+
+### RESTful API
+
+The API currently supports the following requests:
+
+* `GET /api/packages`: List all STIX packages 
