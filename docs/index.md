@@ -50,9 +50,6 @@ status at this time. However, we integrated the [Django REST
 Framework](http://www.django-rest-framework.org) to have an
 API to interact with the imported data.
 
-### RESTful API
+## Content
 
-The API currently supports the following requests:
-
-* `GET /api/packages`: List all intelligence packages 
-* `Get /api/packages/<ID>`: List details of a specific intelligence package
+[RESTful API](api.md)
