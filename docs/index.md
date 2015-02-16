@@ -35,15 +35,11 @@ understanding and overview of an incident.
 
 * Install the requirements:
 
-        ```
         pip install -r requirements.txt
-        ```
 
 * In order to import a STIX document into Kraut Salad issue:
 
-        ```
         python manage.py load_stix <path_to_stix_xml>
-        ```
 
 ## Current Status
 
@@ -58,4 +54,5 @@ API to interact with the imported data.
 
 The API currently supports the following requests:
 
-* `GET /api/packages`: List all STIX packages 
+* `GET /api/packages`: List all intelligence packages 
+* `Get /api/packages/<ID>`: List details of a specific intelligence package
