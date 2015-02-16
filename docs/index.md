@@ -31,9 +31,7 @@ understanding and overview of an incident.
 
 * Get the Kraut Salad sources from Github:
 
-        ```
         git clone https://github.com/zeroq/kraut_salad.git
-        ```
 
 * Install the requirements:
 
