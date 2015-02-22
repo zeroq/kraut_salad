@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Intelligence Package: {{ package_id }}</h2></div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if package %}
+<div class="well">
+    <table>
+        <tbody>
+            <tr><td>{{ package.name }}</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock%}

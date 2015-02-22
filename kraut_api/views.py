@@ -112,9 +112,19 @@ def indicator_detail(request, pk, format=None):
 @api_view(['GET'])
 def observable_list(request, format=None):
     if request.method == 'GET':
-        queryset = Observable.objects.all()
-        paginator = Paginator(queryset, 20)
+        max_items = 10
         page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            print request.query_params
+
+        queryset = Observable.objects.all()
+        paginator = Paginator(queryset, max_items)
         try:
             observables = paginator.page(page)
         except:

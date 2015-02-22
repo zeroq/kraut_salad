@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Observables</h2>browse recently submitted observable items ...</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<table id="observables_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Creation Time</th>
+            <th>Last Modified</th>
+            <th>Namespace</th>
+            <th>Type</th>
+            <th>Operations</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+{% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready( function () {
+        $('#observables_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                processing: true,
+                url: "/api/observables/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {'data': 'name', 'sClass':'longTextClass', 'sName': 'name'},
+                {'data': 'creation_time', 'sName': 'creation_time'},
+                {'data': 'last_modified', 'sName': 'last_modified'},
+                {'data': 'namespace', 'sName': 'namespace'},
+                {'data': 'observable_type', 'sName': 'observable_type'},
+                {
+                    "data": 'id',
+                    "mRender": function (data, type, full) {
+                        return "<a href='javascript:alert("+data+");'>Show Details</a>";
+                    }
+                }
+            ],
+            /*"fnDrawCallback": function( oSettings ){
+                $("td.longTextClass").jTruncate({
+                    length: 10
+                });
+            }*/
+        });
+    } );
+</script>
+{% endblock %}

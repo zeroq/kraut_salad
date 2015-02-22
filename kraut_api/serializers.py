@@ -88,5 +88,8 @@ class ObsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type')
 
 class PaginatedObservableSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
     class Meta:
         object_serializer_class = ObsSerializer

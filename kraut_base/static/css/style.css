@@ -14,7 +14,9 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
   background-image: linear-gradient(to bottom, #222222, #111111);
   background-repeat: repeat-x;
   border-color: #252525;
+  /*
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff222222', endColorstr='#ff111111', GradientType=0);
+  */
 }
 
 #filedrag
