@@ -52,6 +52,8 @@ API to interact with the imported data.
 
 ## Content
 
+* [Home](index.md)
+
 * [RESTful API](api.md)
 
 * [Screenshots](screenshots.md)
