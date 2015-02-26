@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
 from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package
 
+import datetime
+
 # Package
 class PackageSerializer(serializers.ModelSerializer):
 
@@ -82,10 +84,22 @@ class ObservableSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'short_description', 'namespace', 'creation_time', 'last_modified', 'indicators', 'observable_type')
 
 class ObsSerializer(serializers.ModelSerializer):
+    creation_time = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+    short_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Observable
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type', 'short_name')
+
+    def get_short_name(self, obj):
+        return "%s ..." % (obj.name[:35])
+
+    def get_creation_time(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_last_modified(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
 class PaginatedObservableSerializer(PaginationSerializer):
     iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
