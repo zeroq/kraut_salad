@@ -1,3 +1,7 @@
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
+
+from django.templatetags.static import static
+
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
 from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package
@@ -87,10 +91,15 @@ class ObsSerializer(serializers.ModelSerializer):
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
     short_name = serializers.SerializerMethodField()
+    namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
         model = Observable
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type', 'short_name')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type', 'short_name', 'namespace_icon')
+
+    def get_namespace_icon(self, obj):
+        ### TODO: create table for namespace <-> icon relation and get it here
+        return static('ns_icon/octalpus.png')
 
     def get_short_name(self, obj):
         return "%s ..." % (obj.name[:35])

@@ -1,3 +1,5 @@
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
+
 from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.decorators import api_view
