@@ -1,5 +1,6 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
+from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -123,9 +124,35 @@ def observable_list(request, format=None):
             # page to show
             if 'start' in request.query_params:
                 page = int(int(request.query_params['start'])/int(max_items))+1
-            print request.query_params
-
-        queryset = Observable.objects.all()
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if order_by_column == 'short_name':
+                    order_by_column = 'name'
+                if order_by_column == 'namespace_icon':
+                    order_by_column = 'namespace'
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            # DEBUG
+            for item in request.query_params:
+                print item + ' - ' + request.query_params[item]
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = Observable.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(observable_type__istartswith=search_value)|
+                Q(namespace__istartswith=search_value)
+            )
         paginator = Paginator(queryset, max_items)
         try:
             observables = paginator.page(page)

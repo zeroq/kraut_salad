@@ -43,6 +43,7 @@
             columns: [
                 {
                     'data': 'short_name',
+                    'sName': 'short_name',
                     'aTargets': [ 1 ],
                     "mRender": function (data, type, full) {
                         return '<div rel="tooltip" data-placement="top" data-original-title="'+full.name+'">'+data+'</div>';
@@ -55,6 +56,7 @@
                 {'data': 'last_modified', 'sName': 'last_modified', 'aTargets': [ 3 ]},
                 {
                     'data': 'namespace_icon', 
+                    'sName': 'namespace',
                     'aTargets': [ 4 ],
                     "mRender": function (data, type, full) {
                         return '<img src="'+data+'" width="32" height="32" rel="tooltip" data-placement="top" data-original-title="'+full.namespace+'">';
@@ -66,6 +68,7 @@
                 {'data': 'observable_type', 'sName': 'observable_type', 'aTargets': [ 5 ]},
                 {
                     "data": 'id',
+                    'sName': 'operations',
                     'bSortable': false, 
                     'aTargets': [ 6 ],
                     "mRender": function (data, type, full) {
