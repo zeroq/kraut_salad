@@ -16,10 +16,7 @@ def home(request):
     return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
 
 def packages(request):
-    packages_filter = PackageFilter(request.GET, queryset=Package.objects.all())
-    packages = PackageTable(packages_filter.qs)
-    RequestConfig(request, paginate={"per_page": 10}).configure(packages)
-    context = {'packages': packages, 'filter': packages_filter}
+    context = {}
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
 def package(request, package_id="1"):

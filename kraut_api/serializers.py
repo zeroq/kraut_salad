@@ -8,20 +8,38 @@ from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatAct
 
 import datetime
 
-# Package
+# Package Details
 class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
         fields = ('id', 'name', 'description', 'short_description', 'namespace', 'creation_time', 'last_modified', 'version', 'package_id', 'source', 'produced_time', 'threat_actors', 'campaigns', 'indicators', 'observables')
 
+# Packages List
 class PackSerializer(serializers.ModelSerializer):
+    creation_time = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+    namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
+
+    def get_namespace_icon(self, obj):
+        ### TODO: dynamic
+        return static('ns_icon/octalpus.png')
+
+    def get_creation_time(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_last_modified(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
 
 class PaginatedPackageSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
     class Meta:
         object_serializer_class = PackSerializer
 

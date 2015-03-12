@@ -11,9 +11,41 @@ from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSeriali
 @api_view(['GET'])
 def package_list(request, format=None):
     if request.method == 'GET':
-        queryset = Package.objects.all()
-        paginator = Paginator(queryset, 20)
+        max_items = 10
         page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if order_by_column == 'short_name':
+                    order_by_column = 'name'
+                if order_by_column == 'namespace_icon':
+                    order_by_column = 'namespace'
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = Package.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(namespace__istartswith=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
         try:
             pack = paginator.page(page)
         except:
