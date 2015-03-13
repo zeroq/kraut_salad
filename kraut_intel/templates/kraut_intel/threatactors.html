@@ -3,4 +3,80 @@
 {% block content %}
 <div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Threat Actors</h2>browse recently submitted threat actors ...</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<table id="ta_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Creation Time</th>
+            <th>Last Modified</th>
+            <th>Namespace</th>
+            <th>Operations</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+{% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready( function () {
+        var pTable = $('#ta_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                processing: true,
+                url: "/api/threatactors/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {'data': 'name', 'sName': 'name', 'aTargets': [ 1 ]},
+                {'data': 'creation_time', 'sName': 'creation_time', 'aTargets': [ 2 ]},
+                {'data': 'last_modified', 'sName': 'last_modified', 'aTargets': [ 3 ]},
+                {
+                    'data': 'namespace_icon',
+                    'sName': 'namespace',
+                    'aTargets': [ 4 ],
+                    "mRender": function (data, type, full) {
+                        return '<img src="'+data+'" width="32" height="32" rel="tooltip" data-placement="top" data-original-title="'+full.namespace+'">';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("img", nTd).tooltip();
+                    }
+                },
+                {
+                    "data": 'id',
+                    'sName': 'operations',
+                    'bSortable': false,
+                    'aTargets': [ 5 ],
+                    "mRender": function (data, type, full) {
+                        return '<div class="btn-group1">' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit">' +
+                            '<i class="fa fa-edit"></i>' +
+                            '</a> ' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View">' +
+                            '<i class="fa fa-eye"></i>' +
+                            '</a>' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="bottom" data-original-title="Remove">' +
+                            '<i class="fa fa-remove"></i>' +
+                            '</a>' +
+                            '</div>';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("a", nTd).tooltip();
+                    }
+                }
+            ],
+        });
+    });
+</script>
 {% endblock%}
