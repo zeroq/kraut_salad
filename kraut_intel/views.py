@@ -4,9 +4,6 @@ from django.db.models import Prefetch
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django_tables2 import RequestConfig
-from kraut_intel.tables import PackageTable
-from kraut_intel.filters import PackageFilter
 from kraut_parser.models import Package
 
 # Create your views here.

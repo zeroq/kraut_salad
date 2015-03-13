@@ -7,11 +7,11 @@ intel_children = (
     MenuItem("Packages",
             reverse("intel:packages"),
             weight=10),
-    MenuItem("Observables",
-            reverse("intel:observables"),
-            weight=10),
     MenuItem("Threat Actors",
             reverse("intel:threatactors"),
+            weight=20),
+    MenuItem("Observables",
+            reverse("intel:observables"),
             weight=80),
 )
 
