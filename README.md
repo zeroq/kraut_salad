@@ -4,7 +4,7 @@ Proof of concept implementation of a cyber threat intelligence and incident hand
 ## Current Status
 Currently, the basic database design is complete and a first parser for MITRE' [STIX](https://stix.mitre.org) and [CybOX](https://cybox.mitre.org) cyber threat intelligence exchange formats is written. Kraut Salad is supposed to be a proof of concept implementation to determine if a relational database model is feasible or not. Therefore, Kraut Salad only implements a subset of the MITRE standard and still requires some CybOX objects to be implemented.
 
-We also test the [django REST framework](http://www.django-rest-framework.org) to see if the capabilities suffice our needs. So far there is no graphical interface or website implemented, thus only the import of STIX XML works at the moment.
+Further documentation can be found at [kraut-salad.readthedocs.org](http://kraut-salad.readthedocs.org/en/latest/)
 
 ## Requirements
 Please refer to requirements.txt for an updated list of required packages.
