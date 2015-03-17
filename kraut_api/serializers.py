@@ -4,10 +4,85 @@ from django.templatetags.static import static
 
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
-from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package
+from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, HTTPSession_Object
 from kraut_intel.models import NamespaceIcon
 
 import datetime
+
+# Package D3 Json
+class PackageD3Serializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+    size = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Package
+        fields = ('name', 'children', 'size')
+
+    def get_size(self, obj):
+        return 1000
+
+    def get_children(self, obj):
+        children = []
+        """ check for threat actors """
+        child_dict = {
+                'name': 'threat_actors',
+                'children': []
+        }
+        for t in obj.threat_actors.all():
+            t_dict = {'name': t.name, 'size': 5}
+            child_dict['children'].append(t_dict)
+        if len(child_dict['children'])>0:
+            children.append(child_dict)
+        """ check for campaigns """
+        child_dict = {
+                'name': 'campaigns',
+                'children': []
+        }
+        for c in obj.campaigns.all():
+            c_dict = {'name': c.name, 'size': 5}
+            child_dict['children'].append(c_dict)
+        if len(child_dict['children'])>0:
+            children.append(child_dict)
+        """ check for indicators """
+        child_dict = {
+                'name': 'indicators',
+                'children': []
+        }
+        for ind in obj.indicators.all():
+            ind_child_dict = {'name': ind.name[:15], 'children': []}
+            observable_childs = {}
+            for obs in obj.observables.filter(indicators=ind):
+                obs_child = {'name': obs.name, 'size': 5}
+                if obs.observable_type in observable_childs:
+                    observable_childs[obs.observable_type].append(obs_child)
+                else:
+                    observable_childs[obs.observable_type] = [obs_child]
+            for key in observable_childs:
+                ind_child_dict['children'].append({'name': key, 'children': observable_childs[key]})
+            child_dict['children'].append(ind_child_dict)
+        if len(child_dict['children'])>0:
+            children.append(child_dict)
+        """ check for observables """
+        child_dict = {
+            'name': 'observables',
+            'children': []
+        }
+        observable_childs = {}
+        for obs in obj.observables.all():
+            if obs.observable_type == 'HTTPSessionObjectType':
+                for https in HTTPSession_Object.objects.filter(observables=obs):
+                    obs_child_dict = {'name': https.client_request.domain_name.uri_value+https.client_request.request_uri, 'size': 5}
+            else:
+                obs_child_dict = {'name': obs.name, 'size': 5}
+            if obs.observable_type in observable_childs:
+                observable_childs[obs.observable_type].append(obs_child_dict)
+            else:
+                observable_childs[obs.observable_type] = [obs_child_dict]
+        for key in observable_childs:
+            child_dict['children'].append({'name': key, 'children': observable_childs[key]})
+        if len(child_dict['children'])>0:
+            children.append(child_dict)
+        return children
 
 # Package Details
 class PackageSerializer(serializers.ModelSerializer):

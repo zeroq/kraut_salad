@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package
-from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer
+from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PackageD3Serializer
 
 @api_view(['GET'])
 def package_list(request, format=None):
@@ -63,6 +63,17 @@ def package_detail(request, pk, format=None):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'GET':
         serializer = PackageSerializer(pack)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def package_d3(request, pk, format=None):
+    try:
+        pack = Package.objects.get(pk=pk)
+    except Package.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        serializer = PackageD3Serializer(pack)
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
