@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^packages/$', views.package_list),
     url(r'^packages/(?P<pk>[0-9]+)/$', views.package_detail),
     url(r'^packagesd3/(?P<pk>[0-9]+)/$', views.package_d3),
+    url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

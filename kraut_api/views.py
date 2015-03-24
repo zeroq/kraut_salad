@@ -1,5 +1,6 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
+from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework import status
@@ -7,6 +8,30 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PackageD3Serializer
+
+
+def package_tree(request, pk):
+    try:
+        pack = Package.objects.get(pk=pk)
+    except Package.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {}
+    nodes = []
+    links = []
+    node = {'name': pack.name, 'group': 1}
+    nodes.append(node)
+    node_counter = 1
+    for ind in pack.indicators.all():
+        node = {'name': ind.name, 'group': 4}
+        link = {'source': 0, 'target': node_counter, 'value': 1}
+        nodes.append(node)
+        links.append(link)
+        node_counter += 1
+
+    response['nodes'] = nodes
+    response['links'] = links
+    return JsonResponse(response)
+
 
 @api_view(['GET'])
 def package_list(request, format=None):

@@ -159,7 +159,7 @@ var svg = d3.select("#tree-container").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.json("/api/packagesd3/{{ package_id }}/.json", function(error, graph) {
+d3.json("/api/packagesd3/tree/{{ package_id }}/", function(error, graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links)
@@ -175,7 +175,7 @@ d3.json("/api/packagesd3/{{ package_id }}/.json", function(error, graph) {
       .data(graph.nodes)
     .enter().append("circle")
       .attr("class", "node")
-      .attr("r", 15)
+      .attr("r", 5)
       .style("fill", function(d) { return color(d.group); })
       .call(force.drag);
 
