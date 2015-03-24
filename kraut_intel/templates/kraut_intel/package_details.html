@@ -4,122 +4,194 @@
 {% block header %}
 <style>
 
-path {
-stroke: #fff;
-fill-rule: evenodd;
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
 }
- 
-text {
-font-family: Arial, sans-serif;
-font-size: 10px;
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
 }
 
 </style>
+{% endblock %}
+
+{% block sidebar %}
+<div class="page-header">
+    <h2>Visualization</h2>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Package Overview</h3>
+    </div>
+    <div id="tree-container" class="panel-body">
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
 <div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Intelligence Package: {{ package_id }}</h2></div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if package %}
-<div class="well">
-    <table>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ package.name }}</h3>
+    </div>
+    <table class="table table-condensed table-borderless">
         <tbody>
-            <tr><td>{{ package.name }}</td></tr>
+            <tr>
+                <td align="right"><b>Namespace</b></td>
+                <td>{{ package.namespace }}</td>
+                <td align="right"><b>Produced Time</b></td>
+                <td>{{ package.produced_time }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Import Time</b></td>
+                <td>{{ package.creation_time }}</td>
+                <td align="right"><b>Modified Time</b></td>
+                <td>{{ package.last_modified }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>STIX Version</b></td>
+                <td>{{ package.version }}</td>
+                <td align="right"><b>Source</b></td>
+                <td>{{ package.source }}</td>
+            </tr>
         </tbody>
     </table>
+    <div class="panel-body">
+        {{ package.description }}
+    </div>
 </div>
-<div id="tree-container" style="border:1px solid lightgrey;">
+
+<div role="tabpanel">
+  {% spaceless %}
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    {% if num_threat_actors > 0 %}
+    <li role="presentation" {% if tab == 'threatactors' %}class="active"{% endif %}>
+        <a href="#threatactors" aria-controls="threatactors" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Threat Actor.png' %}" height="32">&nbsp;&nbsp;Threat Actors
+            <span class="badge">{{ num_threat_actors }}</span>
+        </a>
+    </li>
+    {% endif %}
+    {% if num_campaigns > 0 %}
+    <li role="presentation" {% if tab == 'campaigns' %}class="active"{% endif %}>
+        <a href="#campaigns" aria-controls="campaigns" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Campaign.png' %}" height="32">&nbsp;&nbsp;Campaigns
+            <span class="badge">{{ num_campaigns }}</span>
+        </a>
+    </li>
+    {% endif %}
+    {% if num_indicators > 0 %}
+    <li role="presentation" {% if tab == 'indicators' %}class="active"{% endif %}>
+        <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Indicator.png' %}" height="32">&nbsp;&nbsp;Indicators
+            <span class="badge">{{ num_indicators }}</span>
+        </a>
+    </li>
+    {% endif %}
+    {% if num_observables > 0 %}
+    <li role="presentation" {% if tab == 'observables' %}class="active"{% endif %}>
+        <a href="#observables" aria-controls="observables" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Observable.png' %}" height="32">&nbsp;&nbsp;Observables
+            <span class="badge">{{ num_observables }}</span>
+        </a>
+    </li>
+    {% endif %}
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <!-- THREAT ACTOR -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'threatactors' %}active{% endif %}" id="threatactors">
+        ...
+    </div>
+    <!-- CAMPAIGN -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'campaigns' %}active{% endif %}" id="campaigns">
+        ...
+    </div>
+    <!-- INDICATOR -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
+        <br/>
+        <table class="table table-condensed">
+            <thead>
+                <tr><th>Name</th><th>Type</th><th>Confidence</th></tr>
+            </thead>
+            <tbody>
+                {% for item in package.indicators.all %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.indicator_types.all.0.itype }}</td>
+                        <td>{{ item.confidence.all.0.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- OBSERVABLE -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
+        ...
+    </div>
+  </div>
+  {% endspaceless %}
 </div>
+
 {% endif %}
 {% endblock%}
 
 {% block javascript%}
 <script type="text/javascript" language="javascript" class="init">
 
-var width = 1100,
-height = 600,
-radius = Math.min(width, height) / 2;
- 
-var x = d3.scale.linear()
-.range([0, 2 * Math.PI]);
- 
-var y = d3.scale.linear()
-.range([0, radius]);
- 
-var color = d3.scale.category20c();
- 
+var width = 500,
+    height = 525;
+
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+    .charge(-50)
+    .linkDistance(30)
+    .size([width, height]);
+
 var svg = d3.select("#tree-container").append("svg")
-.attr("width", width)
-.attr("height", height)
-.append("g")
-.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
- 
-var partition = d3.layout.partition()
-.value(function(d) { return d.size; });
- 
-var arc = d3.svg.arc()
-.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-.innerRadius(function(d) { return Math.max(0, y(d.y)); })
-.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
- 
-d3.json("/api/packagesd3/{{ package_id }}/.json", function(error, root) {
-var g = svg.selectAll("g")
-.data(partition.nodes(root))
-.enter().append("g");
- 
-var path = g.append("path")
-.attr("d", arc)
-.style("fill", function(d) { return color((d.children ? d : d.parent).name); })
-.on("click", click);
- 
- //labels
-var text = g.append("text")
-.attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
-.attr("x", function(d) { return y(d.y); })
-.attr("dx", "6") // margin
-.attr("dy", ".35em") // vertical-align
-.text(function(d) { return d.name; });
- 
-function click(d) {
-// fade out all text elements
-text.transition().attr("opacity", 0);
- 
-path.transition()
-.duration(750)
-.attrTween("d", arcTween(d))
-.each("end", function(e, i) {
-// check if the animated element's data e lies within the visible angle span given in d
-if (e.x >= d.x && e.x < (d.x + d.dx)) {
-// get a selection of the associated text element
-var arcText = d3.select(this.parentNode).select("text");
-// fade in the text element and recalculate positions
-arcText.transition().duration(750)
-.attr("opacity", 1)
-.attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
-.attr("x", function(d) { return y(d.y); });
-}
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("/api/packagesd3/{{ package_id }}/.json", function(error, graph) {
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 15)
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag);
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
 });
-}
-});
- 
-d3.select(self.frameElement).style("height", height + "px");
- 
-// Interpolate the scales!
-function arcTween(d) {
-var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-yd = d3.interpolate(y.domain(), [d.y, 1]),
-yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-return function(d, i) {
-return i
-? function(t) { return arc(d); }
-: function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
-};
-}
- 
-function computeTextRotation(d) {
-return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-}
 
 </script>
 {% endblock%}

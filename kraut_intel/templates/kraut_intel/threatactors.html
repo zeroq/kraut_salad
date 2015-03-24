@@ -31,6 +31,7 @@
         var pTable = $('#ta_table').DataTable({
             processing: true,
             serverSide: true,
+            order: [[ 1, "desc" ]],
             ajax: {
                 processing: true,
                 url: "/api/threatactors/.json",

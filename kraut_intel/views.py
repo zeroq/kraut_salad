@@ -19,7 +19,7 @@ def packages(request):
 def package(request, package_id="1"):
     context = {'package_id': package_id, 'package': None}
     try:
-        package = Package.objects.filter(id=int(package_id)).prefetch_related(
+        package = Package.objects.filter(pk=int(package_id)).prefetch_related(
                     Prefetch('threat_actors'),
                     Prefetch('campaigns'),
                     Prefetch('indicators'),
@@ -32,6 +32,18 @@ def package(request, package_id="1"):
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
         context['package'] = package[0]
+        context['num_threat_actors'] = package[0].threat_actors.count()
+        context['num_campaigns'] = package[0].campaigns.count()
+        context['num_indicators'] = package[0].indicators.count()
+        context['num_observables'] = package[0].observables.count()
+        if context['num_threat_actors'] > 0:
+            context['tab'] = 'threatactors'
+        elif context['num_campaigns'] > 0:
+            context['tab'] = 'campaigns'
+        elif context['num_indicators'] > 0:
+            context['tab'] = 'indicators'
+        else:
+            context['tab'] = 'observables'
     return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
 
 def threatactors(request):

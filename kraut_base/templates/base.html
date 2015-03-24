@@ -22,7 +22,7 @@
   </head>
   <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
+      <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
@@ -39,7 +39,15 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-    <div class="container" id="main">{% block content %}{% endblock %}
+    <div class="col-md-12" id="main">
+        <div class="row">
+            <div class="col-sm-8">
+                {% block content %}{% endblock %}
+            </div>
+            <div class="col-sm-4">
+                {% block sidebar %}{% endblock %}
+            </div>
+        </div>
     </div><!-- /.container -->
     <!-- Bootstrap core JavaScript
     ================================================== -->

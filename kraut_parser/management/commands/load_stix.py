@@ -483,6 +483,9 @@ class Command(BaseCommand):
                             self.missing_references['indicator_2_indicator'][indicator_id].append(composite_indicator_idref)
                         except:
                             self.missing_references['indicator_2_indicator'][indicator_id] = [composite_indicator_idref]
+                # add composite type to indicator
+                indicator_type_object, indicator_type_created = Indicator_Type.objects.get_or_create(itype='Composite')
+                indicator_object.indicator_types.add(indicator_type_object)
                 indicator_object.save()
                 indicator.pop('composite_indicator_expression')
             # add missed elements

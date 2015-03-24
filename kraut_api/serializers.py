@@ -4,22 +4,46 @@ from django.templatetags.static import static
 
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
-from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, HTTPSession_Object
+from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package
 from kraut_intel.models import NamespaceIcon
 
 import datetime
 
 # Package D3 Json
 class PackageD3Serializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()
-    size = serializers.SerializerMethodField()
+    nodes = serializers.SerializerMethodField()
+    links = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
-        fields = ('name', 'children', 'size')
+        fields = ('nodes', 'links',)
 
-    def get_size(self, obj):
-        return 1000
+    def get_nodes(self, obj):
+        nodes = []
+        links = []
+        # package
+        node = {'name': obj.name, 'group': 1}
+        nodes.append(node)
+        # threat actors
+        for t in obj.threat_actors.all():
+            node = {'name': t.name, 'group': 2}
+            nodes.append(node)
+        # campaigns
+        for c in obj.campaigns.all():
+            node = {'name': c.name, 'group': 3}
+            nodes.append(node)
+        # indicators
+        for ind in obj.indicators.all():
+            node = {'name': ind.name, 'group': 4}
+            nodes.append(node)
+        # observables
+        for obs in obj.observables.all():
+            node = {'name': obs.name, 'group': 5}
+            nodes.append(node)
+        return nodes
+
+    def get_links(self, obj):
+        return []
 
     def get_children(self, obj):
         children = []
@@ -69,15 +93,11 @@ class PackageD3Serializer(serializers.ModelSerializer):
         }
         observable_childs = {}
         for obs in obj.observables.all():
-            if obs.observable_type == 'HTTPSessionObjectType':
-                for https in HTTPSession_Object.objects.filter(observables=obs):
-                    obs_child_dict = {'name': https.client_request.domain_name.uri_value+https.client_request.request_uri, 'size': 5}
-            else:
-                obs_child_dict = {'name': obs.name, 'size': 5}
+            obs_dict_list = get_object_for_observable(obs.observable_type, obs)
             if obs.observable_type in observable_childs:
-                observable_childs[obs.observable_type].append(obs_child_dict)
+                observable_childs[obs.observable_type] += obs_dict_list
             else:
-                observable_childs[obs.observable_type] = [obs_child_dict]
+                observable_childs[obs.observable_type] = obs_dict_list
         for key in observable_childs:
             child_dict['children'].append({'name': key, 'children': observable_childs[key]})
         if len(child_dict['children'])>0:
