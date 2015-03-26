@@ -18,15 +18,22 @@ def package_tree(request, pk):
     response = {}
     nodes = []
     links = []
-    node = {'name': pack.name, 'group': 1}
+    node = {'id': pack.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20}
     nodes.append(node)
     node_counter = 1
     for ind in pack.indicators.all():
-        node = {'name': ind.name, 'group': 4}
+        node = {'id': ind.name, 'group': 4, 'size': 10, 'type': 'indicator', 'score': 0.3}
         link = {'source': 0, 'target': node_counter, 'value': 1}
         nodes.append(node)
         links.append(link)
-        node_counter += 1
+        obs_counter = node_counter + 1
+        for obs in ind.observable_set.all():
+            node = {'id': obs.name, 'group': 5, 'size': 2, 'type': 'observable', 'score': 0.6}
+            link = {'source': node_counter, 'target': obs_counter, 'value': 1}
+            nodes.append(node)
+            links.append(link)
+            obs_counter +=1
+        node_counter = obs_counter
 
     response['nodes'] = nodes
     response['links'] = links

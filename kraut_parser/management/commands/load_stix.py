@@ -289,11 +289,12 @@ class Command(BaseCommand):
             self.missed_objects[object_type] = True
         return object_list
 
-    def extract_observable_data(self, observable, first_entry, package_object):
+    def extract_observable_data(self, observable, first_entry, package_object, indicator_object=None):
         """create database entry for given observable and check for related object
         @observable: observable to create a database entry for
         @first_entry: boolean that is used for output to the console
         @package_object: base object that represents the stix package
+        @indicator_object: if observable is embedded in an indicator else None
         returns: tuple
         """
         # get ID and namespace
@@ -331,6 +332,9 @@ class Command(BaseCommand):
             self.id_mapping['observables'][observable_id] = observable_object.id
         # add to package
         package_object.observables.add(observable_object)
+        # add to indicator if available
+        if indicator_object:
+            observable_object.indicators.add(indicator_object)
         # check if object already exists
         if object_id in self.id_mapping['objects']:
             object_list = []
@@ -464,7 +468,7 @@ class Command(BaseCommand):
                         self.missing_references['indicator_2_observable'][indicator_id] = indicator['observable']['idref']
                 elif 'id' in indicator['observable']:
                     # create new observable and object entry
-                    first_entry, package_object = self.extract_observable_data(indicator['observable'], first_entry, package_object)
+                    first_entry, package_object = self.extract_observable_data(indicator['observable'], first_entry, package_object, indicator_object)
                 # remove from indicator object since it is done
                 indicator.pop('observable')
             # check for composite indicator
