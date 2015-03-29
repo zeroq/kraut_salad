@@ -18,14 +18,43 @@
 
 {% block sidebar %}
 {% spaceless %}
-<div class="page-header">
-    <h2>Visualization</h2>
+<div class="page-header"><i class="fa fa-plus fa-3x pull-left"></i><h2>Side Panel</h2></div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Package Visualization</h3>
+    </div>
+    <div id="tree-container" class="panel-body">
+    </div>
 </div>
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Package Overview</h3>
+        <h3 class="panel-title">Quickstart Panel</h3>
     </div>
-    <div id="tree-container" class="panel-body">
+    <div id="quick-container" class="panel-body">
+    {% if 'FileObjectType' in quick_pane %}
+        <table class="table table-condensed table-borderless" style="font-size: small;">
+            <thead><tr><th><button class="btn btn-danger btn-xs">export</button> Hashes</th></tr></thead>
+            <tbody>
+                {% for fileobj in quick_pane.FileObjectType %}
+                    <tr>
+                        <td>{{ fileobj }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    {% if 'URIObjectType' in quick_pane %}
+        <table class="table table-condensed table-borderless" style="font-size: small;">
+            <thead><tr><th><button class="btn btn-danger btn-xs">export</button> URLs</th></tr></thead>
+            <tbody>
+                {% for uriobj in quick_pane.URIObjectType %}
+                    <tr>
+                        <td>{{ uriobj }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
     </div>
 </div>
 {% endspaceless %}
@@ -162,7 +191,8 @@
 {% block javascript%}
 <script type="text/javascript" language="javascript" class="init">
 var w = 500;
-var h = 525;
+var h = 250;
+var adjustme = 170;
 var keyi = true, keyo = true, keyp = true;
 var focus_node = null, highlight_node = null;
 var text_center = false;
@@ -180,7 +210,7 @@ var size = d3.scale.pow().exponent(1)
   .range([8,24]);
     
 var force = d3.layout.force()
-  .linkDistance(60)
+  .linkDistance(70)
   .charge(-300)
   .size([w,h]);
 
@@ -240,8 +270,8 @@ var linkedByIndex = {};
     .call(force.drag)
 
     node.on("dblclick.zoom", function(d) { d3.event.stopPropagation();
-    var dcx = (500/2-d.x*zoom.scale());
-    var dcy = (525/2-d.y*zoom.scale());
+    var dcx = (w/2-d.x*zoom.scale());
+    var dcy = ((h-10)/2-d.y*zoom.scale());
     zoom.translate([dcx,dcy]);
      g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
     });
@@ -392,9 +422,9 @@ function set_highlight(d)
     });
   
   function resize() {
-    var width = 500, height = 525;
+    var width = w, height = h;
     svg.attr("width", width).attr("height", height);
-    force.size([force.size()[0]+(width-w)/zoom.scale(),force.size()[1]+(height-h)/zoom.scale()]).resume();
+    force.size([force.size()[0]+(width-w-adjustme)/zoom.scale(),force.size()[1]+(height-h)/zoom.scale()]).resume();
     w = width;
     h = height;
     }
