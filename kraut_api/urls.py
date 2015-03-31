@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^threatactors/(?P<pk>[0-9]+)/$', views.threatactor_detail),
     url(r'^packages/$', views.package_list),
     url(r'^packages/(?P<pk>[0-9]+)/$', views.package_detail),
+    url(r'^packages/(?P<pk>[0-9]+)/observables/$', views.package_detail_observables),
+    url(r'^packages/(?P<pk>[0-9]+)/indicators/$', views.package_detail_indicators),
     url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
 ]
 

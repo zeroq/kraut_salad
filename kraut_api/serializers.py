@@ -133,6 +133,29 @@ class PaginatedIndicatorSerializer(PaginationSerializer):
     class Meta:
         object_serializer_class = IndSerializer
 
+# Indicator List
+class Ind2Serializer(serializers.ModelSerializer):
+    indicator_type = serializers.SerializerMethodField()
+    confidence = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Indicator
+        fields = ('id', 'name', 'description', 'indicator_type', 'confidence')
+
+    def get_indicator_type(self, obj):
+        return obj.indicator_types.first().itype
+
+    def get_confidence(self, obj):
+        return obj.confidence.first().value
+
+# Paginated Indicators
+class PaginatedIndicator2Serializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = Ind2Serializer
+
 # Observable Details
 class ObservableSerializer(serializers.ModelSerializer):
     indicators = serializers.StringRelatedField(many=True)

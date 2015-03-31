@@ -18,7 +18,7 @@
 
 {% block sidebar %}
 {% spaceless %}
-<div class="page-header"><i class="fa fa-plus fa-3x pull-left"></i><h2>Side Panel</h2></div>
+<div class="page-header"><i class="fa fa-eye-slash fa-3x pull-left"></i><h2>Side Panel</h2></div>
 <div class="panel panel-info">
     <div class="panel-heading">
         <h3 class="panel-title">Package Visualization</h3>
@@ -148,36 +148,31 @@
     <!-- INDICATOR -->
     <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
         <br/>
-        <table class="table table-condensed">
+        <table id="indicators_table" class="table table-condensed" style="font-size: 0.9em;">
             <thead>
                 <tr><th>Name</th><th>Type</th><th>Confidence</th></tr>
             </thead>
             <tbody>
-                {% for item in package.indicators.all %}
                     <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.indicator_types.all.0.itype }}</td>
-                        <td>{{ item.confidence.all.0.value }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
-                {% endfor %}
             </tbody>
         </table>
     </div>
     <!-- OBSERVABLE -->
     <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
         <br/>
-        <table class="table table-condensed">
+        <table id="observables_table" class="table table-condensed" style="font-size: 0.9em;">
             <thead>
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><th>Name</th><th>Type</th></tr>
             </thead>
             <tbody>
-                {% for item in package.observables.all %}
                     <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.observable_type }}</td>
-                        <td>{{ item.description }}</td>
+                        <td></td>
+                        <td></td>
                     </tr>
-                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -189,6 +184,58 @@
 {% endblock%}
 
 {% block javascript%}
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#observables_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/packages/{{ package_id }}/observables/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ]
+                },
+                {'data': 'observable_type', 'sName': 'type', 'aTargets': [ 2 ]},
+            ],
+        });
+    });
+</script>
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#indicators_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/packages/{{ package_id }}/indicators/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ]
+                },
+                {'data': 'indicator_type', 'sName': 'type', 'aTargets': [ 2 ]},
+                {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 3 ]},
+            ],
+        });
+    });
+</script>
+
+
 <script type="text/javascript" language="javascript" class="init">
 var w = 500;
 var h = 250;
