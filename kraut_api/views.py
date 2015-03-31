@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer
-
+from kraut_parser.utils import get_object_for_observable
 
 def package_tree(request, pk):
     try:
@@ -39,6 +39,20 @@ def package_tree(request, pk):
     response['links'] = links
     return JsonResponse(response)
 
+def package_quick(request, pk, otype):
+    if not request.method == 'GET':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        pack = Package.objects.get(pk=pk)
+    except Package.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {'results': []}
+    for obs in pack.observables.all():
+        if obs.observable_type == otype:
+            objects = get_object_for_observable(obs.observable_type, obs, no_hash=False)
+            for obj in objects:
+                response['results'].append({'value': '%s' % (obj)})
+    return JsonResponse(response)
 
 @api_view(['GET'])
 def package_list(request, format=None):

@@ -47,10 +47,7 @@ def package(request, package_id="1"):
             context['tab'] = 'observables'
         context['quick_pane'] = {}
         for obs_obj in package[0].observables.all():
-            try:
-                context['quick_pane'][obs_obj.observable_type] += get_object_for_observable(obs_obj.observable_type, obs_obj, no_hash=False)
-            except:
-                context['quick_pane'][obs_obj.observable_type] = get_object_for_observable(obs_obj.observable_type, obs_obj, no_hash=False)
+            context['quick_pane'][obs_obj.observable_type] = True
     return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
 
 def threatactors(request):
