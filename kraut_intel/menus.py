@@ -18,6 +18,7 @@ intel_children = (
             weight=40),
     MenuItem("Observables",
             reverse("intel:observables"),
+            icon="fa-magic",
             weight=50),
 )
 

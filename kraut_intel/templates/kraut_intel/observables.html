@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block content %}
-<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Observables</h2>browse recently submitted observable items ...</div>
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Observable.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Observables</h2>browse recently submitted observable information ...
+        </div>
+    </div>
+</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 <table id="observables_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
     <thead>
@@ -25,6 +35,7 @@
         </tr>
     </tbody>
 </table>
+{% endspaceless %}
 {% endblock%}
 
 {% block javascript %}
