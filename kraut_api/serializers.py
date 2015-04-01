@@ -9,6 +9,8 @@ from kraut_intel.models import NamespaceIcon
 
 import datetime
 
+################### PACKAGE #####################
+
 # Package Details
 class PackageSerializer(serializers.ModelSerializer):
 
@@ -46,6 +48,8 @@ class PaginatedPackageSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = PackSerializer
+
+################### THREAT ACTOR #####################
 
 # Threat Actor Details
 class ThreatActorSerializer(serializers.ModelSerializer):
@@ -87,6 +91,8 @@ class PaginatedThreatActorSerializer(PaginationSerializer):
     class Meta:
         object_serializer_class = TASerializer
 
+################### CAMPAIGN #####################
+
 # Campaign Details
 class CampaignSerializer(serializers.ModelSerializer):
     confidence = serializers.StringRelatedField(many=True)
@@ -97,10 +103,26 @@ class CampaignSerializer(serializers.ModelSerializer):
 
 # Campaign List
 class CampSerializer(serializers.ModelSerializer):
+    creation_time = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+    namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
         model = Campaign
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
+
+    def get_namespace_icon(self, obj):
+        try:
+            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
+        except:
+            return static('ns_icon/octalpus.png')
+        return static('ns_icon/%s' % (icon.icon))
+
+    def get_creation_time(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_last_modified(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
 # Paginated Campaigns
 class PaginatedCampaignSerializer(PaginationSerializer):
@@ -109,6 +131,9 @@ class PaginatedCampaignSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = CampSerializer
+
+
+################### INDICATOR #####################
 
 # Indicator Details
 class IndicatorSerializer(serializers.ModelSerializer):
@@ -135,14 +160,14 @@ class PaginatedIndicatorSerializer(PaginationSerializer):
 
 # Indicator List
 class Ind2Serializer(serializers.ModelSerializer):
-    indicator_type = serializers.SerializerMethodField()
+    indicator_types = serializers.SerializerMethodField()
     confidence = serializers.SerializerMethodField()
 
     class Meta:
         model = Indicator
-        fields = ('id', 'name', 'description', 'indicator_type', 'confidence')
+        fields = ('id', 'name', 'description', 'indicator_types', 'confidence')
 
-    def get_indicator_type(self, obj):
+    def get_indicator_types(self, obj):
         return obj.indicator_types.first().itype
 
     def get_confidence(self, obj):
@@ -155,6 +180,8 @@ class PaginatedIndicator2Serializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = Ind2Serializer
+
+################### OBSERVABLE #####################
 
 # Observable Details
 class ObservableSerializer(serializers.ModelSerializer):

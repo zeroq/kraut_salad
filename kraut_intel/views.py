@@ -14,10 +14,14 @@ def home(request):
     return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
 
 def packages(request):
+    """ list all intelligence packages
+    """
     context = {}
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
 def package(request, package_id="1"):
+    """ details of a single intelligence package
+    """
     context = {'package_id': package_id, 'package': None}
     try:
         package = Package.objects.filter(pk=int(package_id)).prefetch_related(
@@ -53,6 +57,10 @@ def package(request, package_id="1"):
 def threatactors(request):
     context = {}
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
+
+def campaigns(request):
+    context = {}
+    return render_to_response('kraut_intel/campaigns.html', context, context_instance=RequestContext(request))
 
 def observables(request):
     context = {}
