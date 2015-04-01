@@ -13,9 +13,12 @@ intel_children = (
     MenuItem("Campaigns",
             reverse("intel:campaigns"),
             weight=30),
+    MenuItem("Indicators",
+            reverse("intel:indicators"),
+            weight=40),
     MenuItem("Observables",
             reverse("intel:observables"),
-            weight=80),
+            weight=50),
 )
 
 Menu.add_item("intel", MenuItem("Intelligence",

@@ -145,10 +145,26 @@ class IndicatorSerializer(serializers.ModelSerializer):
 
 # Indicator List
 class IndSerializer(serializers.ModelSerializer):
+    creation_time = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+    namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
         model = Indicator
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
+
+    def get_namespace_icon(self, obj):
+        try:
+            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
+        except:
+            return static('ns_icon/octalpus.png')
+        return static('ns_icon/%s' % (icon.icon))
+
+    def get_creation_time(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_last_modified(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
 # Paginated Indicators
 class PaginatedIndicatorSerializer(PaginationSerializer):

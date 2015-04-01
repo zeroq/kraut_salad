@@ -364,22 +364,56 @@ def campaign_detail(request, pk, format=None):
 ################### INDICATOR #####################
 
 
-
-
 @api_view(['GET'])
 def indicator_list(request, format=None):
     if request.method == 'GET':
-        queryset = Indicator.objects.all()
-        paginator = Paginator(queryset, 20)
+        max_items = 10
         page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if order_by_column == 'namespace_icon':
+                    order_by_column = 'namespace'
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_direction = '-'
+                order_by_column = 'name'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = Indicator.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(namespace__istartswith=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
         try:
-            indicators = paginator.page(page)
+            tas = paginator.page(page)
         except:
-            indicators = paginator.page(1)
+            tas = paginator.page(1)
         serializer_context = {'request': request}
-        serializer = PaginatedIndicatorSerializer(indicators, context=serializer_context)
+        serializer = PaginatedIndicatorSerializer(tas, context=serializer_context)
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 def indicator_detail(request, pk, format=None):

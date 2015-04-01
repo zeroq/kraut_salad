@@ -62,6 +62,10 @@ def campaigns(request):
     context = {}
     return render_to_response('kraut_intel/campaigns.html', context, context_instance=RequestContext(request))
 
+def indicators(request):
+    context = {}
+    return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
+
 def observables(request):
     context = {}
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
