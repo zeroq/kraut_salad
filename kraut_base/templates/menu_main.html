@@ -1,3 +1,4 @@
+{% load staticfiles %}
 {% spaceless %}
 <ul class="nav navbar-nav">
     {% for item in menu %}
@@ -9,12 +10,13 @@
                 <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 {% for child in item.children %}
+                    {% if child.separator %}<li style="border-bottom: 1px solid #000;"></li>{% endif %}
                     {% if child.url == request.path %}
                         <li class="active">
                     {% else %}
                         <li>
                     {% endif %}
-                    <a href="{{ child.url }}">{{ child.title }}</a>
+                    <a href="{{ child.url }}">{% if child.image %}<img src="{% static child.image %}" height="16" style="vertical-align:middle">{% endif %}&nbsp;{{ child.title }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -29,7 +31,10 @@
             <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 {% for child in item.children %}
-                <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                    {% if child.separator %}<li style="border-bottom: 1px solid #ccc;"></li>{% endif %}
+                    <li>
+                        <a href="{{ child.url }}">{% if child.image %}<img src="{% static child.image %}" height="16" style="vertical-align:middle">{% endif %}&nbsp;{{ child.title }}</a>
+                    </li>
                 {% endfor %}
             </ul>
             {% else %}

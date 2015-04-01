@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block content %}
-<div class="page-header"><i class="fa fa-flash fa-3x pull-left"></i><h2>Incidents</h2>browse all recorded incidents ...</div>
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Incident.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Incidents</h2>browse all recorded incident information ...
+        </div>
+    </div>
+</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% endspaceless %}
 {% endblock%}
