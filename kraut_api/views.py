@@ -10,6 +10,8 @@ from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Pa
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer
 from kraut_parser.utils import get_object_for_observable
 
+################### PACKAGE #####################
+
 def package_tree(request, pk):
     try:
         pack = Package.objects.get(pk=pk)
@@ -77,9 +79,14 @@ def package_list(request, format=None):
                     order_direction = '-'
                 else:
                     order_direction = ''
+            else:
+                order_by_column = 'name'
+                order_direction = '-'
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
+            else:
+                search_value = None
         else:
             order_by_column = 'name'
             order_direction = '-'
@@ -131,9 +138,14 @@ def package_detail_observables(request, pk, format=None):
                     order_direction = '-'
                 else:
                     order_direction = ''
+            else:
+                order_by_column = 'name'
+                order_direction = '-'
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
+            else:
+                search_value = None
         else:
             order_by_column = 'name'
             order_direction = '-'
@@ -212,6 +224,12 @@ def package_detail_indicators(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+################### THREAT ACTOR #####################
+
+
+
 @api_view(['GET'])
 def threatactor_list(request, format=None):
     if request.method == 'GET':
@@ -235,9 +253,14 @@ def threatactor_list(request, format=None):
                     order_direction = '-'
                 else:
                     order_direction = ''
+            else:
+                order_by_column = 'name'
+                order_direction = '-'
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
+            else:
+                search_value = None
         else:
             order_by_column = 'name'
             order_direction = '-'
@@ -295,9 +318,14 @@ def campaign_list(request, format=None):
                     order_direction = '-'
                 else:
                     order_direction = ''
+            else:
+                order_direction = '-'
+                order_by_column = 'name'
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
+            else:
+                search_value = None
         else:
             order_by_column = 'name'
             order_direction = '-'
@@ -330,6 +358,14 @@ def campaign_detail(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+################### INDICATOR #####################
+
+
+
+
 @api_view(['GET'])
 def indicator_list(request, format=None):
     if request.method == 'GET':
@@ -356,6 +392,13 @@ def indicator_detail(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+################### OBSERVABLE #####################
+
+
+
 @api_view(['GET'])
 def observable_list(request, format=None):
     if request.method == 'GET':
@@ -379,12 +422,14 @@ def observable_list(request, format=None):
                     order_direction = '-'
                 else:
                     order_direction = ''
+            else:
+                order_direction = '-'
+                order_by_column = 'name'
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
-            # DEBUG
-            for item in request.query_params:
-                print item + ' - ' + request.query_params[item]
+            else:
+                search_value = None
         else:
             order_by_column = 'name'
             order_direction = '-'
