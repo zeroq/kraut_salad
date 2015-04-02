@@ -627,8 +627,8 @@ class Command(BaseCommand):
                             )
                 if 'person_names' in threat_actor['identity']['specification']['party_name']:
                     for person in threat_actor['identity']['specification']['party_name']['person_names']:
-                        alias_type = organization.get('type', 'UnofficialName')
-                        alias_list = organization.get('name_elements', [])
+                        alias_type = person.get('type', 'UnofficialName')
+                        alias_list = person.get('name_elements', [])
                         for alias_item in alias_list:
                             ta_alias_object, ta_alias_object_created = TA_Alias.objects.get_or_create(
                                 alias=alias_item.get('value', 'No Name'),
