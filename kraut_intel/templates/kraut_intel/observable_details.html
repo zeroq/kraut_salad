@@ -100,6 +100,14 @@
         </a>
     </li>
     {% endif %}
+    {% if observable.observable_type == 'FileObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#file" aria-controls="file" role="tab" data-toggle="tab">
+            <i class="fa fa-file"></i>&nbsp;&nbsp;File Object
+            <span class="badge">{{ objects|length }}</span>
+        </a>
+    </li>
+    {% endif %}
   </ul>
 
   <!-- Tab panes -->
@@ -107,6 +115,7 @@
     <!-- URI -->
     {% if observable.observable_type == 'URIObjectType' %}
     <div role="tabpanel" class="tab-pane active" id="uri">
+        <br/>
         <table class="table table-condensed" style="font-size: 0.9em;">
             <thead>
                 <tr><th>URI</th><th>Type</th><th>Condition</th></tr>
@@ -124,9 +133,32 @@
     </div>
     {% endif %}
     <!-- FILE -->
-    <div role="tabpanel" class="tab-pane {% if tab == 'campaigns' %}active{% endif %}" id="campaigns">
-        ...
+    {% if observable.observable_type == 'FileObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="file">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover" style="font-size: 0.9em;">
+            <tbody>
+                <tr><td>MD5</td><td>{{ object.md5_hash }}</td></tr>
+                <tr><td>SHA256</td><td>{{ object.sha256_hash }}</td></tr>
+            </tbody>
+                    {% for meta in object.file_meta.all %}
+            <tbody>
+                        {% if meta.file_name != 'No Name' %}
+                            <tr><td>File Name</td><td>{{ meta.file_name }}</td></tr>
+                        {% endif %}
+                        {% if meta.file_path != 'No Path' %}
+                            <tr><td>File Path</td><td>{{ meta.file_path }}</td></tr>
+                        {% endif %}
+                        {% if meta.file_extension != 'No Extension' %}
+                            <tr><td>File Extension</td><td>{{ meta.file_extension }}</td></tr>
+                        {% endif %}
+            </tbody>
+                    {% endfor %}
+        </table>
+        {% endfor %}
     </div>
+    {% endif %}
     <!-- EMAIL -->
     <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
         <br/>
