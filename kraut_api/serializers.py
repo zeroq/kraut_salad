@@ -1,11 +1,9 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
-from django.templatetags.static import static
-
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
 from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package
-from kraut_intel.models import NamespaceIcon
+from kraut_intel.utils import get_icon_for_namespace
 
 import datetime
 
@@ -29,11 +27,7 @@ class PackSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        try:
-            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
-        except:
-            return static('ns_icon/octalpus.png')
-        return static('ns_icon/%s' % (icon.icon))
+        return get_icon_for_namespace(obj.namespace)
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -70,11 +64,7 @@ class TASerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        try:
-            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
-        except:
-            return static('ns_icon/octalpus.png')
-        return static('ns_icon/%s' % (icon.icon))
+        return get_icon_for_namespace(obj.namespace)
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -112,11 +102,7 @@ class CampSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        try:
-            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
-        except:
-            return static('ns_icon/octalpus.png')
-        return static('ns_icon/%s' % (icon.icon))
+        return get_icon_for_namespace(obj.namespace)
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -154,11 +140,7 @@ class IndSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        try:
-            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
-        except:
-            return static('ns_icon/octalpus.png')
-        return static('ns_icon/%s' % (icon.icon))
+        return get_icon_for_namespace(obj.namespace)
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -222,11 +204,7 @@ class ObsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type', 'short_name', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        try:
-            icon = NamespaceIcon.objects.get(namespace=obj.namespace)
-        except:
-            return static('ns_icon/octalpus.png')
-        return static('ns_icon/%s' % (icon.icon))
+        return get_icon_for_namespace(obj.namespace)
 
     def get_short_name(self, obj):
         return "%s ..." % (obj.name[:35])

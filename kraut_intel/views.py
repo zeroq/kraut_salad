@@ -4,8 +4,11 @@ from django.db.models import Prefetch, Q
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
 from kraut_parser.models import Package, Observable, Related_Object
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
+
+from kraut_intel.utils import get_icon_for_namespace
 
 # Create your views here.
 
@@ -85,6 +88,7 @@ def observable(request, observable_id="1"):
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
         context['observable'] = observable[0]
+        context['namespace_icon'] = get_icon_for_namespace(observable[0].namespace)
         context['objects'] = get_object_for_observable(observable[0].observable_type, observable[0])
         # get related objects
         for obj in context['objects']:

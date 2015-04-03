@@ -3,7 +3,16 @@
 
 {% block sidebar %}
 {% spaceless %}
-<div class="page-header"><i class="fa fa-eye-slash fa-3x pull-left"></i><h2>Side Panel</h2></div>
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Side Panel</h2>{{ observable.namespace }}
+        </div>
+    </div>
+</div>
 <div class="panel panel-info">
     <div class="panel-heading">
         <h3 class="panel-title">Related Indicators</h3>
@@ -40,7 +49,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Observable: {{ observable_id }}</h2></div>
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Observable.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Observable ID: {{ observable_id }}</h2>{{ observable.name }}
+        </div>
+    </div>
+</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if observable %}
 {% spaceless %}
@@ -87,6 +105,7 @@
   <!-- Tab panes -->
   <div class="tab-content">
     <!-- URI -->
+    {% if observable.observable_type == 'URIObjectType' %}
     <div role="tabpanel" class="tab-pane active" id="uri">
         <table class="table table-condensed" style="font-size: 0.9em;">
             <thead>
@@ -103,11 +122,12 @@
             </tbody>
         </table>
     </div>
-    <!-- CAMPAIGN -->
+    {% endif %}
+    <!-- FILE -->
     <div role="tabpanel" class="tab-pane {% if tab == 'campaigns' %}active{% endif %}" id="campaigns">
         ...
     </div>
-    <!-- INDICATOR -->
+    <!-- EMAIL -->
     <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
         <br/>
         <table id="indicators_table" class="table table-condensed" style="font-size: 0.9em;">
@@ -123,7 +143,7 @@
             </tbody>
         </table>
     </div>
-    <!-- OBSERVABLE -->
+    <!-- ADDRESS -->
     <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
         <br/>
         <table id="observables_table" class="table table-condensed" style="font-size: 0.9em;">
