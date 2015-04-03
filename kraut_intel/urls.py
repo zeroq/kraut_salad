@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^campaigns/$', views.campaigns, name='campaigns'),
     url(r'^indicators/$', views.indicators, name='indicators'),
     url(r'^observables/$', views.observables, name='observables'),
+    url(r'^observable/(?P<observable_id>\d+)/$', views.observable, name='observable'),
 ]
 

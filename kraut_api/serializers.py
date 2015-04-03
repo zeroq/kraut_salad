@@ -184,7 +184,10 @@ class Ind2Serializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'indicator_types', 'confidence')
 
     def get_indicator_types(self, obj):
-        return obj.indicator_types.first().itype
+        try:
+            return obj.indicator_types.first().itype
+        except:
+            return None
 
     def get_confidence(self, obj):
         return obj.confidence.first().value

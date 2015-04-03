@@ -189,6 +189,9 @@ $(document).ready( function () {
             filter: false,
             processing: true,
             serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
@@ -217,6 +220,9 @@ $(document).ready( function () {
             filter: false,
             processing: true,
             serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
@@ -253,7 +259,11 @@ $(document).ready( function () {
                 {
                     'data': 'name', 
                     'sName': 'name', 
-                    'aTargets': [ 1 ]
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:observable' observable_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
                 },
                 {'data': 'observable_type', 'sName': 'type', 'aTargets': [ 2 ]},
             ],
@@ -309,7 +319,7 @@ var size = d3.scale.pow().exponent(1)
   .range([8,24]);
     
 var force = d3.layout.force()
-  .linkDistance(70)
+  .linkDistance(100)
   .charge(-300)
   .size([w,h]);
 

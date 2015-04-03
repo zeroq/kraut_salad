@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block sidebar %}
+{% spaceless %}
+<div class="page-header"><i class="fa fa-eye-slash fa-3x pull-left"></i><h2>Side Panel</h2></div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Related Indicators</h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <tbody>
+                {% for indicator in observable.indicators.all %}
+                    <tr><td><a href="#"><i class="fa fa-external-link"></i>&nbsp;{{ indicator.name }}</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Related Observables</h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <tbody>
+                {% for related_list in related_objects %}
+                    {% for rels in related_list %}
+                        {% for rel in rels.objects %}
+                            <tr><td><a href="#"><i class="fa fa-external-link"></i>&nbsp;{{ rel }}</a></td><td>{{ rels.relation }}</td></tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Observable: {{ observable_id }}</h2></div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if observable %}
+{% spaceless %}
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ observable.name }}</h3>
+    </div>
+    <table class="table table-condensed table-borderless">
+        <tbody>
+            <tr>
+                <td align="right"><b>Namespace</b></td>
+                <td>{{ observable.namespace }}</td>
+                <td align="right"><b>Observable Type</b></td>
+                <td>{{ observable.observable_type }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Import Time</b></td>
+                <td>{{ observable.creation_time }}</td>
+                <td align="right"><b>Modified Time</b></td>
+                <td>{{ observable.last_modified }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel-body">
+        {{ observable.description }}
+    </div>
+</div>
+{% endspaceless %}
+
+<div role="tabpanel">
+  {% spaceless %}
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    {% if observable.observable_type == 'URIObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#uri" aria-controls="uri" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;URI Object
+            <span class="badge">{{ objects|length }}</span>
+        </a>
+    </li>
+    {% endif %}
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <!-- URI -->
+    <div role="tabpanel" class="tab-pane active" id="uri">
+        <table class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>URI</th><th>Type</th><th>Condition</th></tr>
+            </thead>
+            <tbody>
+                {% for object in objects %}
+                    <tr>
+                        <td>{{ object.uri_value }}</td>
+                        <td>{{ object.uri_type }}</td>
+                        <td>{{ object.condition }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- CAMPAIGN -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'campaigns' %}active{% endif %}" id="campaigns">
+        ...
+    </div>
+    <!-- INDICATOR -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
+        <br/>
+        <table id="indicators_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Type</th><th>Confidence</th></tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- OBSERVABLE -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
+        <br/>
+        <table id="observables_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+  {% endspaceless %}
+</div>
+
+{% endif %}
+{% endblock%}
+
+{% block javascript%}
+{% endblock%}

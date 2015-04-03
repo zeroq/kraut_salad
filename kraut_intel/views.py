@@ -1,11 +1,11 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from kraut_parser.models import Package
-from kraut_parser.utils import get_object_for_observable
+from kraut_parser.models import Package, Observable, Related_Object
+from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 # Create your views here.
 
@@ -25,11 +25,11 @@ def package(request, package_id="1"):
     context = {'package_id': package_id, 'package': None}
     try:
         package = Package.objects.filter(pk=int(package_id)).prefetch_related(
-                    Prefetch('threat_actors'),
-                    Prefetch('campaigns'),
-                    Prefetch('indicators'),
-                    Prefetch('observables'),
-                )
+            Prefetch('threat_actors'),
+            Prefetch('campaigns'),
+            Prefetch('indicators'),
+            Prefetch('observables'),
+        )
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
         return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
@@ -70,3 +70,23 @@ def observables(request):
     context = {}
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
 
+def observable(request, observable_id="1"):
+    """ details of a single observable
+    """
+    context = {'observable_id': observable_id, 'observable': None, 'objects': None, 'related_objects': []}
+    try:
+        observable = Observable.objects.filter(pk=int(observable_id)).prefetch_related(
+            Prefetch('indicators'),
+        )
+    except Observable.DoesNotExist:
+        messages.error(request, 'The requested observable does not exist!')
+        return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
+    if len(observable)<=0:
+        messages.warning(request, "No package with the given ID exists in the system.")
+    else:
+        context['observable'] = observable[0]
+        context['objects'] = get_object_for_observable(observable[0].observable_type, observable[0])
+        # get related objects
+        for obj in context['objects']:
+            context['related_objects'].append(get_related_objects_for_object(obj.id, observable[0].observable_type))
+    return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
