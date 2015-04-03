@@ -44,9 +44,13 @@ understanding and overview of an incident.
 ## Current Status
 
 At its current development status Kraut Salad does not offer a
-graphical interface yet. We are working on a webinterface to
+fully functional graphical interface yet. We are working on a webinterface to
 browse, add, and modify imported data, but it is not in a usable
-status at this time. However, we integrated the [Django REST
+status at this time. Checkout the screenshots page to see current
+experiments with visualization and general look and feel of the
+webinterface.
+
+However, we integrated the [Django REST
 Framework](http://www.django-rest-framework.org) to have an
 API to interact with the imported data.
 
