@@ -40,6 +40,7 @@ def package(request, package_id="1"):
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
         context['package'] = package[0]
+        context['namespace_icon'] = get_icon_for_namespace(package[0].namespace)
         context['num_threat_actors'] = package[0].threat_actors.count()
         context['num_campaigns'] = package[0].campaigns.count()
         context['num_indicators'] = package[0].indicators.count()

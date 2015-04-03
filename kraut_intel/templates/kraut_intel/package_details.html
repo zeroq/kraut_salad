@@ -18,7 +18,16 @@
 
 {% block sidebar %}
 {% spaceless %}
-<div class="page-header"><i class="fa fa-eye-slash fa-3x pull-left"></i><h2>Side Panel</h2></div>
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Side Panel</h2>{{ package.namespace }}
+        </div>
+    </div>
+</div>
 <div class="panel panel-info">
     <div class="panel-heading">
         <h3 class="panel-title">Package Visualization</h3>
@@ -57,7 +66,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Intelligence Package: {{ package_id }}</h2></div>
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Package.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Intelligence Package ID: {{ package_id }}</h2>{{ package.name }}
+        </div>
+    </div>
+</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if package %}
 {% spaceless %}
