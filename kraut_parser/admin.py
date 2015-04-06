@@ -1,8 +1,12 @@
 from django.contrib import admin
+from kraut_parser.models import Package, Campaign, ThreatActor, Indicator, Observable
 from django.db.models import get_models, get_app
 
 
 # Register your models here.
 
-for model in get_models(get_app('kraut_parser')):
-    admin.site.register(model)
+admin.site.register(Package)
+admin.site.register(Campaign)
+admin.site.register(ThreatActor)
+admin.site.register(Indicator)
+admin.site.register(Observable)

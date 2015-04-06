@@ -38,7 +38,7 @@ class Task(models.Model):
                 ('ab', 'Aborted'),
             )
     stauts = models.CharField(max_length=2, choices=status_choices, default='op')
-    responsible = models.ManyToManyField(Contact, null=True, blank=True)
+    responsible = models.ManyToManyField(Contact, blank=True)
 
 class Account(models.Model):
     """Describe an account
@@ -46,7 +46,7 @@ class Account(models.Model):
     name = models.CharField(max_length=255)
     domain = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    responsible = models.ManyToManyField(Contact, null=True, blank=True)
+    responsible = models.ManyToManyField(Contact, blank=True)
     status_choices = (
                 ('cl', 'Clean'),
                 ('co', 'Compromised'),
@@ -96,11 +96,11 @@ class Asset(models.Model):
     status = models.ForeignKey(Asset_Status)
     hostname = models.CharField(max_length=255, null=True, blank=True)
     domain = models.CharField(max_length=255, null=True, blank=True)
-    ip_addresses = models.ManyToManyField(Asset_IP, null=True, blank=True)
-    contacts = models.ManyToManyField(Contact, null=True, blank=True)
-    activities = models.ManyToManyField(Asset_Attacker_Activity, null=True, blank=True)
-    tasks = models.ManyToManyField(Task, null=True, blank=True)
-    accounts = models.ManyToManyField(Account, null=True, blank=True)
+    ip_addresses = models.ManyToManyField(Asset_IP, blank=True)
+    contacts = models.ManyToManyField(Contact, blank=True)
+    activities = models.ManyToManyField(Asset_Attacker_Activity, blank=True)
+    tasks = models.ManyToManyField(Task, blank=True)
+    accounts = models.ManyToManyField(Account, blank=True)
 
 class Incident_Status(models.Model):
     """Describe the status of an incident
@@ -132,10 +132,10 @@ class Incident(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     status = models.ForeignKey(Incident_Status)
     category = models.ForeignKey(Incident_Category)
-    affected_assets = models.ManyToManyField(Asset, null=True, blank=True)
-    tasks = models.ManyToManyField(Task, null=True, blank=True)
-    incident_handler = models.ManyToManyField(Contact, null=True, blank=True, related_name="incident_handler")
-    contacts = models.ManyToManyField(Contact, null=True, blank=True, related_name="contacts")
+    affected_assets = models.ManyToManyField(Asset, blank=True)
+    tasks = models.ManyToManyField(Task, blank=True)
+    incident_handler = models.ManyToManyField(Contact, blank=True, related_name="incident_handler")
+    contacts = models.ManyToManyField(Contact, blank=True, related_name="contacts")
 
 
 

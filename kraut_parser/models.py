@@ -22,10 +22,10 @@ class Package(models.Model):
     package_id = models.CharField(max_length=255)
     source = models.CharField(max_length=255)
     produced_time = models.DateTimeField(null=True, blank=True)
-    threat_actors = models.ManyToManyField('ThreatActor', null=True, blank=True)
-    campaigns = models.ManyToManyField('Campaign', null=True, blank=True)
-    indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    observables = models.ManyToManyField('Observable', null=True, blank=True)
+    threat_actors = models.ManyToManyField('ThreatActor', blank=True)
+    campaigns = models.ManyToManyField('Campaign', blank=True)
+    indicators = models.ManyToManyField('Indicator', blank=True)
+    observables = models.ManyToManyField('Observable', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -52,9 +52,9 @@ class Campaign(models.Model):
     short_description = models.CharField(max_length=255, null=True, blank=True)
     namespace = models.CharField(max_length=255, default='nospace')
     status = models.CharField(max_length=255, default='Ongoing')
-    confidence = models.ManyToManyField(Confidence, null=True, blank=True)
-    related_indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    associated_campaigns = models.ManyToManyField('self', null=True, blank=True)
+    confidence = models.ManyToManyField(Confidence, blank=True)
+    related_indicators = models.ManyToManyField('Indicator', blank=True)
+    associated_campaigns = models.ManyToManyField('self', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -66,8 +66,8 @@ class ThreatActor(models.Model):
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
     namespace = models.CharField(max_length=255, default='nospace')
-    campaigns = models.ManyToManyField(Campaign, null=True, blank=True)
-    associated_threat_actors = models.ManyToManyField('self', null=True, blank=True)
+    campaigns = models.ManyToManyField(Campaign, blank=True)
+    associated_threat_actors = models.ManyToManyField('self', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -117,10 +117,10 @@ class Indicator(models.Model):
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
     namespace = models.CharField(max_length=255, default='nospace')
-    indicator_types = models.ManyToManyField(Indicator_Type, null=True, blank=True)
-    confidence = models.ManyToManyField(Confidence, null=True, blank=True)
+    indicator_types = models.ManyToManyField(Indicator_Type, blank=True)
+    confidence = models.ManyToManyField(Confidence, blank=True)
     observable_composition_operator = models.CharField(max_length=3, default="OR")
-    related_indicators = models.ManyToManyField('self', null=True, blank=True)
+    related_indicators = models.ManyToManyField('self', blank=True)
     indicator_composition_operator = models.CharField(max_length=3, default="OR")
 
     def __unicode__(self):
@@ -133,7 +133,7 @@ class Observable(models.Model):
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
     namespace = models.CharField(max_length=255, default='nospace')
-    indicators = models.ManyToManyField(Indicator, null=True, blank=True)
+    indicators = models.ManyToManyField(Indicator, blank=True)
     observable_type = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
@@ -154,10 +154,21 @@ class Related_Object(models.Model):
     class Meta:
         unique_together = (("relationship", "object_one_id", "object_two_id", "object_one_type", "object_two_type"),)
 
+class File_Custom_Properties(models.Model):
+    property_name = models.CharField(max_length=255, null=True, blank=True)
+    property_value = models.CharField(max_length=255, null=True, blank=True)
+
+    def __unicode__(self):
+        return u"%s - %s" % (self.property_name, self.property_value)
+
+    class Meta:
+        unique_together = (("property_name", "property_value"),)
+
 class File_Meta_Object(models.Model):
     file_name = models.CharField(max_length=255, null=True, blank=True)
     file_path = models.CharField(max_length=255, null=True, blank=True)
     file_extension = models.CharField(max_length=255, null=True, blank=True)
+    file_size = models.IntegerField(default=0)
 
     def __unicode__(self):
         if self.file_name:
@@ -166,10 +177,11 @@ class File_Meta_Object(models.Model):
             return u"File Meta Object"
 
     class Meta:
-        unique_together = (("file_name", "file_path", "file_extension"),)
+        unique_together = (("file_name", "file_path", "file_extension", "file_size"),)
 
 class File_Object(models.Model):
-    file_meta = models.ManyToManyField(File_Meta_Object, null=True, blank=True)
+    file_meta = models.ManyToManyField(File_Meta_Object, blank=True)
+    file_custom = models.ManyToManyField(File_Custom_Properties, blank=True)
     md5_hash = models.CharField(max_length=32, null=True, blank=True)
     sha256_hash = models.CharField(max_length=64, null=True, blank=True)
     observables = models.ManyToManyField(Observable)
@@ -182,8 +194,8 @@ class File_Object(models.Model):
         else:
             return u"File Object"
 
-    class Meta:
-        unique_together = (("md5_hash", "sha256_hash"),)
+    #class Meta:
+    #    unique_together = (("md5_hash", "sha256_hash"),)
 
 class URI_Object(models.Model):
     uri_value = models.CharField(max_length=255)
@@ -328,13 +340,13 @@ class EmailMessage_Object(models.Model):
     raw_body = models.TextField(null=True, blank=True)
     raw_header = models.TextField(null=True, blank=True)
     subject = models.CharField(max_length=255, null=True, blank=True)
-    sender = models.ManyToManyField(EmailMessage_sender, null=True, blank=True)
-    from_string = models.ManyToManyField(EmailMessage_from, null=True, blank=True)
-    recipients = models.ManyToManyField(EmailMessage_recipient, null=True, blank=True)
-    recipients_cc = models.ManyToManyField(EmailMessage_recipient_cc, null=True, blank=True)
-    recipients_bcc = models.ManyToManyField(EmailMessage_recipient_bcc, null=True, blank=True)
-    links = models.ManyToManyField(EmailMessage_link, null=True, blank=True)
-    attachments = models.ManyToManyField(File_Object, null=True, blank=True)
+    sender = models.ManyToManyField(EmailMessage_sender, blank=True)
+    from_string = models.ManyToManyField(EmailMessage_from, blank=True)
+    recipients = models.ManyToManyField(EmailMessage_recipient, blank=True)
+    recipients_cc = models.ManyToManyField(EmailMessage_recipient_cc, blank=True)
+    recipients_bcc = models.ManyToManyField(EmailMessage_recipient_bcc, blank=True)
+    links = models.ManyToManyField(EmailMessage_link, blank=True)
+    attachments = models.ManyToManyField(File_Object, blank=True)
     email_date = models.DateTimeField(null=True, blank=True)
     message_id = models.CharField(max_length=255, null=True, blank=True)
     content_type = models.CharField(max_length=255, null=True, blank=True)

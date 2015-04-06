@@ -19,9 +19,11 @@
     </div>
     <div id="quick-container" class="panel-body">
         <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
             <tbody>
                 {% for indicator in observable.indicators.all %}
-                    <tr><td><a href="#"><i class="fa fa-external-link"></i>&nbsp;{{ indicator.name }}</a></td></tr>
+                    <tr><td><a href="#">{{ indicator.name }}</a></td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -32,15 +34,15 @@
         <h3 class="panel-title">Related Observables</h3>
     </div>
     <div id="quick-container" class="panel-body">
-        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+        <table id="related_observables_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Relation</th></tr>
+            </thead>
             <tbody>
-                {% for related_list in related_objects %}
-                    {% for rels in related_list %}
-                        {% for rel in rels.objects %}
-                            <tr><td><a href="#"><i class="fa fa-external-link"></i>&nbsp;{{ rel }}</a></td><td>{{ rels.relation }}</td></tr>
-                        {% endfor %}
-                    {% endfor %}
-                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -96,15 +98,23 @@
     <li role="presentation" class="active">
         <a href="#uri" aria-controls="uri" role="tab" data-toggle="tab">
             <i class="fa fa-link"></i>&nbsp;&nbsp;URI Object
-            <span class="badge">{{ objects|length }}</span>
         </a>
     </li>
     {% endif %}
     {% if observable.observable_type == 'FileObjectType' %}
     <li role="presentation" class="active">
         <a href="#file" aria-controls="file" role="tab" data-toggle="tab">
-            <i class="fa fa-file"></i>&nbsp;&nbsp;File Object
-            <span class="badge">{{ objects|length }}</span>
+            <i class="fa fa-file"></i>&nbsp;&nbsp;Hashes
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#file-meta" aria-controls="file-meta" role="tab" data-toggle="tab">
+            <i class="fa fa-file"></i>&nbsp;&nbsp;Meta Information
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#file-custom" aria-controls="file-custom" role="tab" data-toggle="tab">
+            <i class="fa fa-file"></i>&nbsp;&nbsp;Custom Properties
         </a>
     </li>
     {% endif %}
@@ -142,19 +152,36 @@
                 <tr><td>MD5</td><td>{{ object.md5_hash }}</td></tr>
                 <tr><td>SHA256</td><td>{{ object.sha256_hash }}</td></tr>
             </tbody>
-                    {% for meta in object.file_meta.all %}
+        </table>
+        {% endfor %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="file-meta">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover" style="font-size: 0.9em;">
+            {% for meta in object.file_meta.all %}
             <tbody>
-                        {% if meta.file_name != 'No Name' %}
-                            <tr><td>File Name</td><td>{{ meta.file_name }}</td></tr>
-                        {% endif %}
-                        {% if meta.file_path != 'No Path' %}
-                            <tr><td>File Path</td><td>{{ meta.file_path }}</td></tr>
-                        {% endif %}
-                        {% if meta.file_extension != 'No Extension' %}
-                            <tr><td>File Extension</td><td>{{ meta.file_extension }}</td></tr>
-                        {% endif %}
+                <tr><td>File Name</td><td>{{ meta.file_name }}</td></tr>
+                <tr><td>File Path</td><td>{{ meta.file_path }}</td></tr>
+                <tr><td>File Extension</td><td>{{ meta.file_extension }}</td></tr>
+                <tr><td>File Size</td><td>{{ meta.file_size }}</td></tr>
             </tbody>
-                    {% endfor %}
+            {% endfor %}
+        </table>
+        {% endfor %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="file-custom">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Value</th></tr>
+            </thead>
+            {% for property in object.file_custom.all %}
+            <tbody>
+                <tr><td>{{ property.property_name }}</td><td>{{property.property_value }}</td></tr>
+            </tbody>
+            {% endfor %}
         </table>
         {% endfor %}
     </div>
@@ -198,4 +225,43 @@
 {% endblock%}
 
 {% block javascript%}
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#related_observables_table').DataTable({
+            ordering: false,
+            paging: false,
+            info: false,
+            filter: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/observables/{{ observable_id }}/related_objects/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:observable' observable_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {
+                    'data': 'relation',
+                    'sName': 'relation', 
+                    'aTargets': [ 2 ]
+                }
+            ],
+        });
+    });
+</script>
 {% endblock%}

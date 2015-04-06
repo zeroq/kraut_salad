@@ -207,7 +207,9 @@ class ObsSerializer(serializers.ModelSerializer):
         return get_icon_for_namespace(obj.namespace)
 
     def get_short_name(self, obj):
-        return "%s ..." % (obj.name[:35])
+        if len(obj.name)>35:
+            return "%s ..." % (obj.name[:35])
+        return obj.name
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")

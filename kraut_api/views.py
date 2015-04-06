@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer
-from kraut_parser.utils import get_object_for_observable
+from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 ################### PACKAGE #####################
 
@@ -496,3 +496,35 @@ def observable_detail(request, pk, format=None):
         serializer = ObservableSerializer(observable)
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def observable_related_objects(request, pk, format=None):
+    try:
+        observable = Observable.objects.get(pk=pk)
+    except Observable.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        objects = get_object_for_observable(observable.observable_type, observable)
+        final_list = []
+        covered = []
+        for obj in objects:
+            related_objects_list = get_related_objects_for_object(obj.id, observable.observable_type)
+            for rel_obj_dict in related_objects_list:
+                for rel_obj in rel_obj_dict['objects']:
+                    rel_obs = []
+                    for obs in rel_obj.observables.all():
+                        if obs.id not in covered:
+                            covered.append(obs.id)
+                            rel_obs_dict = {'id': obs.id, 'name': str(obs), 'relation': rel_obj_dict['relation']}
+                            rel_obs.append(rel_obs_dict)
+                    final_list.extend(rel_obs)
+        total_results = len(final_list)
+        response = {
+            'count': total_results,
+            'iTotalRecords': total_results,
+            'iTotalDisplayRecords': total_results,
+            'results': final_list
+        }
+        return JsonResponse(response)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+

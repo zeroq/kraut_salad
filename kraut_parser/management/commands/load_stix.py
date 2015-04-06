@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference
-from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest
+from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object
 
@@ -119,10 +119,26 @@ class Command(BaseCommand):
         object_list = []
         if object_type == 'FileObjectType':
             # create file object
-            file_dict, file_meta_dict = handle_file_object(object_data)
+            file_dict, file_meta_dict, file_custom_properties_lst = handle_file_object(object_data)
+            # create meta information object
             file_meta_object, file_meta_created = File_Meta_Object.objects.get_or_create(**file_meta_dict)
-            file_object, file_created = File_Object.objects.get_or_create(**file_dict)
+            # items that have a hash should be checked for existance
+            if file_dict['md5_hash'] != 'No MD5' or file_dict['sha256_hash'] != 'No SHA256':
+                file_object, file_created = File_Object.objects.get_or_create(**file_dict)
+            else:
+                try:
+                    file_object = File_Object.objects.get(md5_hash=file_dict['md5_hash'], sha256_hash=file_dict['sha256_hash'], observables=observable_object)
+                except File_Object.DoesNotExist:
+                    file_object = File_Object(**file_dict)
+                    file_object.save()
+                file_created = False
+            # add meta information to file object
             file_object.file_meta.add(file_meta_object)
+            # create custom properties
+            for custom_dict in file_custom_properties_lst:
+                file_custom_object, file_custom_created = File_Custom_Properties.objects.get_or_create(**custom_dict)
+                file_object.file_custom.add(file_custom_object)
+            file_object.save()
             # add observable
             file_object.observables.add(observable_object)
             file_object.save()
@@ -321,7 +337,7 @@ class Command(BaseCommand):
         else:
             # create observable object
             observable_dict = {
-                'name': observable.get('name', observable_id),
+                'name': observable.get('title', observable_id),
                 'description': observable.get('description', 'No Description'),
                 'short_description': observable.get('short_description', 'No Short Description'),
                 'namespace': observable_namespace,

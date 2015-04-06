@@ -107,15 +107,25 @@ def handle_file_object(file_obj):
     @file_obj: cybox file object in json format
     returns: dictionary with file object information
     """
+    file_custom_properties_lst = []
     file_meta_dict = {
         'file_name': 'No Name',
         'file_extension': 'No Extension',
-        'file_path': 'No Path'
+        'file_path': 'No Path',
+        'file_size': 0
     }
     file_dict = {
         'md5_hash': 'No MD5',
         'sha256_hash': 'No SHA256'
     }
+    # extract custom properties
+    if 'custom_properties' in file_obj:
+        for prop in file_obj['custom_properties']:
+            property_dict = {
+                'property_name': prop['name'],
+                'property_value': prop['value']
+            }
+            file_custom_properties_lst.append(property_dict)
     # extract meta information
     if 'file_name' in file_obj:
         if isinstance(file_obj['file_name'], dict):
@@ -132,6 +142,16 @@ def handle_file_object(file_obj):
             file_meta_dict['file_extension'] = file_obj['file_extension'][1:]
         else:
             file_meta_dict['file_extension'] = file_obj['file_extension']
+    if 'size_in_bytes' in file_obj:
+        if isinstance(file_obj['size_in_bytes'], dict):
+            size_value = file_obj['size_in_bytes'].get('value', 0)
+            if isinstance(size_value, (tuple, list, dict, set)):
+                # ignore size in between items, too unspecific
+                pass
+            else:
+                file_meta_dict['file_size'] = size_value
+        else:
+            file_meta_dict['file_size'] = int(file_obj['size_in_bytes'])
     # extract MD5 and SHA256 from Object
     if 'hashes' in file_obj:
         for hash_dict in file_obj['hashes']:
@@ -157,7 +177,7 @@ def handle_file_object(file_obj):
                         file_dict['sha256_hash'] = hash_dict['simple_hash_value']['value']
                     else:
                         file_dict['sha256_hash'] = hash_dict['simple_hash_value']
-    return file_dict, file_meta_dict
+    return file_dict, file_meta_dict, file_custom_properties_lst
 
 def handle_uri_object(uri_obj):
     """extract all relevant information from a cybox uri object
