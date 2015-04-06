@@ -9,8 +9,24 @@
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">Side Panel</h2>{{ observable.namespace }}
+            <h2 class="media-heading">{{ observable.namespace }}</h2>Side Panel
         </div>
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Related Packages</h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
+            <tbody>
+                {% for package in observable.package_set.all %}
+                    <tr><td><a href="{% url 'intel:package' package_id=package.id %}">{{ package.name }}</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 <div class="panel panel-info">
@@ -57,7 +73,7 @@
             <img src="{% static 'images/Observable.png' %}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">Observable ID: {{ observable_id }}</h2>{{ observable.name }}
+            <h2 class="media-heading">{{ observable.name }}</h2>Observable ID: {{ observable_id }}
         </div>
     </div>
 </div>
@@ -102,21 +118,27 @@
     </li>
     {% endif %}
     {% if observable.observable_type == 'FileObjectType' %}
-    <li role="presentation" class="active">
+    {% if hashes %}
+    <li role="presentation" {% if active_tab == 'hashes'%}class="active"{% endif %}>
         <a href="#file" aria-controls="file" role="tab" data-toggle="tab">
             <i class="fa fa-file"></i>&nbsp;&nbsp;Hashes
         </a>
     </li>
-    <li role="presentation">
+    {% endif %}
+    {% if meta|length > 0 %}
+    <li role="presentation" {% if active_tab == 'meta'%}class="active"{% endif %}>
         <a href="#file-meta" aria-controls="file-meta" role="tab" data-toggle="tab">
-            <i class="fa fa-file"></i>&nbsp;&nbsp;Meta Information
+            <i class="fa fa-info-circle"></i>&nbsp;&nbsp;Meta Information
         </a>
     </li>
-    <li role="presentation">
+    {% endif %}
+    {% if custom|length > 0  %}
+    <li role="presentation" {% if active_tab == 'custom'%}class="active"{% endif %}>
         <a href="#file-custom" aria-controls="file-custom" role="tab" data-toggle="tab">
-            <i class="fa fa-file"></i>&nbsp;&nbsp;Custom Properties
+            <i class="fa fa-sliders"></i>&nbsp;&nbsp;Custom Properties
         </a>
     </li>
+    {% endif %}
     {% endif %}
   </ul>
 
@@ -126,65 +148,70 @@
     {% if observable.observable_type == 'URIObjectType' %}
     <div role="tabpanel" class="tab-pane active" id="uri">
         <br/>
-        <table class="table table-condensed" style="font-size: 0.9em;">
-            <thead>
-                <tr><th>URI</th><th>Type</th><th>Condition</th></tr>
-            </thead>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover">
             <tbody>
-                {% for object in objects %}
-                    <tr>
-                        <td>{{ object.uri_value }}</td>
-                        <td>{{ object.uri_type }}</td>
-                        <td>{{ object.condition }}</td>
-                    </tr>
-                {% endfor %}
+                <tr><td><b>URI</b></td><td>{{ object.uri_value }}</td></tr>
+                <tr><td><b>Type</b></td><td>{{ object.uri_type }}</td></tr>
+                <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
             </tbody>
         </table>
+        {% endfor %}
     </div>
     {% endif %}
     <!-- FILE -->
     {% if observable.observable_type == 'FileObjectType' %}
-    <div role="tabpanel" class="tab-pane active" id="file">
+    {% if hashes %}
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'hashes'%}active{% endif %}" id="file">
         <br/>
         {% for object in objects %}
-        <table class="table table-condensed table-borderless table-hover" style="font-size: 0.9em;">
+        <table class="table table-condensed table-borderless table-hover">
             <tbody>
-                <tr><td>MD5</td><td>{{ object.md5_hash }}</td></tr>
-                <tr><td>SHA256</td><td>{{ object.sha256_hash }}</td></tr>
+                <tr><td><b>MD5</b></td><td>{{ object.md5_hash }}</td></tr>
+                <tr><td><b>SHA256</b></td><td>{{ object.sha256_hash }}</td></tr>
             </tbody>
         </table>
         {% endfor %}
     </div>
-    <div role="tabpanel" class="tab-pane" id="file-meta">
+    {% endif %}
+    {% if meta|length > 0  %}
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'meta'%}active{% endif %}" id="file-meta">
         <br/>
-        {% for object in objects %}
-        <table class="table table-condensed table-borderless table-hover" style="font-size: 0.9em;">
-            {% for meta in object.file_meta.all %}
+        <table class="table table-condensed table-borderless table-hover">
+            {% for item in meta %}
             <tbody>
-                <tr><td>File Name</td><td>{{ meta.file_name }}</td></tr>
-                <tr><td>File Path</td><td>{{ meta.file_path }}</td></tr>
-                <tr><td>File Extension</td><td>{{ meta.file_extension }}</td></tr>
-                <tr><td>File Size</td><td>{{ meta.file_size }}</td></tr>
+                {% if item.name != 'No Name' %}
+                <tr><td><b>File Name</b></td><td>{{ item.name }}</td></tr>
+                {% endif %}
+                {% if item.path != 'No Path' %}
+                <tr><td><b>File Path</b></td><td>{{ item.path }}</td></tr>
+                {% endif %}
+                {% if item.extension != 'No Extension' %}
+                <tr><td><b>File Extension</b></td><td>{{ item.extension }}</td></tr>
+                {% endif %}
+                {% if item.size != 0 %}
+                <tr><td><b>File Size</b></td><td>{{ item.size }}</td></tr>
+                {% endif %}
             </tbody>
             {% endfor %}
         </table>
-        {% endfor %}
     </div>
-    <div role="tabpanel" class="tab-pane" id="file-custom">
+    {% endif %}
+    {% if custom|length > 0  %}
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'custom'%}active{% endif %}" id="file-custom">
         <br/>
-        {% for object in objects %}
-        <table class="table table-condensed table-borderless table-hover" style="font-size: 0.9em;">
+        <table class="table table-condensed table-borderless table-hover">
             <thead>
                 <tr><th>Name</th><th>Value</th></tr>
             </thead>
-            {% for property in object.file_custom.all %}
+            {% for property in custom %}
             <tbody>
-                <tr><td>{{ property.property_name }}</td><td>{{property.property_value }}</td></tr>
+                <tr><td>{{ property.name }}</td><td>{{property.value }}</td></tr>
             </tbody>
             {% endfor %}
         </table>
-        {% endfor %}
     </div>
+    {% endif %}
     {% endif %}
     <!-- EMAIL -->
     <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
@@ -236,6 +263,9 @@ $(document).ready( function () {
             serverSide: true,
             oLanguage: {
                 sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No related observables found ...",
+                sZeroRecords: "No related observables found ...",
+                sEmptyTable: "No related observables found ...",
             },
             order: [[ 0, "desc" ]],
             ajax: {

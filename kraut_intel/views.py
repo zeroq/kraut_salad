@@ -94,4 +94,26 @@ def observable(request, observable_id="1"):
         # get related objects
         for obj in context['objects']:
             context['related_objects'].append(get_related_objects_for_object(obj.id, observable[0].observable_type))
+        # check object type specific settings
+        if observable[0].observable_type == 'FileObjectType':
+            context['custom'] = []
+            context['meta'] = []
+            context['hashes'] = []
+            context['active_tab'] = 'hashes'
+            for obj in context['objects']:
+                for custom in obj.file_custom.all():
+                    context['custom'].append({'name': custom.property_name, 'value': custom.property_value})
+                    context['active_tab'] = 'custom'
+                for meta in obj.file_meta.all():
+                    if meta.file_name != 'No Name' or meta.file_path != 'No Path' or meta.file_extension != 'No Extension' or meta.file_size != 0:
+                        context['meta'].append({
+                                'name': meta.file_name,
+                                'path': meta.file_path,
+                                'extension': meta.file_extension,
+                                'size': meta.file_size
+                            })
+                        context['active_tab'] = 'meta'
+                if obj.md5_hash != 'No MD5' or obj.sha256_hash != 'No SHA256':
+                    context['hashes'] = True
+                    context['active_tab'] = 'hashes'
     return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))

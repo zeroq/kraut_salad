@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^packages/(?P<pk>[0-9]+)/$', views.package_detail),
     url(r'^packages/(?P<pk>[0-9]+)/observables/$', views.package_detail_observables),
     url(r'^packages/(?P<pk>[0-9]+)/indicators/$', views.package_detail_indicators),
+    url(r'^packages/(?P<pk>[0-9]+)/campaigns/$', views.package_detail_campaigns),
+    url(r'^packages/(?P<pk>[0-9]+)/threatactors/$', views.package_detail_threatactors),
     url(r'^packages/(?P<pk>[0-9]+)/quick/(?P<otype>[a-zA-Z]+)/$', views.package_quick),
     url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
 ]

@@ -158,25 +158,25 @@ def handle_file_object(file_obj):
             if isinstance(hash_dict['type'], dict):
                 if hash_dict['type']['value'] == 'MD5':
                     if 'value' in hash_dict['simple_hash_value']:
-                        file_dict['md5_hash'] = hash_dict['simple_hash_value']['value']
+                        file_dict['md5_hash'] = hash_dict['simple_hash_value']['value'].lower()
                     else:
-                        file_dict['md5_hash'] = hash_dict['simple_hash_value']
+                        file_dict['md5_hash'] = hash_dict['simple_hash_value'].lower()
                 elif hash_dict['type']['value'] == 'SHA256':
                     if 'value' in hash_dict['simple_hash_value']:
-                        file_dict['sha256_hash'] = hash_dict['simple_hash_value']['value']
+                        file_dict['sha256_hash'] = hash_dict['simple_hash_value']['value'].lower()
                     else:
-                        file_dict['sha256_hash'] = hash_dict['simple_hash_value']
+                        file_dict['sha256_hash'] = hash_dict['simple_hash_value'].lower()
             else:
                 if hash_dict['type'] == 'MD5':
                     if 'value' in hash_dict['simple_hash_value']:
-                        file_dict['md5_hash'] = hash_dict['simple_hash_value']['value']
+                        file_dict['md5_hash'] = hash_dict['simple_hash_value']['value'].lower()
                     else:
-                        file_dict['md5_hash'] = hash_dict['simple_hash_value']
+                        file_dict['md5_hash'] = hash_dict['simple_hash_value'].lower()
                 elif hash_dict['type'] == 'SHA256':
                     if 'value' in hash_dict['simple_hash_value']:
-                        file_dict['sha256_hash'] = hash_dict['simple_hash_value']['value']
+                        file_dict['sha256_hash'] = hash_dict['simple_hash_value']['value'].lower()
                     else:
-                        file_dict['sha256_hash'] = hash_dict['simple_hash_value']
+                        file_dict['sha256_hash'] = hash_dict['simple_hash_value'].lower()
     return file_dict, file_meta_dict, file_custom_properties_lst
 
 def handle_uri_object(uri_obj):

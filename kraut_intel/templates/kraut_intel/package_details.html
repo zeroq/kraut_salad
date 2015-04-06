@@ -24,7 +24,7 @@
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">Side Panel</h2>{{ package.namespace }}
+            <h2 class="media-heading">{{ package.namespace }}</h2>Side Panel
         </div>
     </div>
 </div>
@@ -72,7 +72,7 @@
             <img src="{% static 'images/Package.png' %}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">Intelligence Package ID: {{ package_id }}</h2>{{ package.name }}
+            <h2 class="media-heading">{{ package.name }}</h2>Intelligence Package ID: {{ package_id }}
         </div>
     </div>
 </div>
@@ -153,11 +153,34 @@
   <div class="tab-content">
     <!-- THREAT ACTOR -->
     <div role="tabpanel" class="tab-pane {% if tab == 'threatactors' %}active{% endif %}" id="threatactors">
-        ...
+        <br/>
+        <table id="threatactors_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Short Description</th></tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
     </div>
     <!-- CAMPAIGN -->
     <div role="tabpanel" class="tab-pane {% if tab == 'campaigns' %}active{% endif %}" id="campaigns">
-        ...
+        <br/>
+        <table id="campaigns_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Confidence</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
     </div>
     <!-- INDICATOR -->
     <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
@@ -310,6 +333,58 @@ $(document).ready( function () {
                 },
                 {'data': 'indicator_types', 'sName': 'type', 'aTargets': [ 2 ]},
                 {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 3 ]},
+            ],
+        });
+    });
+</script>
+
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#campaigns_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/packages/{{ package_id }}/campaigns/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ]
+                },
+                {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 2 ]},
+                {'data': 'status', 'sName': 'status', 'aTargets': [ 3 ]},
+            ],
+        });
+    });
+</script>
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#threatactors_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/packages/{{ package_id }}/threatactors/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ]
+                },
+                {'data': 'short_description', 'sName': 'short_description', 'aTargets': [ 2 ]},
             ],
         });
     });

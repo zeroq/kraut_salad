@@ -61,7 +61,7 @@ class TASerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ThreatActor
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon', 'short_description')
 
     def get_namespace_icon(self, obj):
         return get_icon_for_namespace(obj.namespace)
@@ -96,10 +96,11 @@ class CampSerializer(serializers.ModelSerializer):
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
     namespace_icon = serializers.SerializerMethodField()
+    confidence = serializers.SerializerMethodField()
 
     class Meta:
         model = Campaign
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon', 'confidence', 'status')
 
     def get_namespace_icon(self, obj):
         return get_icon_for_namespace(obj.namespace)
@@ -109,6 +110,12 @@ class CampSerializer(serializers.ModelSerializer):
 
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_confidence(self, obj):
+        try:
+            return obj.confidence.first().value
+        except:
+            return "Unknown"
 
 # Paginated Campaigns
 class PaginatedCampaignSerializer(PaginationSerializer):
