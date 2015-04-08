@@ -41,6 +41,10 @@ understanding and overview of an incident.
 
         python manage.py load_stix <path_to_stix_xml>
 
+* Finally start the local server and browse to localhost:8000
+
+        python manage.py runserver
+
 ## Current Status
 
 At its current development status Kraut Salad does not offer a
