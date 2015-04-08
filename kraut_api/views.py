@@ -23,6 +23,29 @@ def package_tree(request, pk):
     node = {'id': pack.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20}
     nodes.append(node)
     node_counter = 1
+    found_threatactors = False
+    found_indicators = False
+    for ta in pack.threat_actors.all():
+        node = {'id': ta.name, 'group': 2, 'size': 10, 'type': 'threatactor', 'score': 0.7}
+        link = {'source': 0, 'target': node_counter, 'value': 1}
+        nodes.append(node)
+        links.append(link)
+        ca_counter = node_counter + 1
+        for camp in ta.campaigns.all():
+            node = {'id': camp.name, 'group': 3, 'size': 10, 'type': 'campaigns', 'score': 0.5}
+            link = {'source': node_counter, 'target': ca_counter, 'value': 1}
+            nodes.append(node)
+            links.append(link)
+            ca_counter += 1
+        node_counter = ca_counter
+        found_threatactors = True
+    if not found_threatactors:
+        for camp in pack.campaigns.all():
+            node = {'id': camp.name, 'group': 3, 'size': 10, 'type': 'campaigns', 'score': 0.5}
+            link = {'source': 0, 'target': node_counter, 'value': 1}
+            nodes.append(node)
+            links.append(link)
+            node_counter += 1
     for ind in pack.indicators.all():
         node = {'id': ind.name, 'group': 4, 'size': 10, 'type': 'indicator', 'score': 0.3}
         link = {'source': 0, 'target': node_counter, 'value': 1}
@@ -36,7 +59,14 @@ def package_tree(request, pk):
             links.append(link)
             obs_counter +=1
         node_counter = obs_counter
-
+        found_indicators = True
+    if not found_indicators:
+        for obs in pack.observables.all():
+            node = {'id': obs.name, 'group': 4, 'size': 10, 'type': 'observable', 'score': 0.3}
+            link = {'source': 0, 'target': node_counter, 'value': 1}
+            nodes.append(node)
+            links.append(link)
+            node_counter += 1
     response['nodes'] = nodes
     response['links'] = links
     return JsonResponse(response)
