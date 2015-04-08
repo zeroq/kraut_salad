@@ -77,7 +77,7 @@ def observables(request):
 def observable(request, observable_id="1"):
     """ details of a single observable
     """
-    context = {'observable_id': observable_id, 'observable': None, 'objects': None, 'related_objects': []}
+    context = {'observable_id': observable_id, 'observable': None, 'objects': None, 'related_objects': [], 'related_observables': []}
     try:
         observable = Observable.objects.filter(pk=int(observable_id)).prefetch_related(
             Prefetch('indicators'),
@@ -94,6 +94,7 @@ def observable(request, observable_id="1"):
         # get related objects
         for obj in context['objects']:
             context['related_objects'].append(get_related_objects_for_object(obj.id, observable[0].observable_type))
+            context['related_observables'].append(obj.observables.all())
         # check object type specific settings
         if observable[0].observable_type == 'FileObjectType':
             context['custom'] = []

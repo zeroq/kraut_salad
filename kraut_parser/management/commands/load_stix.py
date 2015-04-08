@@ -381,10 +381,16 @@ class Command(BaseCommand):
                         try:
                             stored_object_list = self.id_mapping['objects'][related_object['idref']]
                         except KeyError as e:
-                            self.missing_references['object_2_object'][object_id] = {
-                                'id': related_object['idref'],
-                                'relationship': related_object_dict['relationship']
-                            }
+                            try:
+                                self.missing_references['object_2_object'][object_id].append({
+                                    'id': related_object['idref'],
+                                    'relationship': related_object_dict['relationship']
+                                })
+                            except:
+                                self.missing_references['object_2_object'][object_id] = [{
+                                    'id': related_object['idref'],
+                                    'relationship': related_object_dict['relationship']
+                                }]
                             stored_object_list = []
                         for object_dict in stored_object_list:
                             if object_dict:
@@ -887,17 +893,23 @@ class Command(BaseCommand):
                             for object_id in self.missing_references[item].keys():
                                 try:
                                     for object_one_dict in self.id_mapping['objects'][object_id]:
-                                        for object_two_dict in self.id_mapping['objects'][self.missing_references[item][object_id]['id']]:
-                                            related_object, created = Related_Object.objects.get_or_create(
-                                                relationship = self.missing_references[item][object_id]['relationship'],
-                                                object_one_id = object_one_dict['object_id'],
-                                                object_one_type = object_one_dict['object_type'],
-                                                object_two_id = object_two_dict['object_id'],
-                                                object_two_type = object_two_dict['object_type']
-                                            )
-                                    del self.missing_references[item][object_id]
+                                        for object_two_id_item in list(self.missing_references[item][object_id]):
+                                            try:
+                                                for object_two_dict in self.id_mapping['objects'][object_two_id_item['id']]:
+                                                    related_object, created = Related_Object.objects.get_or_create(
+                                                        relationship = object_two_id_item['relationship'],
+                                                        object_one_id = object_one_dict['object_id'],
+                                                        object_one_type = object_one_dict['object_type'],
+                                                        object_two_id = object_two_dict['object_id'],
+                                                        object_two_type = object_two_dict['object_type']
+                                                    )
+                                            except KeyError as e:
+                                                continue
+                                            self.missing_references[item][object_id].remove(object_two_id_item)
                                 except KeyError as e:
                                     continue
+                                if len(self.missing_references[item][object_id]) == 0:
+                                    del self.missing_references[item][object_id]
                         if item == 'email_2_attachment':
                             for object_id in self.missing_references[item].keys():
                                 try:

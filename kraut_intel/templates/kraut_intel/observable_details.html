@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
+{% block header %}
+.wrapdiv {
+    word-wrap: break-word;         /* All browsers since IE 5.5+ */
+    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+    width: 100%;
+}
+{% endblock %}
 {% block sidebar %}
 {% spaceless %}
+{% if observable %}
 <div class="page-header">
     <div class="media">
         <div class="media-left">
@@ -15,7 +22,9 @@
 </div>
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Related Packages</h3>
+        <h3 class="panel-title">Linked Packages
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all intelligence packages that contain/link the displayed observable."></i>
+        </h3>
     </div>
     <div id="quick-container" class="panel-body">
         <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
@@ -29,28 +38,56 @@
         </table>
     </div>
 </div>
+{% if observable.indicators.all|length > 0 %}
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Related Indicators</h3>
+        <h3 class="panel-title">Linked Indicators
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all indicators that contain/link the displayed observable."></i>
+        </h3>
     </div>
     <div id="quick-container" class="panel-body">
         <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
             <thead>
                 <tr><th>Name</th></tr>
+            </thead>
             <tbody>
                 {% for indicator in observable.indicators.all %}
-                    <tr><td><a href="#">{{ indicator.name }}</a></td></tr>
+                    <tr><td>{{ indicator.name }}</td></tr>
                 {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Linked Observables
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all observables that contain/link the displayed object. Including the currently shown observable."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
+            </thead>
+            <tbody>
+            {% for obs_list in related_observables %}
+                {% for item in obs_list %}
+                    <tr><td>{{ item.name }}</td></tr>
+                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Related Observables</h3>
+        <h3 class="panel-title">Related Observables
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all objects from other observables that have a relationship with the object displayed."></i>
+        </h3>
     </div>
     <div id="quick-container" class="panel-body">
-        <table id="related_observables_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+        <table id="related_objects_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
             <thead>
                 <tr><th>Name</th><th>Relation</th></tr>
             </thead>
@@ -63,6 +100,7 @@
         </table>
     </div>
 </div>
+{% endif %}
 {% endspaceless %}
 {% endblock %}
 
@@ -140,6 +178,30 @@
     </li>
     {% endif %}
     {% endif %}
+    {% if observable.observable_type == 'MutexObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#mutex" aria-controls="mutex" role="tab" data-toggle="tab">
+            <i class="fa fa-key"></i>&nbsp;&nbsp;Mutex Object
+        </a>
+    </li>
+    {% endif %}
+    {% if observable.observable_type == 'HTTPSessionObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#http" aria-controls="http" role="tab" data-toggle="tab">
+            <i class="fa fa-random"></i>&nbsp;&nbsp;HTTP Object
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#http_header" aria-controls="http_header" role="tab" data-toggle="tab">
+            <i class="fa fa-header"></i>&nbsp;&nbsp;Raw Header
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#http_body" aria-controls="http_body" role="tab" data-toggle="tab">
+            <i class="fa fa-columns"></i>&nbsp;&nbsp;Message Body
+        </a>
+    </li>
+    {% endif %}
   </ul>
 
   <!-- Tab panes -->
@@ -213,22 +275,50 @@
     </div>
     {% endif %}
     {% endif %}
-    <!-- EMAIL -->
-    <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
+    <!-- MUTEX -->
+    {% if observable.observable_type == 'MutexObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="mutex">
         <br/>
-        <table id="indicators_table" class="table table-condensed" style="font-size: 0.9em;">
-            <thead>
-                <tr><th>Name</th><th>Type</th><th>Confidence</th></tr>
-            </thead>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover">
             <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                <tr><td><b>Mutex</b></td><td>{{ object.mutex_name }}</td></tr>
+                <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- HTTP SESSION -->
+    {% if observable.observable_type == 'HTTPSessionObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="http">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                    <tr><td><b>Method</b></td><td>{{ object.client_request.request_method }}</td></tr>
+                    <tr><td><b>{{ object.client_request.domain_name.uri_type }}</b></td><td>{{ object.client_request.domain_name.uri_value }}</td></tr>
+                    <tr><td><b>URI</b></td><td>{{ object.client_request.request_uri }}</td></tr>
+                    <tr><td><b>Port</b></td><td>{{ object.client_request.port }}</td></tr>
+                    <tr><td><b>Version</b></td><td>{{ object.client_request.request_version }}</td></tr>
+                    <tr><td><b>Agent</b></td><td>{{ object.client_request.user_agent }}</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
+    <div role="tabpanel" class="tab-pane" id="http_header">
+        <br/>
+        {% for object in objects %}
+            <pre class="pre-scrollable wrapdiv">{{ object.client_request.raw_header }}</pre>
+        {% endfor %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="http_body">
+        <br/>
+        {% for object in objects %}
+            <pre class="pre-scrollable wrapdiv">{{ object.client_request.message_body }}</pre>
+        {% endfor %}
+    </div>
+    {% endif %}
     <!-- ADDRESS -->
     <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
         <br/>
@@ -254,7 +344,7 @@
 {% block javascript%}
 <script type="text/javascript" language="javascript" class="init">
 $(document).ready( function () {
-        var pTable = $('#related_observables_table').DataTable({
+        var pTable = $('#related_objects_table').DataTable({
             ordering: false,
             paging: false,
             info: false,
@@ -292,6 +382,10 @@ $(document).ready( function () {
                 }
             ],
         });
-    });
+});
+
+$(function () {
+    $('[data-toggle="popover"]').popover()
+});
 </script>
 {% endblock%}
