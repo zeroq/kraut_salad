@@ -1,7 +1,6 @@
 ### Screenshots
 
-![Package Details](pack-overview.png)
+![Package Details](pack-overview2.png)
 
-![Observables Overview](obs-overview.png)
+![Observables Overview](obs-overview2.png)
 
-![Test Package Visualization](pack_visu.png)
