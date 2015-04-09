@@ -37,7 +37,9 @@
 </div>
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Quickstart Panel</h3>
+        <h3 class="panel-title">Quickstart Panel
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all        network and filesystem based indicators, such as domains, IP addresses, and file hashes. Items can also be exported and downloaded as a csv file."></i>
+        </h3>
     </div>
     <div id="quick-container" class="panel-body">
     {% if 'URIObjectType' in quick_pane %}
@@ -636,5 +638,9 @@ function set_highlight(d)
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
+
+$(function () {
+    $('[data-toggle="popover"]').popover()
+});
 </script>
 {% endblock%}
