@@ -407,7 +407,7 @@ var color = d3.scale.linear()
   .domain([min_score, (min_score+max_score)/2, max_score])
   .range(["lime", "yellow", "red"]);
 
-var highlight_color = "blue";
+var highlight_color = "#f1c40f";
 var highlight_trans = 0.1;
 var size = d3.scale.pow().exponent(1)
   .domain([1,100])
@@ -418,8 +418,8 @@ var force = d3.layout.force()
   .charge(-300)
   .size([w,h]);
 
-var default_node_color = "#ccc";
-var default_link_color = "#888";
+var default_node_color = "#34495e";
+var default_link_color = "#2c3e50";
 var nominal_base_node_size = 8;
 var nominal_text_size = 10;
 var max_text_size = 24;
@@ -462,9 +462,8 @@ var linkedByIndex = {};
     .enter().append("line")
     .attr("class", "link")
     .style("stroke-width",nominal_stroke)
-    .style("stroke", function(d) { 
-    if (isNumber(d.score) && d.score>=0) return color(d.score);
-    else return default_link_color; })
+    .style("stroke", function(d) {
+    return default_link_color; })
 
   var node = g.selectAll(".node")
     .data(graph.nodes)
@@ -492,8 +491,12 @@ var linkedByIndex = {};
         .size(function(d) { return Math.PI*Math.pow(size(d.size)||nominal_base_node_size,2); })
         .type(function(d) { return d.type; }))
   
-    .style(tocolor, function(d) { 
-    if (isNumber(d.score) && d.score>=0) return color(d.score);
+      .style(tocolor, function(d) {
+    if (isNumber(d.score) && d.score==1) return "#9b59b6";
+    else if (isNumber(d.score) && d.score==0.6) return "#3498db";
+    else if (isNumber(d.score) && d.score==0.3) return "#f1c40f";
+    else if (isNumber(d.score) && d.score==0.5) return "#2980b9";
+    else if (isNumber(d.score) && d.score==0.7) return "#e74c3c";
     else return default_node_color; })
     .style("stroke-width", nominal_stroke)
     .style(towhite, "white");

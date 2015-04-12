@@ -73,7 +73,11 @@
             <tbody>
             {% for obs_list in related_observables %}
                 {% for item in obs_list %}
+                    {% if item.name ==  observable.name %}
                     <tr><td>{{ item.name }}</td></tr>
+                    {% else %}
+                    <tr><td><a href="{% url 'intel:observable' observable_id=item.id %}">{{ item.name }}</a></td></tr>
+                    {% endif %}
                 {% endfor %}
             {% endfor %}
             </tbody>

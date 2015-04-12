@@ -62,7 +62,7 @@ def package_tree(request, pk):
         found_indicators = True
     if not found_indicators:
         for obs in pack.observables.all():
-            node = {'id': obs.name, 'group': 4, 'size': 10, 'type': 'observable', 'score': 0.3}
+            node = {'id': obs.name, 'group': 4, 'size': 10, 'type': 'observable', 'score': 0.6}
             link = {'source': 0, 'target': node_counter, 'value': 1}
             nodes.append(node)
             links.append(link)
