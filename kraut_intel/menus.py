@@ -29,6 +29,5 @@ intel_children = (
 Menu.add_item("intel", MenuItem("Intelligence",
     reverse("intel:home"),
     weight=10,
-    icon="fa-magic",
     children=intel_children)
 )

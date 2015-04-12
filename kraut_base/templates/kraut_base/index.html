@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block content %}
-<div class="page-header"><i class="fa fa-home fa-3x pull-left"></i><h2>Kraut Base</h2>observe items that recently changed or were added ...</div>
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Kraut.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Kraut Base</h2>observe items that recently changed or were added ...
+        </div>
+    </div>
+</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% endblock%}

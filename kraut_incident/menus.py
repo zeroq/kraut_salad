@@ -17,6 +17,5 @@ incident_children = (
 Menu.add_item("incident", MenuItem("Incidents",
     reverse("incidents:home"),
     weight=10,
-    icon="fa-flash",
     children=incident_children)
 )
