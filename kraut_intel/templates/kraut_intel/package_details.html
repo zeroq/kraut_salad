@@ -108,7 +108,9 @@
         </tbody>
     </table>
     <div class="panel-body">
+        <pre class="pre-scrollable wrapdiv">
         {{ package.description }}
+        </pre>
     </div>
 </div>
 {% endspaceless %}
@@ -331,7 +333,11 @@ $(document).ready( function () {
                 {
                     'data': 'name', 
                     'sName': 'name', 
-                    'aTargets': [ 1 ]
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
                 },
                 {'data': 'indicator_types', 'sName': 'type', 'aTargets': [ 2 ]},
                 {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 3 ]},
@@ -339,7 +345,6 @@ $(document).ready( function () {
         });
     });
 </script>
-
 
 <script type="text/javascript" language="javascript" class="init">
 $(document).ready( function () {
