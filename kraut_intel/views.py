@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from kraut_parser.models import Package, Observable, Related_Object
+from kraut_parser.models import Package, Observable, Related_Object, Indicator
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -70,6 +70,39 @@ def indicators(request):
     context = {}
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
 
+def indicator(request, indicator_id="1"):
+    """ details of a single indicator
+    """
+    context = {'indicator_id': indicator_id, 'indicator': None, 'tab': 'indicators'}
+    try:
+        indicator = Indicator.objects.filter(pk=int(indicator_id)).prefetch_related(
+            Prefetch('indicator_types'),
+            Prefetch('confidence'),
+            Prefetch('related_indicators'),
+        )
+    except Indicator.DoesNotExist:
+        messages.error(request, "The requested indicator does not exist!")
+        return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
+    if len(indicator)<=0:
+        messages.warning(request, "No indicator with the given ID exists in the system.")
+    else:
+        context['indicator'] = indicator[0]
+        context['namespace_icon'] = get_icon_for_namespace(indicator[0].namespace)
+        context['num_indicators'] = indicator[0].related_indicators.count()
+        context['num_observables'] = indicator[0].observable_set.count()
+        if context['num_indicators'] > 0:
+            context['tab'] = 'indicators'
+        elif context['num_observables'] > 0:
+            context['tab'] = 'observables'
+        context['confidence'] = indicator[0].confidence.last().value
+        if context['confidence'] == 'Low':
+            context['confidence_color'] = 'success'
+        elif context['confidence'] == 'Medium':
+            context['confidence_color'] = 'warning'
+        else:
+            context['confidence_color'] = 'danger'
+    return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
+
 def observables(request):
     context = {}
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
@@ -86,7 +119,7 @@ def observable(request, observable_id="1"):
         messages.error(request, 'The requested observable does not exist!')
         return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
     if len(observable)<=0:
-        messages.warning(request, "No package with the given ID exists in the system.")
+        messages.warning(request, "No observable with the given ID exists in the system.")
     else:
         context['observable'] = observable[0]
         context['namespace_icon'] = get_icon_for_namespace(observable[0].namespace)

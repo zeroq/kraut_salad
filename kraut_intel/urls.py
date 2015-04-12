@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^threatactors/$', views.threatactors, name='threatactors'),
     url(r'^campaigns/$', views.campaigns, name='campaigns'),
     url(r'^indicators/$', views.indicators, name='indicators'),
+    url(r'^indicator/(?P<indicator_id>\d+)/$', views.indicator, name='indicator'),
     url(r'^observables/$', views.observables, name='observables'),
     url(r'^observable/(?P<observable_id>\d+)/$', views.observable, name='observable'),
 ]

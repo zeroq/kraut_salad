@@ -52,7 +52,7 @@
             </thead>
             <tbody>
                 {% for indicator in observable.indicators.all %}
-                    <tr><td>{{ indicator.name }}</td></tr>
+                    <tr><td><a href="{% url 'intel:indicator' indicator_id=indicator.id %}">{{ indicator.name }}</a></td></tr>
                 {% endfor %}
             </tbody>
         </table>

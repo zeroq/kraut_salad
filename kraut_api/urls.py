@@ -5,6 +5,8 @@ from kraut_api import views
 urlpatterns = [
     url(r'^indicators/$', views.indicator_list),
     url(r'^indicators/(?P<pk>[0-9]+)/$', views.indicator_detail),
+    url(r'^indicators/(?P<pk>[0-9]+)/related/$', views.indicator_detail_related_indicators),
+    url(r'^indicators/(?P<pk>[0-9]+)/observables/$', views.indicator_detail_observables),
     url(r'^observables/$', views.observable_list),
     url(r'^observables/(?P<pk>[0-9]+)/$', views.observable_detail),
     url(r'^observables/(?P<pk>[0-9]+)/related_objects/$', views.observable_related_objects),

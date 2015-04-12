@@ -174,7 +174,7 @@ class Ind2Serializer(serializers.ModelSerializer):
 
     def get_indicator_types(self, obj):
         try:
-            return obj.indicator_types.first().itype
+            return obj.indicator_types.last().itype
         except:
             return None
 

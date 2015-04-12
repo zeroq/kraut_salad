@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block sidebar %}
+{% spaceless %}
+{% if indicator %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ indicator.namespace }}</h2>Side Panel
+        </div>
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Linked Packages
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all intelligence packages that contain/link the displayed observable."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
+            <tbody>
+                {% for package in indicator.package_set.all %}
+                    <tr><td><a href="{% url 'intel:package' package_id=package.id %}">{{ package.name }}</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Indicator.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ indicator.name }}</h2>Indicator ID: {{ indicator_id }}
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if indicator %}
+{% spaceless %}
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ indicator.name }}</h3>
+    </div>
+    <table class="table table-condensed table-borderless">
+        <tbody>
+            <tr>
+                <td align="right"><b>Namespace</b></td>
+                <td>{{ indicator.namespace }}</td>
+                <td align="right"><b>Indicator Type</b></td>
+                <td>{{ indicator.indicator_types.last.itype }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Import Time</b></td>
+                <td>{{ indicator.creation_time }}</td>
+                <td align="right"><b>Modified Time</b></td>
+                <td>{{ indicator.last_modified }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Confidence</b></td>
+                <td><span class="label label-{{ confidence_color }}">{{ confidence }}</span></td>
+            </tr>
+            <tr>
+                <td align="right"><b>Observable Composition Operator</b></td>
+                <td>{{ indicator.observable_composition_operator }}</td>
+                <td align="right"><b>Indicator Composition Operator</b></td>
+                <td>{{ indicator.indicator_composition_operator }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel-body">
+        {{ indicator.description }}
+    </div>
+</div>
+<div role="tabpanel">
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    {% if num_indicators > 0 %}
+    <li role="presentation" {% if tab == 'indicators' %}class="active"{% endif %}>
+        <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Indicator.png' %}" height="32">&nbsp;&nbsp;Indicators
+            <span class="badge">{{ num_indicators }}</span>
+        </a>
+    </li>
+    {% endif %}
+    {% if num_observables > 0 %}
+    <li role="presentation" {% if tab == 'observables' %}class="active"{% endif %}>
+        <a href="#observables" aria-controls="observables" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Observable.png' %}" height="32">&nbsp;&nbsp;Observables
+            <span class="badge">{{ num_observables }}</span>
+        </a>
+    </li>
+    {% endif %}
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <!-- INDICATOR -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'indicators' %}active{% endif %}" id="indicators">
+        <br/>
+        <table id="indicators_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Type</th><th>Confidence</th></tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- OBSERVABLE -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
+        <br/>
+        <table id="observables_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+{% endspaceless %}
+{% endif %}
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#observables_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/indicators/{{ indicator_id }}/observables/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:observable' observable_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {'data': 'observable_type', 'sName': 'type', 'aTargets': [ 2 ]},
+            ],
+        });
+    });
+</script>
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#indicators_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/indicators/{{ indicator_id }}/related/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {'data': 'indicator_types', 'sName': 'type', 'aTargets': [ 2 ]},
+                {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 3 ]},
+            ],
+        });
+    });
+</script>
+{% endblock %}
