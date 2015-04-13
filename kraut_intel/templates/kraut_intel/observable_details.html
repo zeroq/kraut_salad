@@ -160,6 +160,20 @@
         </a>
     </li>
     {% endif %}
+    {% if observable.observable_type == 'AddressObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#address" aria-controls="address" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Address Object
+        </a>
+    </li>
+    {% endif %}
+    {% if observable.observable_type == 'WindowsRegistryKeyObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#regkey" aria-controls="regkey" role="tab" data-toggle="tab">
+            <i class="fa fa-cubes"></i>&nbsp;&nbsp;Registry Object
+        </a>
+    </li>
+    {% endif %}
     {% if observable.observable_type == 'FileObjectType' %}
     {% if hashes %}
     <li role="presentation" {% if active_tab == 'hashes'%}class="active"{% endif %}>
@@ -220,6 +234,37 @@
             <tbody>
                 <tr><td><b>URI</b></td><td>{{ object.uri_value }}</td></tr>
                 <tr><td><b>Type</b></td><td>{{ object.uri_type }}</td></tr>
+                <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- REGISTRY -->
+    {% if observable.observable_type == 'WindowsRegistryKeyObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="regkey">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                <tr><td><b>Hive</b></td><td>{{ object.hive }}</td></tr>
+                <tr><td><b>Key</b></td><td>{{ object.key }}</td></tr>
+                <tr><td><b>Data Name</b></td><td>{{ object.data_name }}</td></tr>
+                <tr><td><b>Data</b></td><td>{{ object.data }}</td></tr>
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- ADDRESS -->
+    {% if observable.observable_type == 'AddressObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="address">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                <tr><td><b>Address</b></td><td>{{ object.address_value }}</td></tr>
+                <tr><td><b>Category</b></td><td>{{ object.category }}</td></tr>
                 <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
             </tbody>
         </table>
