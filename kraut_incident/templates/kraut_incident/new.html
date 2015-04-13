@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block content %}
-<div class="page-header"><i class="fa fa-flash fa-3x pull-left"></i><h2>New Incident</h2>create a new incident and record necessary information ...</div>
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/NewIncident.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">New Incident</h2>create a new incident and record necessary information ...
+        </div>
+    </div>
+</div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% endblock%}
