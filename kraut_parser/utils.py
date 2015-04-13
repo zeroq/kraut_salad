@@ -1,7 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.db.models import Q
-from kraut_parser.models import File_Object, HTTPSession_Object, URI_Object, Related_Object, Address_Object, Mutex_Object, Code_Object
+from kraut_parser.models import File_Object, HTTPSession_Object, URI_Object, Related_Object, Address_Object, Mutex_Object, Code_Object, EmailMessage_Object
 
 def get_object_for_observable(observable_type, observable_object=None, object_id=None, no_hash=True):
     """ Return the list of objects belonging to a given observable or the object for a given id.
@@ -31,6 +31,9 @@ def get_object_for_observable(observable_type, observable_object=None, object_id
             return_list.append(obj)
     elif observable_type == 'CodeObjectType':
         for obj in Code_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+            return_list.append(obj)
+    elif observable_type == 'EmailMessageObjectType':
+        for obj in EmailMessage_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
             return_list.append(obj)
 
 

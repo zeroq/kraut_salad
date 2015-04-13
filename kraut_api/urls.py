@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^packages/(?P<pk>[0-9]+)/threatactors/$', views.package_detail_threatactors),
     url(r'^packages/(?P<pk>[0-9]+)/quick/(?P<otype>[a-zA-Z]+)/$', views.package_quick),
     url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
+    url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/packages/$', views.object_get_packages),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
