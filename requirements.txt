@@ -2,7 +2,6 @@ amqp==1.4.6
 anyjson==0.3.3
 argh==0.26.1
 billiard==3.3.0.19
-bulbs==0.3.29.post20150207
 cybox==2.1.0.9
 Django==1.8
 django-filter==0.9.2
