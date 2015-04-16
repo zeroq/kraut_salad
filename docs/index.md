@@ -37,6 +37,10 @@ understanding and overview of an incident.
 
         pip install -r requirements.txt
 
+* Create Database
+
+        python manage.py migrate
+
 * In order to import a STIX document into Kraut Salad issue:
 
         python manage.py load_stix <path_to_stix_xml>
