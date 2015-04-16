@@ -5,7 +5,7 @@ from dateutil.parser import parse as date_parser
 from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
-from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference
+from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference, ObservableComposition
 from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object
@@ -50,7 +50,8 @@ class Command(BaseCommand):
             'indicator_2_indicator': {},
             'indicator_2_observable': {},
             'object_2_object': {},
-            'email_2_attachment': {}
+            'email_2_attachment': {},
+            'composite_2_observable': {}
         }
 
     def __check_version(self, version):
@@ -424,6 +425,41 @@ class Command(BaseCommand):
                         self.stdout.write("----> related object without ID found")
         return first_entry, package_object
 
+    def create_observable_composition(self, composition_json, composition_id=None, indicator=None):
+        """
+        """
+        composition_dict = {
+            'name': composition_id,
+            'operator': 'OR'
+        }
+        # check for id and set it as name
+        if "id" in composition_json:
+            composition_dict['name'] = composition_json["id"]
+        # check for operator
+        if "observable_composition" in composition_json and "operator" in composition_json['observable_composition']:
+            composition_dict['operator'] = composition_json['observable_composition']['operator']
+        # create composition object
+        composition_object, composition_object_created = ObservableComposition.objects.get_or_create(**composition_dict)
+        if indicator:
+            composition_object.indicator.add(indicator)
+        # check for observables
+        if "observable_composition" in composition_json and "observables" in composition_json['observable_composition']:
+            for observable_item in composition_json['observable_composition']['observables']:
+                if "idref" in observable_item:
+                    if observable_item['idref'] in self.id_mapping['observables']:
+                        # add related indicator to observable
+                        observable_object = Observable.objects.get(id=self.id_mapping['observables'][observable_item['idref']])
+                        observable_object.save()
+                        composition_object.observables.add(observable_object)
+                    else:
+                        self.missing_references['composite_2_observable'][composition_object.name] = observable_item['idref']
+                    pass
+                elif "id" and "observable_composition" in observable_item:
+                    composition_object.observable_compositions.add(self.create_observable_composition(observable_item, observable_item['id'], None))
+        composition_object.save()
+        return composition_object
+
+
     def perform_indicator_extraction(self, stix_json, package_object):
         """iterate over indicators and extract observable information and create indicator object
         @stix_json: json representation of a stix report
@@ -444,8 +480,7 @@ class Command(BaseCommand):
                     'name': indicator.get('title', indicator_id),
                     'namespace': indicator_id.split(':')[0],
                     'description': indicator.get('description', 'No Description'),
-                    'short_description': indicator.get('short_description', 'No Short Description'),
-                    'observable_composition_operator': 'OR'
+                    'short_description': indicator.get('short_description', 'No Short Description')
                 }
                 indicator_object, indicator_object_created = Indicator.objects.get_or_create(**indicator_dict)
                 # create observable mapping
@@ -479,6 +514,9 @@ class Command(BaseCommand):
 
             # check for observables
             if 'observable' in indicator:
+                # check if composite observable is present
+                if 'observable_composition' in indicator['observable']:
+                    self.create_observable_composition(indicator['observable'], indicator_object.name, indicator_object)
                 # check for observable reference
                 if 'idref' in indicator['observable']:
                     if indicator['observable']['idref'] in self.id_mapping['observables']:

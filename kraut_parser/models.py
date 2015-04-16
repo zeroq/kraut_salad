@@ -119,9 +119,18 @@ class Indicator(models.Model):
     namespace = models.CharField(max_length=255, default='nospace')
     indicator_types = models.ManyToManyField(Indicator_Type, blank=True)
     confidence = models.ManyToManyField(Confidence, blank=True)
-    observable_composition_operator = models.CharField(max_length=3, default="OR")
     related_indicators = models.ManyToManyField('self', blank=True)
     indicator_composition_operator = models.CharField(max_length=3, default="OR")
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
+class ObservableComposition(models.Model):
+    name = models.CharField(max_length=255)
+    operator = models.CharField(max_length=3, default='OR')
+    indicator = models.ManyToManyField(Indicator, blank=True)
+    observables = models.ManyToManyField('Observable', blank=True)
+    observable_compositions = models.ManyToManyField('self', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -194,8 +203,8 @@ class File_Object(models.Model):
         else:
             return u"File Object"
 
-    #class Meta:
-    #    unique_together = (("md5_hash", "sha256_hash"),)
+    class Meta:
+        index_together = (("md5_hash", "sha256_hash"),)
 
 class URI_Object(models.Model):
     uri_value = models.CharField(max_length=255)
