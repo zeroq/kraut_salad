@@ -426,7 +426,10 @@ class Command(BaseCommand):
         return first_entry, package_object
 
     def create_observable_composition(self, composition_json, composition_id=None, indicator=None):
-        """
+        """recursively check for observable composition objects
+        @composition_json: json representation of an observable composition
+        @composition_id: identifier/name for the observable composition (first takes the name of the indicator embedded in)
+        @indicator: indicator object that contains the observable composition
         """
         composition_dict = {
             'name': composition_id,
@@ -449,7 +452,6 @@ class Command(BaseCommand):
                     if observable_item['idref'] in self.id_mapping['observables']:
                         # add related indicator to observable
                         observable_object = Observable.objects.get(id=self.id_mapping['observables'][observable_item['idref']])
-                        observable_object.save()
                         composition_object.observables.add(observable_object)
                     else:
                         self.missing_references['composite_2_observable'][composition_object.name] = observable_item['idref']

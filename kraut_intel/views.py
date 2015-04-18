@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from kraut_parser.models import Package, Observable, Related_Object, Indicator
+from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -66,6 +66,38 @@ def campaigns(request):
     context = {}
     return render_to_response('kraut_intel/campaigns.html', context, context_instance=RequestContext(request))
 
+def campaign(request, campaign_id="1"):
+    context = {'campaign_id': campaign_id, 'campaign': None}
+    try:
+        campaign = Campaign.objects.filter(pk=int(campaign_id)).prefetch_related(
+            Prefetch('confidence'),
+            Prefetch('related_indicators'),
+            Prefetch('associated_campaigns'),
+        )
+    except Campaign.DoesNotExist:
+        messages.error(request, 'The requested campaign does not exist!')
+        return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+    if len(campaign)<=0:
+        messages.warning(request, "No campaign with the given ID exists in the system.")
+    else:
+        context['campaign'] = campaign[0]
+        context['namespace_icon'] = get_icon_for_namespace(campaign[0].namespace)
+        try:
+            context['confidence'] = campaign[0].confidence.last().value
+            context['num_indicators'] = campaign[0].related_indicators.count()
+            context['num_campaigns'] = campaign[0].associated_campaigns.count()
+            context['tab'] = 'indicators'
+            if context['confidence'] == 'Low':
+                context['confidence_color'] = 'success'
+            elif context['confidence'] == 'Medium':
+                context['confidence_color'] = 'warning'
+            else:
+                context['confidence_color'] = 'danger'
+        except:
+            context['confidence'] = 'Low'
+            context['confidence_color'] = 'success'
+    return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+
 def indicators(request):
     context = {}
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
@@ -79,6 +111,7 @@ def indicator(request, indicator_id="1"):
             Prefetch('indicator_types'),
             Prefetch('confidence'),
             Prefetch('related_indicators'),
+            Prefetch('observablecomposition_set')
         )
     except Indicator.DoesNotExist:
         messages.error(request, "The requested indicator does not exist!")
@@ -90,10 +123,13 @@ def indicator(request, indicator_id="1"):
         context['namespace_icon'] = get_icon_for_namespace(indicator[0].namespace)
         context['num_indicators'] = indicator[0].related_indicators.count()
         context['num_observables'] = indicator[0].observable_set.count()
+        context['num_observable_compositions'] = indicator[0].observablecomposition_set.count()
         if context['num_indicators'] > 0:
             context['tab'] = 'indicators'
         elif context['num_observables'] > 0:
             context['tab'] = 'observables'
+        elif context['num_observable_compositions'] > 0:
+            context['tab'] = 'compositions'
         context['confidence'] = indicator[0].confidence.last().value
         if context['confidence'] == 'Low':
             context['confidence_color'] = 'success'
@@ -101,6 +137,12 @@ def indicator(request, indicator_id="1"):
             context['confidence_color'] = 'warning'
         else:
             context['confidence_color'] = 'danger'
+        ### TODO: currently supports only single composition in indicator
+        if context['num_observable_compositions'] > 0:
+            for composition in indicator[0].observablecomposition_set.all():
+                context['composition_id'] = composition.id
+        else:
+            context['composition_id'] = None
     return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
 
 def observables(request):

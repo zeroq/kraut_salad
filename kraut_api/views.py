@@ -1,14 +1,16 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package
-from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer
+from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition
+from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
+
+import json
 
 ################### PACKAGE #####################
 
@@ -662,6 +664,116 @@ def indicator_detail_observables(request, pk, format=None):
         serializer_context = {'request': request}
         serializer = PaginatedObservableSerializer(observables, context=serializer_context)
         return Response(serializer.data)
+
+@api_view(['GET'])
+def indicator_detail_compositions(request, pk, format=None):
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_direction = '-'
+                order_by_column = 'name'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        try:
+            indicator = Indicator.objects.get(pk=pk)
+        except Indicator.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        queryset = indicator.observablecomposition_set.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(operator__istartswith=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            compositions = paginator.page(page)
+        except:
+            compositions = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedCompositionSerializer(compositions, context=serializer_context)
+        return Response(serializer.data)
+
+
+def create_composition_json(composition, created):
+    result = {'name': composition.name, 'operator': composition.operator, 'compositions': [], 'observables': []}
+    for obs in composition.observables.all():
+        result['observables'].append({'id': obs.id, 'name': obs.name, 'observable_type': obs.observable_type})
+    for comp in composition.observable_compositions.all():
+        if comp.name in created:
+            continue
+        created.append(comp.name)
+        result['compositions'].append(create_composition_json(comp, created))
+    return result
+
+@api_view(['GET'])
+def composition_details(request, pk, format=None):
+    try:
+        composition = ObservableComposition.objects.get(pk=pk)
+    except ObservableComposition.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {'name': composition.name, 'operator': composition.operator, 'compositions': [], 'observables': []}
+    for obs in composition.observables.all():
+        response['observables'].append({'id': obs.id, 'name': obs.name, 'observable_type': obs.observable_type})
+    created = [composition.name]
+    for comp in composition.observable_compositions.all():
+        if comp.name in created:
+            continue
+        created.append(comp.name)
+        response['compositions'].append(create_composition_json(comp, created))
+    #return HttpResponse(json.dumps(response, sort_keys=True, indent=4), content_type="application/json")
+    return JsonResponse(response)
+
+def create_composition_json_d3(composition, created):
+    result = {'name': composition.name+' -- Operator -- '+composition.operator, 'children': []}
+    for obs in composition.observables.all():
+        result['children'].append({'name': obs.name, 'size': 20, 'observable_id': obs.id})
+    for comp in composition.observable_compositions.all():
+        if comp.name in created:
+            continue
+        created.append(comp.name)
+        result['children'].append(create_composition_json_d3(comp, created))
+    return result
+
+@api_view(['GET'])
+def composition_details_d3(request, pk, format=None):
+    try:
+        composition = ObservableComposition.objects.get(pk=pk)
+    except ObservableComposition.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {'name': composition.name+' -- Operator -- '+composition.operator, 'children': []}
+    for obs in composition.observables.all():
+        response['children'].append({'name': obs.name, 'size': 20, 'observable_id': obs.id})
+    created = [composition.name]
+    for comp in composition.observable_compositions.all():
+        if comp.name in created:
+            continue
+        created.append(comp.name)
+        response['children'].append(create_composition_json_d3(comp, created))
+    return HttpResponse(json.dumps(response, sort_keys=False, indent=4), content_type="application/json")
+    #return JsonResponse(response)
 
 ################### OBSERVABLE #####################
 

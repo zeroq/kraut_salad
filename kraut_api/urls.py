@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^indicators/(?P<pk>[0-9]+)/$', views.indicator_detail),
     url(r'^indicators/(?P<pk>[0-9]+)/related/$', views.indicator_detail_related_indicators),
     url(r'^indicators/(?P<pk>[0-9]+)/observables/$', views.indicator_detail_observables),
+    url(r'^indicators/(?P<pk>[0-9]+)/compositions/$', views.indicator_detail_compositions),
     url(r'^observables/$', views.observable_list),
     url(r'^observables/(?P<pk>[0-9]+)/$', views.observable_detail),
     url(r'^observables/(?P<pk>[0-9]+)/related_objects/$', views.observable_related_objects),
@@ -23,6 +24,8 @@ urlpatterns = [
     url(r'^packages/(?P<pk>[0-9]+)/quick/(?P<otype>[a-zA-Z]+)/$', views.package_quick),
     url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
     url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/packages/$', views.object_get_packages),
+    url(r'^compositions/(?P<pk>[0-9]+)/$', views.composition_details),
+    url(r'^compositions/(?P<pk>[0-9]+)/d3/$', views.composition_details_d3),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
-from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package
+from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition
 from kraut_intel.utils import get_icon_for_namespace
 
 import datetime
@@ -188,6 +188,20 @@ class PaginatedIndicator2Serializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = Ind2Serializer
+
+################### OBSERVABLE COMPOSITION #####################
+
+class ObservableCompositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ObservableComposition
+        fields = ('id', 'name', 'operator')
+
+class PaginatedCompositionSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = ObservableCompositionSerializer
 
 ################### OBSERVABLE #####################
 
