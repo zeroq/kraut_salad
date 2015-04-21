@@ -1,6 +1,50 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block sidebar %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <!-- <img src="#" height="64" class="media-object"> -->
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">PLACEHOLDER: User Namespace</h2>Side Panel
+        </div>
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">Statistics
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="This table shows the total number of database entries for each of the different threat intelligence types. (Intelligence Package, Threat Actors, Campaigns, Indicators, and Observables)"></i>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-condensed table-borderless">
+            <tbody>
+                <tr>
+                    <td align="center"><h1>{{ packages }}</h1><a href="{% url 'intel:packages' %}">Intelligence Packages</a></td>
+                </tr>
+                <tr>
+                    <td align="center"><h1>{{ threatactors }}</h1><a href="{% url 'intel:threatactors' %}">Threat Actors</a></td>
+                </tr>
+                <tr>
+                    <td align="center"><h1>{{ campaigns }}</h1><a href="{% url 'intel:campaigns' %}">Campaigns</a></td>
+                </tr>
+                <tr>
+                    <td align="center"><h1>{{ indicators }}</h1><a href="{% url 'intel:indicators' %}">Indicators</a></td>
+                </tr>
+                <tr>
+                    <td align="center"><h1>{{ observables }}</h1><a href="{% url 'intel:observables' %}">Observables</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endspaceless%}
+{% endblock %}
+
 {% block content %}
+{% spaceless %}
 <div class="page-header">
     <div class="media">
         <div class="media-left">
@@ -12,4 +56,22 @@
     </div>
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<br/>
+<table class="table table-borderless">
+    <thead>
+    </thead>
+    <tbody>
+        <tr>
+        </tr>
+    </tbody>
+</table>
+{% endspaceless%}
+{% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+$(function () {
+    $('[data-toggle="popover"]').popover()
+});
+</script>
 {% endblock%}
