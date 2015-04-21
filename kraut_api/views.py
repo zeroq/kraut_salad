@@ -494,8 +494,29 @@ def campaign_detail(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+def campaign_detail_related_indicators(request, pk, format=None):
+    if not request.method == 'GET':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        campaign = Campaign.objects.get(pk=pk)
+    except Campaign.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {'results': []}
+    for relindi in campaign.related_indicators.all():
+        response['results'].append({'name': relindi.name, 'indicator_id': relindi.id})
+    return JsonResponse(response)
 
-
+def campaign_detail_associated_campaigns(request, pk, format=None):
+    if not request.method == 'GET':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        campaign = Campaign.objects.get(pk=pk)
+    except Campaign.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {'results': []}
+    for assoc in campaign.associated_campaigns.all():
+        response['results'].append({'name': assoc.name, 'campaign_id': assoc.id})
+    return JsonResponse(response)
 
 ################### INDICATOR #####################
 

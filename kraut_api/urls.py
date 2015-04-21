@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^observables/(?P<pk>[0-9]+)/related_objects/$', views.observable_related_objects),
     url(r'^campaigns/$', views.campaign_list),
     url(r'^campaigns/(?P<pk>[0-9]+)/$', views.campaign_detail),
+    url(r'^campaigns/(?P<pk>[0-9]+)/related/$', views.campaign_detail_related_indicators),
+    url(r'^campaigns/(?P<pk>[0-9]+)/associated/$', views.campaign_detail_associated_campaigns),
     url(r'^threatactors/$', views.threatactor_list),
     url(r'^threatactors/(?P<pk>[0-9]+)/$', views.threatactor_detail),
     url(r'^packages/$', views.package_list),
