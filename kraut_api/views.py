@@ -1,6 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.http import JsonResponse, HttpResponse
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework import status
@@ -749,7 +750,7 @@ def composition_details(request, pk, format=None):
 def create_composition_json_d3(composition, created):
     result = {'name': composition.name+' -- Operator -- '+composition.operator, 'children': []}
     for obs in composition.observables.all():
-        result['children'].append({'name': obs.name, 'size': 20, 'observable_id': obs.id})
+        result['children'].append({'name': obs.name, 'size': 20, 'observable_id': obs.id, 'url': reverse('intel:observable',                     kwargs={'observable_id': obs.id})})
     for comp in composition.observable_compositions.all():
         if comp.name in created:
             continue
@@ -765,15 +766,15 @@ def composition_details_d3(request, pk, format=None):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     response = {'name': composition.name+' -- Operator -- '+composition.operator, 'children': []}
     for obs in composition.observables.all():
-        response['children'].append({'name': obs.name, 'size': 20, 'observable_id': obs.id})
+        response['children'].append({'name': obs.name, 'size': 20, 'observable_id': obs.id, 'url': reverse('intel:observable', kwargs={'observable_id': obs.id})})
     created = [composition.name]
     for comp in composition.observable_compositions.all():
         if comp.name in created:
             continue
         created.append(comp.name)
         response['children'].append(create_composition_json_d3(comp, created))
-    return HttpResponse(json.dumps(response, sort_keys=False, indent=4), content_type="application/json")
-    #return JsonResponse(response)
+    #return HttpResponse(json.dumps(response, sort_keys=False, indent=4), content_type="application/json")
+    return JsonResponse(response)
 
 ################### OBSERVABLE #####################
 

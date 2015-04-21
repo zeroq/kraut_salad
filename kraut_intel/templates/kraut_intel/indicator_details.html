@@ -257,7 +257,7 @@ $(document).ready( function () {
 
 var margin = {top: 30, right: 20, bottom: 30, left: 20},
     width = 960 - margin.left - margin.right,
-    barHeight = 20,
+    barHeight = 25,
     barWidth = width * .8;
 
 var i = 0,
@@ -311,7 +311,9 @@ function update(source) {
       .style("opacity", 1e-6);
 
   // Enter any new nodes at the parent's previous position.
-  nodeEnter.append("rect")
+  nodeEnter.append("svg:a")
+      .attr("xlink:href", function(d){return d.url;})
+    .append("rect")
       .attr("y", -barHeight / 2)
       .attr("height", barHeight)
       .attr("width", barWidth)
@@ -396,6 +398,5 @@ function color(d) {
 }
 
 }
-
 </script>
 {% endblock %}
