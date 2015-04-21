@@ -39,7 +39,7 @@
         </table>
     </div>
 </div>
-{% if observable.indicators.all|length > 0 %}
+{% if observable.indicators.all|length > 0 or observable.observablecomposition_set.all|length > 0%}
 <div class="panel panel-info">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Indicators
@@ -54,6 +54,11 @@
             <tbody>
                 {% for indicator in observable.indicators.all %}
                     <tr><td><a href="{% url 'intel:indicator' indicator_id=indicator.id %}">{{ indicator.name }}</a></td></tr>
+                {% endfor %}
+                {% for indicator in observable.observablecomposition_set.all %}
+                    {% for indi_id in indicator.indicator.all %}
+                        <tr><td><a href="{% url 'intel:indicator' indicator_id=indi_id.id %}">{{ indicator.name }}</a></td></tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
