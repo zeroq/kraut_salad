@@ -20,7 +20,7 @@
         </div>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Packages
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all intelligence packages that contain/link the displayed observable."></i>
@@ -40,7 +40,7 @@
     </div>
 </div>
 {% if observable.indicators.all|length > 0 or observable.observablecomposition_set.all|length > 0%}
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Indicators
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all indicators that contain/link the displayed observable."></i>
@@ -65,7 +65,7 @@
     </div>
 </div>
 {% endif %}
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Observables
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all observables that contain/link the displayed object. Including the currently shown observable."></i>
@@ -90,7 +90,7 @@
         </table>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Related Observables
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all objects from other observables that have a relationship with the object displayed."></i>
@@ -128,7 +128,7 @@
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if observable %}
 {% spaceless %}
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{{ observable.name }}</h3>
     </div>

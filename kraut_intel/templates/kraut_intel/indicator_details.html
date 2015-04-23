@@ -42,7 +42,7 @@ path.link {
         </div>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Packages
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all intelligence packages that contain/link the displayed observable."></i>
@@ -60,7 +60,7 @@ path.link {
         </table>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Indicator Description</h3>
     </div>
@@ -86,7 +86,7 @@ path.link {
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if indicator %}
 {% spaceless %}
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{{ indicator.name }}</h3>
     </div>

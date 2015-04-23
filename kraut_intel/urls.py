@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^packages/$', views.packages, name='packages'),
     url(r'^package/(?P<package_id>\d+)/$', views.package, name='package'),
     url(r'^threatactors/$', views.threatactors, name='threatactors'),
+    url(r'^threatactor/(?P<threat_actor_id>\d+)/$', views.threatactor, name='threatactor'),
     url(r'^campaigns/$', views.campaigns, name='campaigns'),
     url(r'^campaign/(?P<campaign_id>\d+)/$', views.campaign, name='campaign'),
     url(r'^indicators/$', views.indicators, name='indicators'),

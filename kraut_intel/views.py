@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign
+from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -61,6 +61,48 @@ def package(request, package_id="1"):
 def threatactors(request):
     context = {}
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
+
+def threatactor(request, threat_actor_id="1"):
+    context = {'ta_id': threat_actor_id, 'ta': None}
+    try:
+        ta = ThreatActor.objects.filter(pk=int(threat_actor_id)).prefetch_related(
+            Prefetch('campaigns'),
+            Prefetch('associated_threat_actors'),
+        )
+    except ThreatActor.DoesNotExist:
+        messages.error(request, 'The requested threat actor does not exist!')
+        return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+    if len(ta)<=0:
+        messages.warning(request, "No threat actor with the given ID exists in the system.")
+    else:
+        context['ta'] = ta[0]
+        try:
+            ta_type_object = TA_Types.objects.get(actor=ta[0])
+            ta_type = ta_type_object.ta_type
+        except TA_Types.DoesNotExist:
+            ta_type = "Unknown"
+        try:
+            ta_roles = TA_Roles.objects.filter(actor=ta[0])
+        except TA_Roles.DoesNotExist:
+            ta_roles = [{'role': "Unknown"}]
+        ta_roles_string = ""
+        for item in ta_roles:
+            ta_roles_string += '%s, ' % (item.role)
+        ta_roles_string = ta_roles_string.strip()[:-1]
+        if ta_roles_string == "":
+            ta_roles_string = "Unknown"
+        try:
+            ta_alias = TA_Alias.objects.filter(actor=ta[0])
+        except TA_Alias.DoesNotExist:
+            ta_alias = None
+        context['ta_type'] = ta_type
+        context['ta_roles'] = ta_roles_string
+        context['ta_alias'] = ta_alias
+        context['namespace_icon'] = get_icon_for_namespace(ta[0].namespace)
+        context['tab'] = 'campaigns'
+        context['num_campaigns'] = ta[0].campaigns.count()
+        context['num_assoc_ta'] = ta[0].associated_threat_actors.count()
+    return render_to_response('kraut_intel/threatactor_details.html', context, context_instance=RequestContext(request))
 
 def campaigns(request):
     context = {}

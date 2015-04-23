@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block header %}
+.wrapdiv {
+    word-wrap: break-word;         /* All browsers since IE 5.5+ */
+    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+    width: 100%;
+}
+{% endblock %}
+{% block sidebar %}
+{% spaceless %}
+{% if ta %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ ta.namespace }}</h2>Side Panel
+        </div>
+    </div>
+</div>
+{% if ta_alias %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Threat Actor Aliases
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of other names that this threat actor is known as."></i>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <table id="alias_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Alias</th><th>Namespace</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+                {% for alias in ta_alias.all %}
+                <tr>
+                    <td>{{ alias.alias }}</td>
+                    <td>{{ alias.namespace }}</td>
+                    <td>{{ alias.alias_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% if num_assoc_ta != 0 %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Associated Threat Actors
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of other threat actors associated with this one."></i>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <table id="assoc_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
+            </thead>
+            <tbody>
+                {% for assoc in ta.associated_threat_actors.all %}
+                <tr>
+                    <td><a href="{% url 'intel:threatactor' threat_actor_id=assoc.id %}">{{ assoc.name }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Threat Actor.png' %}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ ta.name }}</h2>Threat Actor ID: {{ ta_id }}
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if ta %}
+{% spaceless %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ ta.name }}</h3>
+    </div>
+    <table class="table table-condensed table-borderless">
+        <tbody>
+            <tr>
+                <td align="right"><b>Namespace</b></td>
+                <td>{{ ta.namespace }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Type</b></td>
+                <td>{{ ta_type }}</td>
+                <td align="right"><b>Role</b></td>
+                <td>{{ ta_roles }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Import Time</b></td>
+                <td>{{ ta.creation_time }}</td>
+                <td align="right"><b>Modified Time</b></td>
+                <td>{{ ta.last_modified }}</td>
+            </tr>
+            <tr>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel-body">
+        <pre class="pre-scrollable wrapdiv">{{ ta.description }}</pre>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Intelligence Information</h3>
+    </div>
+    <div class="panel-body">
+        <div role="tabpanel">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" {% if tab == 'campaigns' %}class="active"{% endif %}>
+                    <a href="#campaigns" aria-controls="campaigns" role="tab" data-toggle="tab">
+                        <img src="{% static 'images/Campaign.png' %}" height="32">&nbsp;&nbsp;Campaigns
+                        <span class="badge">{{ num_campaigns }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane {% if tab == 'campaigns' %}active{% endif %}" id="campaigns">
+                    <br/>
+                    <table id="campaigns_table" class="table table-condensed" style="font-size: 0.9em;">
+                    <thead>
+                        <tr><th>Name</th><th>Short Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+    </div>
+</div>
+
+
+{% endspaceless %}
+{% endif %}
+{% endblock %}
+
+{% block javascript%}
+<script type="text/javascript" language="javascript" class="init">
+
+</script>
+{% endblock %}

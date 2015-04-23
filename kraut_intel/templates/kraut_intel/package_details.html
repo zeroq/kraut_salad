@@ -28,14 +28,14 @@
         </div>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Package Visualization</h3>
     </div>
     <div id="tree-container" class="panel-body">
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Quickstart Panel
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all        network and filesystem based indicators, such as domains, IP addresses, and file hashes. Items can also be exported and downloaded as a csv file."></i>
@@ -91,7 +91,7 @@
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if package %}
 {% spaceless %}
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{{ package.name }}</h3>
     </div>
@@ -123,6 +123,11 @@
 </div>
 {% endspaceless %}
 
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Intelligence Information</h3>
+    </div>
+    <div class="panel-body">
 <div role="tabpanel">
   {% spaceless %}
   <!-- Nav tabs -->
@@ -227,6 +232,8 @@
     </div>
   </div>
   {% endspaceless %}
+</div>
+</div>
 </div>
 
 {% endif %}
@@ -402,7 +409,11 @@ $(document).ready( function () {
                 {
                     'data': 'name', 
                     'sName': 'name', 
-                    'aTargets': [ 1 ]
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:campaign' campaign_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
                 },
                 {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 2 ]},
                 {'data': 'status', 'sName': 'status', 'aTargets': [ 3 ]},
@@ -428,7 +439,11 @@ $(document).ready( function () {
                 {
                     'data': 'name', 
                     'sName': 'name', 
-                    'aTargets': [ 1 ]
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:threatactor' threat_actor_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
                 },
                 {'data': 'short_description', 'sName': 'short_description', 'aTargets': [ 2 ]},
             ],

@@ -20,7 +20,7 @@
         </div>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Associated Campaigns
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all campaigns that are associated with the currently viewed campaign."></i>
@@ -39,7 +39,7 @@
         </table>
     </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Related Indicators
             <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all indicators that are related to the currently viewed campaign."></i>
@@ -76,7 +76,7 @@
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 {% if campaign %}
 {% spaceless %}
-<div class="panel panel-info">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{{ campaign.name }}</h3>
     </div>
