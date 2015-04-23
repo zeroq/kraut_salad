@@ -138,10 +138,11 @@
                     <br/>
                     <table id="campaigns_table" class="table table-condensed" style="font-size: 0.9em;">
                     <thead>
-                        <tr><th>Name</th><th>Short Description</th></tr>
+                        <tr><th>Name</th><th>Confidence</th><th>Status</th></tr>
                     </thead>
                     <tbody>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -151,14 +152,44 @@
             </div>
     </div>
 </div>
-
-
 {% endspaceless %}
 {% endif %}
 {% endblock %}
 
 {% block javascript%}
 <script type="text/javascript" language="javascript" class="init">
-
+$(document).ready( function () {
+        var pTable = $('#campaigns_table').DataTable({
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No linked campaigns found ...",
+                sZeroRecords: "No linked campaigns found ...",
+                sEmptyTable: "No linked campaigns found ...",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/threatactors/{{ ta_id }}/campaigns/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:campaign' campaign_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {'data': 'confidence', 'sName': 'confidence', 'aTargets': [ 2 ]},
+                {'data': 'status', 'sName': 'status', 'aTargets': [ 3 ]},
+            ],
+        });
+    });
 </script>
 {% endblock %}

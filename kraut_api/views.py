@@ -362,9 +362,9 @@ def package_detail_threatactors(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 ################### THREAT ACTOR #####################
-
-
 
 @api_view(['GET'])
 def threatactor_list(request, format=None):
@@ -429,6 +429,70 @@ def threatactor_detail(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def threatactor_detail_campaigns(request, pk, format=None):
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_by_column = 'name'
+                order_direction = '-'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        try:
+            ta = ThreatActor.objects.get(pk=pk)
+        except ThreatActor.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        queryset = ta.campaigns.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(status__istartswith=search_value)|
+                Q(confidence__value__istartswith=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            campaigns = paginator.page(page)
+        except:
+            campaigns = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedCampaignSerializer(campaigns, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def threatactor_detail_associated_threatactors(request, pk, format=None):
+    if not request.method == 'GET':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        ta = ThreatActor.objects.get(pk=pk)
+    except ThreatActor.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    response = {'results': []}
+    for asta in ta.associated_threat_actors.all():
+        response['results'].append({'name': asta.name, 'campaign_id': asta.id})
+    return JsonResponse(response)
 
 ################### CAMPAIGN #####################
 

@@ -17,6 +17,8 @@ urlpatterns = [
     url(r'^campaigns/(?P<pk>[0-9]+)/associated/$', views.campaign_detail_associated_campaigns),
     url(r'^threatactors/$', views.threatactor_list),
     url(r'^threatactors/(?P<pk>[0-9]+)/$', views.threatactor_detail),
+    url(r'^threatactors/(?P<pk>[0-9]+)/associated/$', views.threatactor_detail_associated_threatactors),
+    url(r'^threatactors/(?P<pk>[0-9]+)/campaigns/$', views.threatactor_detail_campaigns),
     url(r'^packages/$', views.package_list),
     url(r'^packages/(?P<pk>[0-9]+)/$', views.package_detail),
     url(r'^packages/(?P<pk>[0-9]+)/observables/$', views.package_detail_observables),
