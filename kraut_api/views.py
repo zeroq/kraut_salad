@@ -11,7 +11,7 @@ from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Pa
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer, CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
-import json
+import json, csv
 
 ################### PACKAGE #####################
 
@@ -74,13 +74,27 @@ def package_tree(request, pk):
     response['links'] = links
     return JsonResponse(response)
 
-def package_quick(request, pk, otype):
+def package_quick(request, pk, otype, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
     try:
         pack = Package.objects.get(pk=pk)
     except Package.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    if format and format=='csv':
+        if otype == 'FileObjectType':
+            fname = "hashes"
+        else:
+            fname = 'network-indicators'
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s-%s.csv"' % (pack.package_id, fname)
+        writer = csv.writer(response)
+        for obs in pack.observables.all():
+            if obs.observable_type == otype:
+                objects = get_object_for_observable(obs.observable_type, obs, no_hash=False)
+                for obj in objects:
+                    writer.writerow(['%s' % (obj)])
+        return response
     response = {'results': []}
     for obs in pack.observables.all():
         if obs.observable_type == otype:
