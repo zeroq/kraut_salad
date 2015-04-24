@@ -229,7 +229,7 @@ $(document).ready( function () {
                     'sName': 'name', 
                     'aTargets': [ 1 ],
                     'mRender': function (data, type, full) {
-                        var view_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(full.id));
+                        var view_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(full.campaign_id));
                         return '<a href="'+view_url+'">'+data+'</a>';
                     }
                 }

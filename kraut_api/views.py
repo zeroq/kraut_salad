@@ -505,7 +505,7 @@ def threatactor_detail_associated_threatactors(request, pk, format=None):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     response = {'results': []}
     for asta in ta.associated_threat_actors.all():
-        response['results'].append({'name': asta.name, 'campaign_id': asta.id})
+        response['results'].append({'name': asta.name, 'threatactor_id': asta.id})
     return JsonResponse(response)
 
 ################### CAMPAIGN #####################
