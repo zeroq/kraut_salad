@@ -21,6 +21,7 @@ class Contact(models.Model):
     lastname = models.CharField(max_length=255)
     phone = models.CharField(max_length=255)
     email = models.EmailField(max_length=255)
+    description = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (("firstname", "lastname", "email"),)

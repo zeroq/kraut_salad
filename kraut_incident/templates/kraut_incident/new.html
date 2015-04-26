@@ -1,5 +1,36 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block sidebar %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <!-- <img src="#" height="64" class="media-object"> -->
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">PLACEHOLDER: User Namespace</h2>Side Panel
+        </div>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Incident Handler
+            <a class="btn btn-primary btn-sm" href="#"><i class="fa fa-user-plus fa-sm"></i> Add Handler</a>
+        </h3>
+    </div>
+    <div class="panel-body">
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Incident Contacts
+            <a class="btn btn-primary btn-sm" href="#"><i class="fa fa-user-plus fa-sm"></i> Add Contact</a>
+        </h3>
+    </div>
+    <div class="panel-body">
+    </div>
+</form>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <div class="media">
@@ -12,4 +43,19 @@
     </div>
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<form method="post" action="">
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Basic Incident Information</h3>
+    </div>
+    <div class="panel-body">
+            {% csrf_token %}
+            {% for field in formset %}
+                <div class="form-group">
+                    {{ field.label_tag }} {{ field }}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Create Incident</button>
+    </div>
+</div>
 {% endblock%}
