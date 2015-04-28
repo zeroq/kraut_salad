@@ -23,12 +23,37 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Incident Contacts
-            <a class="btn btn-primary btn-sm" href="#"><i class="fa fa-user-plus fa-sm"></i> Add Contact</a>
+            <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addContactModal"><i class="fa fa-user-plus fa-sm"></i> Add Contact</a>
         </h3>
     </div>
     <div class="panel-body">
     </div>
 </form>
+
+<div class="modal bs-example-modal-lg" id="addContactModal" tabindex="-1" role="dialog" aria-labelledby="addcontactlabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addcontactlabel">Add Incident Contact</h4>
+            </div>
+            <form method="post" action="" id="post-contact">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {% for field in contact_form %}
+                        <div class="form-group">
+                            {{ field.label_tag }} {{ field }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -59,3 +84,44 @@
     </div>
 </div>
 {% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+    
+// Submit post on submit
+$('#post-contact').on('submit', function(event){
+    event.preventDefault();
+    console.log("form submitted!")  // sanity check
+    create_contact_post();
+    $('#addContactModal').modal('hide')
+});
+
+// AJAX for posting
+function create_contact_post() {
+    console.log("create post is working!") // sanity check
+    $.ajax({
+        url : "incidents/create_contact/", // the endpoint
+        type : "POST", // http method
+        data : { 
+            firstname : $('#post_contact_firstname').val(),
+            lastname : $('#post_contact_lastname').val(),
+            phone : $('#post_contact_phone').val(),
+            email : $('#post_contact_email').val(),
+            description : $('#post_contact_description').val(),
+        },
+        // handle a successful response
+        success : function(json) {
+            $('#post-text').val('');
+            console.log("success");
+        },
+        // handle a non-successful response
+        error : function(xhr,errmsg,err) {
+            $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                                " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+};
+
+</script>
+{% endblock %}
