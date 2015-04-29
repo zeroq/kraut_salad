@@ -376,7 +376,10 @@ class Command(BaseCommand):
                     }
                     # get relationship information
                     if 'relationship' in related_object:
-                        related_object_dict['relationship'] = related_object['relationship'].get('value', 'contains')
+                        if isinstance(related_object['relationship'], dict):
+                            related_object_dict['relationship'] = related_object['relationship'].get('value', 'contains')
+                        else:
+                            related_object_dict['relationship'] = related_object['relationship']
                     # check if it is a reference or a complete object
                     if 'idref' in related_object:
                         try:
