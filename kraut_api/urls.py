@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/packages/$', views.object_get_packages),
     url(r'^compositions/(?P<pk>[0-9]+)/$', views.composition_details),
     url(r'^compositions/(?P<pk>[0-9]+)/d3/$', views.composition_details_d3),
+    url(r'^incident/contacts/$', views.contact_list),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

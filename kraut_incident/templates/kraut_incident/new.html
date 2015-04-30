@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block sidebar %}
+{% spaceless %}
 <div class="page-header">
     <div class="media">
         <div class="media-left">
@@ -11,6 +12,7 @@
         </div>
     </div>
 </div>
+<div id="create_results"></div> <!-- errors go here -->
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Incident Handler
@@ -27,9 +29,20 @@
         </h3>
     </div>
     <div class="panel-body">
+        <table id="contacts_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Add</th><th>Lastname</th><th>Firstname</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-</form>
-
+</div>
 <div class="modal bs-example-modal-lg" id="addContactModal" tabindex="-1" role="dialog" aria-labelledby="addcontactlabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -54,6 +67,7 @@
         </div>
     </div>
 </div>
+{% endspaceless %}
 {% endblock %}
 
 {% block content %}
@@ -68,12 +82,12 @@
     </div>
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
-<form method="post" action="">
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Basic Incident Information</h3>
     </div>
     <div class="panel-body">
+        <form method="post" action="" id="post-incident">
             {% csrf_token %}
             {% for field in formset %}
                 <div class="form-group">
@@ -81,6 +95,7 @@
                 </div>
             {% endfor %}
             <button type="submit" class="btn btn-primary">Create Incident</button>
+        </form>
     </div>
 </div>
 {% endblock%}
@@ -91,16 +106,14 @@
 // Submit post on submit
 $('#post-contact').on('submit', function(event){
     event.preventDefault();
-    console.log("form submitted!")  // sanity check
     create_contact_post();
     $('#addContactModal').modal('hide')
 });
 
 // AJAX for posting
 function create_contact_post() {
-    console.log("create post is working!") // sanity check
     $.ajax({
-        url : "incidents/create_contact/", // the endpoint
+        url : "{% url 'incidents:create_contact' %}", // the endpoint
         type : "POST", // http method
         data : { 
             firstname : $('#post_contact_firstname').val(),
@@ -108,20 +121,76 @@ function create_contact_post() {
             phone : $('#post_contact_phone').val(),
             email : $('#post_contact_email').val(),
             description : $('#post_contact_description').val(),
+            'csrfmiddlewaretoken': '{{csrf_token}}',
         },
         // handle a successful response
         success : function(json) {
-            $('#post-text').val('');
+            $('#post_contact_firstname').val('');
+            $('#post_contact_lastname').val('');
+            $('#post_contact_phone').val('');
+            $('#post_contact_email').val('');
+            $('#post_contact_description').val('');
             console.log("success");
+            var my_alert = '';
+            myObject = JSON.parse(json.message);
+            for (var key in myObject) {
+                my_alert = my_alert.concat('<div class="alert alert-'+json.result+' alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+key+': '+myObject[key][0]["message"]+'</div>');
+            };
+            $("#create_results").html(my_alert);
+            $('#contacts_table').DataTable().ajax.reload();
         },
         // handle a non-successful response
         error : function(xhr,errmsg,err) {
-            $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
-                                " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+            $('#create_results').html("<div class='alert alert-danger alert-dismissible' role='alert'>Oops! We have encountered an error: "+errmsg+
+                    " <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
         }
     });
 };
+
+$(document).ready( function () {
+    var cTable = $('#contacts_table').DataTable({
+        processing: true,
+        info: false,
+        bLengthChange: false,
+        serverSide: true,
+        oLanguage: {
+            sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+        },
+        order: [[ 1, "desc" ]],
+        ajax: {
+            processing: true,
+            url: "/api/incident/contacts/.json",
+            dataSrc: "results",
+            type: "GET",
+            dataType: "json"
+        },
+        columns: [
+            {
+                "data": 'id', 
+                'sName': 'operations',
+                'bSortable': false,
+                'aTargets': [ 1 ],
+                "mRender": function (data, type, full) {
+                    return '<div class="checkbox"><input type="checkbox" id="ContactCheckBox_'+data+'" form="post-incident" value="'+data+'"></div>'
+                }
+            },
+            {'data': 'lastname', 'sName': 'lastname', 'aTargets': [ 2 ]},
+            {'data': 'firstname', 'sName': 'firstname', 'aTargets': [ 3 ]},
+        ],
+    });
+});
+
+$('#post-incident').submit(function(){
+    $('input[type=checkbox]').each(function () {
+        if (this.checked) {
+            $('<input />').attr('type', 'hidden')
+                .attr('name', this.id)
+                .attr('value', this.value)
+                .appendTo('#post-incident');
+        }
+    });
+});
 
 </script>
 {% endblock %}

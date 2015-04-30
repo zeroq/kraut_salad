@@ -11,8 +11,7 @@ incident_children = (
     MenuItem("New Incident",
             reverse("incidents:new"),
             weight=80,
-            image="images/NewIncident.png",
-            separator=True),
+            image="images/NewIncident.png"),
 )
 
 Menu.add_item("incident", MenuItem("Incidents",

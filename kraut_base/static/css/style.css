@@ -110,3 +110,7 @@ a.caret-after {
 .table-borderless th {
     border: 0 !important;
 }
+
+.fa-question-circle {
+    cursor: help
+}
