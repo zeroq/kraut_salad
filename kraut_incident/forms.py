@@ -1,18 +1,30 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.forms import ModelForm, widgets
-from kraut_incident.models import Incident, Contact
+from kraut_incident.models import Incident, Contact, Handler
+
+class HandlerForm(ModelForm):
+    class Meta:
+        model = Handler
+        fields = ["firstname", "lastname", "phone", "email", "description"]
+        widgets = {
+            'firstname': widgets.TextInput(attrs={'id': 'post_handler_firstname', 'class': 'form-control', 'placeholder': ''}),
+            'lastname': widgets.TextInput(attrs={'id': 'post_handler_lastname', 'class': 'form-control', 'placeholder': ''}),
+            'phone': widgets.TextInput(attrs={'id': 'post_handler_phone', 'class': 'form-control', 'placeholder': ''}),
+            'email': widgets.EmailInput(attrs={'id': 'post_handler_email', 'class': 'form-control', 'placeholder': ''}),
+            'description': widgets.Textarea(attrs={'id': 'post_handler_description', 'class': 'form-control', 'placeholder': 'What is this handler responsible for ...'}),
+        }
 
 class ContactForm(ModelForm):
     class Meta:
         model = Contact
         fields = ["firstname", "lastname", "phone", "email", "description"]
         widgets = {
-            'firstname': widgets.TextInput(attrs={'id': 'post_contact_firstname', 'class': 'form-control', 'placeholder': '', 'required': True}),
-            'lastname': widgets.TextInput(attrs={'id': 'post_contact_lastname', 'class': 'form-control', 'placeholder': '', 'required': True}),
-            'phone': widgets.TextInput(attrs={'id': 'post_contact_phone', 'class': 'form-control', 'placeholder': '', 'required': False}),
-            'email': widgets.EmailInput(attrs={'id': 'post_contact_email', 'class': 'form-control', 'placeholder': '', 'required': True}),
-            'description': widgets.Textarea(attrs={'id': 'post_contact_description', 'class': 'form-control', 'placeholder': 'What is this contact responsible for ...', 'required': False}),
+            'firstname': widgets.TextInput(attrs={'id': 'post_contact_firstname', 'class': 'form-control', 'placeholder': ''}),
+            'lastname': widgets.TextInput(attrs={'id': 'post_contact_lastname', 'class': 'form-control', 'placeholder': ''}),
+            'phone': widgets.TextInput(attrs={'id': 'post_contact_phone', 'class': 'form-control', 'placeholder': ''}),
+            'email': widgets.EmailInput(attrs={'id': 'post_contact_email', 'class': 'form-control', 'placeholder': ''}),
+            'description': widgets.Textarea(attrs={'id': 'post_contact_description', 'class': 'form-control', 'placeholder': 'What is this contact responsible for ...'}),
         }
 
 

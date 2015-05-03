@@ -8,8 +8,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib import messages
 
-from kraut_incident.forms import IncidentForm, ContactForm
-from kraut_incident.models import Contact
+from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm
+from kraut_incident.models import Contact, Handler
 
 # Create your views here.
 
@@ -20,6 +20,21 @@ def home(request):
 def list_incidents(request):
     context = {}
     return render_to_response('kraut_incident/list.html', context, context_instance=RequestContext(request))
+
+def create_handler(request):
+    """This function is called from within the incident creation dialog to instantly add a new incident handler
+    """
+    context = {}
+    if request.method == 'POST':
+        handler_form = HandlerForm(request.POST)
+        if handler_form.is_valid():
+            new_handler = Handler.objects.get_or_create(**handler_form.cleaned_data)
+            response_data = {'result': 'info', 'message': json.dumps({'info': [{'message': 'handler succesfully created!'}]})}
+        else:
+            response_data = {'result': 'danger', 'message': handler_form.errors.as_json()}
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}), content_type="application/json")
 
 def create_contact(request):
     """This function is called from within the incident creation dialog to instantly add a new contact
@@ -46,6 +61,8 @@ def new_incident(request):
         return HttpResponseRedirect(reverse("incidents:new"))
     incident_form = IncidentForm(initial={'status': 1, 'category': 7})
     contact_form = ContactForm()
+    handler_form = HandlerForm()
     context['formset'] = incident_form
     context['contact_form'] = contact_form
+    context['handler_form'] = handler_form
     return render_to_response('kraut_incident/new.html', context, context_instance=RequestContext(request))

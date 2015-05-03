@@ -16,12 +16,49 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Incident Handler
-            <a class="btn btn-primary btn-sm" href="#"><i class="fa fa-user-plus fa-sm"></i> Add Handler</a>
+            <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addHandlerModal"><i class="fa fa-user-plus fa-sm"></i> Add Handler</a>
         </h3>
     </div>
     <div class="panel-body">
+        <table id="handlers_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Add</th><th>Lastname</th><th>Firstname</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
+<div class="modal bs-example-modal-lg" id="addHandlerModal" tabindex="-1" role="dialog" aria-labelledby="addhandlerlabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addhandlerlabel">Add Incident Handler</h4>
+            </div>
+            <form method="post" action="" id="post-handler">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {% for field in handler_form %}
+                        <div class="form-group">
+                            {{ field.label_tag }} {{ field }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Incident Contacts
@@ -104,13 +141,58 @@
 <script type="text/javascript" language="javascript" class="init">
     
 // Submit post on submit
+$('#post-handler').on('submit', function(event){
+    event.preventDefault();
+    create_handler_post();
+    $('#addHandlerModal').modal('hide')
+});
+
+// Submit post on submit
 $('#post-contact').on('submit', function(event){
     event.preventDefault();
     create_contact_post();
     $('#addContactModal').modal('hide')
 });
 
-// AJAX for posting
+// Create Incident Handler Person
+function create_handler_post() {
+    $.ajax({
+        url : "{% url 'incidents:create_handler' %}", // the endpoint
+        type : "POST", // http method
+        data : { 
+            firstname : $('#post_handler_firstname').val(),
+            lastname : $('#post_handler_lastname').val(),
+            phone : $('#post_handler_phone').val(),
+            email : $('#post_handler_email').val(),
+            description : $('#post_handler_description').val(),
+            'csrfmiddlewaretoken': '{{csrf_token}}',
+        },
+        // handle a successful response
+        success : function(json) {
+            $('#post_handler_firstname').val('');
+            $('#post_handler_lastname').val('');
+            $('#post_handler_phone').val('');
+            $('#post_handler_email').val('');
+            $('#post_handler_description').val('');
+            console.log("success");
+            var my_alert = '';
+            myObject = JSON.parse(json.message);
+            for (var key in myObject) {
+                my_alert = my_alert.concat('<div class="alert alert-'+json.result+' alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+key+': '+myObject[key][0]["message"]+'</div>');
+            };
+            $("#create_results").html(my_alert);
+            $('#handlers_table').DataTable().ajax.reload();
+        },
+        // handle a non-successful response
+        error : function(xhr,errmsg,err) {
+            $('#create_results').html("<div class='alert alert-danger alert-dismissible' role='alert'>Oops! We have encountered an error: "+errmsg+
+                    " <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+};
+
+// Create Incident Contact Person
 function create_contact_post() {
     $.ajax({
         url : "{% url 'incidents:create_contact' %}", // the endpoint
@@ -147,6 +229,39 @@ function create_contact_post() {
         }
     });
 };
+
+$(document).ready( function () {
+    var cTable = $('#handlers_table').DataTable({
+        processing: true,
+        info: false,
+        bLengthChange: false,
+        serverSide: true,
+        oLanguage: {
+            sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+        },
+        order: [[ 1, "desc" ]],
+        ajax: {
+            processing: true,
+            url: "/api/incident/handlers/.json",
+            dataSrc: "results",
+            type: "GET",
+            dataType: "json"
+        },
+        columns: [
+            {
+                "data": 'id', 
+                'sName': 'operations',
+                'bSortable': false,
+                'aTargets': [ 1 ],
+                "mRender": function (data, type, full) {
+                    return '<div class="checkbox"><input type="checkbox" id="HandlerCheckBox_'+data+'" form="post-incident" value="'+data+'"></div>'
+                }
+            },
+            {'data': 'lastname', 'sName': 'lastname', 'aTargets': [ 2 ]},
+            {'data': 'firstname', 'sName': 'firstname', 'aTargets': [ 3 ]},
+        ],
+    });
+});
 
 $(document).ready( function () {
     var cTable = $('#contacts_table').DataTable({

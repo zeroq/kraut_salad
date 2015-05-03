@@ -14,6 +14,18 @@ def random_incident_number():
 
 # Create your models here.
 
+class Handler(models.Model):
+    """Describe an incident handler person
+    """
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
+    phone = models.CharField(max_length=255, blank=True)
+    email = models.EmailField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = (("firstname", "lastname", "email"),)
+
 class Contact(models.Model):
     """Describe a contact person
     """
@@ -135,7 +147,7 @@ class Incident(models.Model):
     category = models.ForeignKey(Incident_Category)
     affected_assets = models.ManyToManyField(Asset, blank=True)
     tasks = models.ManyToManyField(Task, blank=True)
-    incident_handler = models.ManyToManyField(Contact, blank=True, related_name="incident_handler")
+    incident_handler = models.ManyToManyField(Handler, blank=True, related_name="incident_handler")
     contacts = models.ManyToManyField(Contact, blank=True, related_name="contacts")
 
 
