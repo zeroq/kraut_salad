@@ -81,7 +81,7 @@
 <div class="page-header">
     <div class="media">
         <div class="media-left">
-            <img src="{% static 'images/Package.png' %}" height="64" class="media-object">
+            <object type="image/svg+xml" data="{% static 'images/Package.svg' %}" height="64" class="media-object"></object>
         </div>
         <div class="media-body">
             <h2 class="media-heading">{{ package.name }}</h2>Intelligence Package ID: {{ package_id }}
@@ -135,7 +135,7 @@
     {% if num_threat_actors > 0 %}
     <li role="presentation" {% if tab == 'threatactors' %}class="active"{% endif %}>
         <a href="#threatactors" aria-controls="threatactors" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Threat Actor.png' %}" height="32">&nbsp;&nbsp;Threat Actors
+            <img src="{% static 'images/Threat Actor.svg' %}" height="32" />&nbsp;&nbsp;Threat Actors
             <span class="badge">{{ num_threat_actors }}</span>
         </a>
     </li>
@@ -143,7 +143,7 @@
     {% if num_campaigns > 0 %}
     <li role="presentation" {% if tab == 'campaigns' %}class="active"{% endif %}>
         <a href="#campaigns" aria-controls="campaigns" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Campaign.png' %}" height="32">&nbsp;&nbsp;Campaigns
+            <img src="{% static 'images/Campaign.svg' %}" height="32" />&nbsp;&nbsp;Campaigns
             <span class="badge">{{ num_campaigns }}</span>
         </a>
     </li>
@@ -151,7 +151,7 @@
     {% if num_indicators > 0 %}
     <li role="presentation" {% if tab == 'indicators' %}class="active"{% endif %}>
         <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Indicator.png' %}" height="32">&nbsp;&nbsp;Indicators
+            <img src="{% static 'images/Indicator.svg' %}" height="32" />&nbsp;&nbsp;Indicators
             <span class="badge">{{ num_indicators }}</span>
         </a>
     </li>
@@ -159,7 +159,7 @@
     {% if num_observables > 0 %}
     <li role="presentation" {% if tab == 'observables' %}class="active"{% endif %}>
         <a href="#observables" aria-controls="observables" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Observable.png' %}" height="32">&nbsp;&nbsp;Observables
+            <img src="{% static 'images/Observable.svg' %}" height="32" />&nbsp;&nbsp;Observables
             <span class="badge">{{ num_observables }}</span>
         </a>
     </li>

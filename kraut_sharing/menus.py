@@ -7,7 +7,7 @@ incident_children = (
     MenuItem("Taxii",
             reverse("sharing:home"),
             weight=10,
-            image="images/Taxii.png"),
+            image="images/Taxii.svg"),
 )
 
 Menu.add_item("sharing", MenuItem("Sharing",

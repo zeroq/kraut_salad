@@ -7,11 +7,11 @@ incident_children = (
     MenuItem("List Incidents",
             reverse("incidents:list"),
             weight=10,
-            image="images/Incident.png"),
+            image="images/Incident.svg"),
     MenuItem("New Incident",
             reverse("incidents:new"),
             weight=80,
-            image="images/NewIncident.png"),
+            image="images/NewIncident.svg"),
 )
 
 Menu.add_item("incident", MenuItem("Incidents",

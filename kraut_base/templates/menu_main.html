@@ -16,7 +16,7 @@
                     {% else %}
                         <li>
                     {% endif %}
-                    <a href="{{ child.url }}">{% if child.image %}<img src="{% static child.image %}" height="16" style="vertical-align:middle">{% endif %}&nbsp;{{ child.title }}</a>
+                    <a href="{{ child.url }}">{% if child.image %}<img src="{% static child.image %}" height="16" style="vertical-align:middle"/>{% endif %}&nbsp;{{ child.title }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -33,7 +33,7 @@
                 {% for child in item.children %}
                     {% if child.separator %}<li style="border-bottom: 1px solid #ccc;"></li>{% endif %}
                     <li>
-                        <a href="{{ child.url }}">{% if child.image %}<img src="{% static child.image %}" height="16" style="vertical-align:middle">{% endif %}&nbsp;{{ child.title }}</a>
+                    <a href="{{ child.url }}">{% if child.image %}<img src="{% static child.image %}" height="16" style="vertical-align:middle"/>{% endif %}&nbsp;{{ child.title }}</a>
                     </li>
                 {% endfor %}
             </ul>

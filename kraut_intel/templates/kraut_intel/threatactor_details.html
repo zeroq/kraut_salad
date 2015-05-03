@@ -74,7 +74,7 @@
 <div class="page-header">
     <div class="media">
         <div class="media-left">
-            <img src="{% static 'images/Threat Actor.png' %}" height="64" class="media-object">
+            <object type="image/svg+xml" data="{% static 'images/Threat Actor.svg' %}" height="64" class="media-object"></object>
         </div>
         <div class="media-body">
             <h2 class="media-heading">{{ ta.name }}</h2>Threat Actor ID: {{ ta_id }}
@@ -124,7 +124,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" {% if tab == 'campaigns' %}class="active"{% endif %}>
                     <a href="#campaigns" aria-controls="campaigns" role="tab" data-toggle="tab">
-                        <img src="{% static 'images/Campaign.png' %}" height="32">&nbsp;&nbsp;Campaigns
+                        <img src="{% static 'images/Campaign.svg' %}" height="32" />&nbsp;&nbsp;Campaigns
                         <span class="badge">{{ num_campaigns }}</span>
                     </a>
                 </li>

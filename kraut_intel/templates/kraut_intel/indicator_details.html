@@ -76,7 +76,7 @@ path.link {
 <div class="page-header">
     <div class="media">
         <div class="media-left">
-            <img src="{% static 'images/Indicator.png' %}" height="64" class="media-object">
+            <object type="image/svg+xml" data="{% static 'images/Indicator.svg' %}" height="64" class="media-object"></object>
         </div>
         <div class="media-body">
             <h2 class="media-heading">{{ indicator.name }}</h2>Indicator ID: {{ indicator_id }}
@@ -128,7 +128,7 @@ path.link {
     {% if num_indicators > 0 %}
     <li role="presentation" {% if tab == 'indicators' %}class="active"{% endif %}>
         <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Indicator.png' %}" height="32">&nbsp;&nbsp;Indicators
+            <img src="{% static 'images/Indicator.svg' %}" height="32" />&nbsp;&nbsp;Indicators
             <span class="badge">{{ num_indicators }}</span>
         </a>
     </li>
@@ -136,7 +136,7 @@ path.link {
     {% if num_observables > 0 %}
     <li role="presentation" {% if tab == 'observables' %}class="active"{% endif %}>
         <a href="#observables" aria-controls="observables" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Observable.png' %}" height="32">&nbsp;&nbsp;Observables
+            <img src="{% static 'images/Observable.svg' %}" height="32"/>&nbsp;&nbsp;Observables
             <span class="badge">{{ num_observables }}</span>
         </a>
     </li>
@@ -144,7 +144,7 @@ path.link {
     {% if num_observable_compositions > 0 %}
     <li role="presentation" {% if tab == 'compositions' %}class="active"{% endif %}>
         <a href="#compositions" aria-controls="compositions" role="tab" data-toggle="tab">
-            <img src="{% static 'images/Observable.png' %}" height="32">&nbsp;&nbsp;Observable Compositions
+            <img src="{% static 'images/Observable.svg' %}" height="32" />&nbsp;&nbsp;Observable Compositions
             <span class="badge">{{ num_observable_compositions }}</span>
         </a>
     </li>
