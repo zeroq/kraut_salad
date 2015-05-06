@@ -2,11 +2,26 @@
 
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
-from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition
+from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object
 from kraut_intel.utils import get_icon_for_namespace
 from kraut_incident.models import Contact, Handler
 
 import datetime
+
+################### OBJECT #####################
+
+class FileObjectSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = File_Object
+        fields = ('id', 'md5_hash', 'sha256_hash')
+
+class PaginatedFileObjectSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = FileObjectSerializer
 
 ################### PACKAGE #####################
 
