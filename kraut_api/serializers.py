@@ -8,21 +8,6 @@ from kraut_incident.models import Contact, Handler
 
 import datetime
 
-################### OBJECT #####################
-
-class FileObjectSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = File_Object
-        fields = ('id', 'md5_hash', 'sha256_hash')
-
-class PaginatedFileObjectSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = FileObjectSerializer
-
 ################### PACKAGE #####################
 
 # Package Details
@@ -294,3 +279,20 @@ class PaginatedContactSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = ContactSerializer
+
+################### OBJECT #####################
+
+class FileObjectSerializer(serializers.ModelSerializer):
+    observables = ObservableSerializer(many=True)
+
+    class Meta:
+        model = File_Object
+        fields = ('id', 'md5_hash', 'sha256_hash', 'observables')
+
+class PaginatedFileObjectSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = FileObjectSerializer
+

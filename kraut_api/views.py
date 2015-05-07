@@ -1035,10 +1035,11 @@ def object_hash_list(request, format=None):
             order_direction = '-'
             search_value = None
         # construct queryset
-        queryset = File_Object.objects.filter(~Q(md5_hash='Not Set')).order_by('-observables__last_modified')
+        queryset = File_Object.objects.filter(~Q(md5_hash='No MD5')).order_by('-observables__last_modified')
         if search_value:
             queryset = queryset.filter(
-                Q(md5_hash__icontains=search_value)
+                Q(md5_hash__icontains=search_value)|
+                Q(sha256_hash__icontains=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:

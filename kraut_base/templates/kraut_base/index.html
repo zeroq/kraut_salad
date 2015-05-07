@@ -56,15 +56,30 @@
     </div>
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
-<br/>
-<table class="table table-borderless">
-    <thead>
-    </thead>
-    <tbody>
-        <tr>
-        </tr>
-    </tbody>
-</table>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Recent Hashes</h3>
+    </div>
+    <div class="panel-body">
+        <div role="tabpanel">
+        <table id="hash_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>MD5 Hash</th>
+                    <th>SHA256 Hash</th>
+                    <th>Operations</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
 {% endspaceless%}
 {% endblock%}
 
@@ -73,5 +88,46 @@
 $(function () {
     $('[data-toggle="popover"]').popover()
 });
+
+$(document).ready( function () {
+    var HashTable = $('#hash_table').DataTable({
+        processing: true,
+        serverSide: true,
+        bLengthChange: false,
+        oLanguage: {
+            sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+        },
+        ajax: {
+            processing: true,
+            url: "/api/objects/hashes/.json",
+            dataSrc: "results",
+            type: "GET",
+            dataType: "json"
+        },
+        columns: [
+            {'data': 'md5_hash', 'sName': 'MD5 Hash', 'aTargets': [ 1 ]},
+            {'data': 'sha256_hash', 'sName': 'SHA256 Hash', 'aTargets': [ 2 ]},
+            {
+                'data': 'id',
+                'sName': 'operations',
+                'bSortable': false,
+                'aTargets': [ 3 ],
+                "mRender": function (data, type, full) {
+                    return '<div class="btn-group1">' +
+                        '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="#">' +
+                        '<i class="fa fa-eye"></i>' +
+                        '</a>' +
+                        '</div>';
+                },
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $("a", nTd).tooltip();
+                }
+            }
+        ],
+    });
+});
+
+
+
 </script>
 {% endblock%}
