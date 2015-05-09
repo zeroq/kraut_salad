@@ -50,7 +50,8 @@ INSTALLED_APPS = (
     'kraut_parser',
     'kraut_incident',
     'kraut_intel',
-    'kraut_sharing'
+    'kraut_sharing',
+    'kraut_export'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -110,3 +111,5 @@ REST_FRAMEWORK = {
 }
 
 MENU_SELECT_PARENTS = True
+
+MY_NAMESPACE = {'http://pi-one.net': 'pi-one'}
