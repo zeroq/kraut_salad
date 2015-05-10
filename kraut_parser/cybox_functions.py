@@ -359,7 +359,11 @@ def handle_http_session_object(http_obj):
                             port_object, port_object_created = Port_Object.objects.get_or_create(**port_dict)
                             client_dict['port'] = port_object
                     # get user agent information
-                    client_dict['user_agent'] = request['http_client_request']['http_request_header']['parsed_header'].get('user_agent', None)
+                    user_agent_value = request['http_client_request']['http_request_header']['parsed_header'].get('user_agent', None)
+                    if isinstance(user_agent_value, dict):
+                        client_dict['user_agent'] = user_agent_value['value']
+                    else:
+                        client_dict['user_agent'] = user_agent_value
             if 'http_client_request' in request and 'http_request_line' in request['http_client_request']:
                 client_dict['request_method'] = request['http_client_request']['http_request_line'].get('http_method', 'GET')
                 client_dict['request_uri'] = request['http_client_request']['http_request_line'].get('value', '/')
