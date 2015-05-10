@@ -101,7 +101,9 @@ def package_quick(request, pk, otype, format=None):
         if obs.observable_type == otype:
             objects = get_object_for_observable(obs.observable_type, obs, no_hash=False)
             for obj in objects:
-                response['results'].append({'value': '%s' % (obj)})
+                item = {'value': '%s' % (obj)}
+                if item not in response['results']:
+                    response['results'].append(item)
     return JsonResponse(response)
 
 @api_view(['GET'])
