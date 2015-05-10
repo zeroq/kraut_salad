@@ -230,6 +230,13 @@
         </a>
     </li>
     {% endif %}
+    {% if observable.observable_type == 'DNSQueryObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#dns" aria-controls="dns" role="tab" data-toggle="tab">
+            <i class="fa fa-random"></i>&nbsp;&nbsp;DNS Query Object
+        </a>
+    </li>
+    {% endif %}
   </ul>
 
   <!-- Tab panes -->
@@ -379,20 +386,17 @@
     </div>
     {% endif %}
     <!-- ADDRESS -->
-    <div role="tabpanel" class="tab-pane {% if tab == 'observables' %}active{% endif %}" id="observables">
+    {% if observable.observable_type == 'AddressObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="address">
         <br/>
-        <table id="observables_table" class="table table-condensed" style="font-size: 0.9em;">
-            <thead>
-                <tr><th>Name</th><th>Type</th></tr>
-            </thead>
-            <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-            </tbody>
-        </table>
     </div>
+    {% endif %}
+    <!-- DNS QUERY -->
+    {% if observable.observable_type == 'DNSQueryObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="dns">
+        <br/>
+    </div>
+    {% endif %}
   </div>
   {% endspaceless %}
 </div>

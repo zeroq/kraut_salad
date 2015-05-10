@@ -6,9 +6,9 @@ from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference, ObservableComposition
-from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest
+from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
 # import helper functions
-from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object
+from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
 
 class Command(BaseCommand):
     args = '<stix_xml>'
@@ -107,6 +107,8 @@ class Command(BaseCommand):
             db_object = EmailMessage_Object.objects.get(id=object_id)
         elif object_type == 'HTTPSessionObjectType':
             db_object = HTTPSession_Object.objects.get(id=object_id)
+        elif object_type == 'DNSQueryObjectType':
+            db_object = DNSQuery_Object.objects.get(id=object_id)
         return db_object
 
     def determine_create_object(self, observable_object, object_type, object_data, object_id):
@@ -302,6 +304,21 @@ class Command(BaseCommand):
                 else:
                     self.id_mapping['objects'][object_id] = [{'object_id': session_object.id, 'object_type': object_type}]
                 object_list.append(session_object)
+        elif object_type == 'DNSQueryObjectType':
+            dns_question_dict = handle_dns_query_object(object_data)
+            # create dns question object
+            dns_question_object, dns_question_object_created = DNSQuestion.objects.get_or_create(**dns_question_dict)
+            # create dns query object
+            dns_query_object, dns_query_object_created = DNSQuery_Object.objects.get_or_create(successful=object_data['successful'], question=dns_question_object)
+            # add observable
+            dns_query_object.observables.add(observable_object)
+            dns_query_object.save()
+            # create object ID mapping
+            if object_id in self.id_mapping['objects']:
+                self.id_mapping['objects'][object_id].append({'object_id': dns_query_object.id, 'object_type': object_type})
+            else:
+                self.id_mapping['objects'][object_id] = [{'object_id': dns_query_object.id, 'object_type': object_type}]
+            object_list.append(dns_query_object)
         else:
             self.missed_objects[object_type] = True
         return object_list

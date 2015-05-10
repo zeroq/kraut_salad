@@ -316,6 +316,32 @@ def handle_link_object(li_obj):
         link_dict['link_type'] = li_obj.get('type', 'No Type')
     return link_dict
 
+def handle_dns_query_object(dns_obj):
+    query_dict = {
+        'qname': None,
+        'qtype': None,
+        'qclass': None,
+    }
+    if 'question' in dns_obj:
+        query_dict['qclass'] = dns_obj['question'].get('qclass', None)
+        query_dict['qtype'] = dns_obj['question'].get('qtype', None)
+        qname = dns_obj['question'].get('qname', None)
+        if isinstance(qname, dict):
+            uri_dict = {
+                'uri_value': qname.get('value', 'No Value'),
+                'uri_type': 'Domain Name',
+                'condition': 'equals'
+            }
+        else:
+            uri_dict = {
+                'uri_value': qname,
+                'uri_type': 'Domain Name',
+                'condition': 'equals'
+            }
+        uri_object, uri_object_created = URI_Object.objects.get_or_create(**uri_dict)
+        query_dict['qname'] = uri_object
+    return query_dict
+
 def handle_http_session_object(http_obj):
     """extract relevant information from a cybox http session object
     @http_obj: cybox http session object in json format

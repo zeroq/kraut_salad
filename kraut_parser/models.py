@@ -399,3 +399,17 @@ class HTTPSession_Object(models.Model):
     client_request = models.ForeignKey(HTTPClientRequest, null=True, blank=True)
     # http server response not implemented
     observables = models.ManyToManyField(Observable)
+
+
+class DNSQuestion(models.Model):
+    qname = models.ForeignKey(URI_Object)
+    qtype = models.CharField(max_length=255, null=True, blank=True)
+    qclass = models.CharField(max_length=255, null=True, blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (qname.uri_value)
+
+class DNSQuery_Object(models.Model):
+    successful = models.BooleanField(default=False)
+    question = models.ForeignKey(DNSQuestion)
+    observables = models.ManyToManyField(Observable)
