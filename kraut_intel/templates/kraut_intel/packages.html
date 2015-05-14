@@ -42,6 +42,9 @@
         var pTable = $('#packages_table').DataTable({
             processing: true,
             serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
             order: [[ 1, "desc" ]],
             ajax: {
                 processing: true,
