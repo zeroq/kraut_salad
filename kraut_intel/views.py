@@ -30,6 +30,11 @@ def delete_package(request, package_id="1"):
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
         return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+    ### iterate over observables/objects and delete
+    ### iterate over indicators
+    ### iterate over campaigns
+    ### iterate over threat actors
+    # delete package
     package.delete()
     messages.info(request, 'The intelligence package was deleted successfully!')
     return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
