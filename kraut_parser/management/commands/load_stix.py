@@ -346,7 +346,7 @@ class Command(BaseCommand):
             if first_entry:
                 self.stdout.write('[ERROR]')
                 first_entry = False
-            self.stdout.write('----> observable without object element and type description (%s)' % (obs_id))
+            self.stdout.write('----> observable without object element and type description (%s)' % (observable_id))
             return first_entry, package_object
         # check if observable already exists
         if observable_id in self.id_mapping['observables']:
@@ -814,6 +814,8 @@ class Command(BaseCommand):
             produced_time = date_parser(produced_time).replace(tzinfo=pytz.UTC)
 
         package_id = stix_json['id']
+        if title == 'No Title':
+            title = package_id
         package_namespace = stix_json['id'].split(':')[0]
         package_dict = {
             'package_id': package_id,

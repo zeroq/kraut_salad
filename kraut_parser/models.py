@@ -407,7 +407,7 @@ class DNSQuestion(models.Model):
     qclass = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
-        return u"%s" % (qname.uri_value)
+        return u"%s" % (self.qname.uri_value)
 
 class DNSQuery_Object(models.Model):
     successful = models.BooleanField(default=False)

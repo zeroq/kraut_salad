@@ -385,16 +385,20 @@
         {% endfor %}
     </div>
     {% endif %}
-    <!-- ADDRESS -->
-    {% if observable.observable_type == 'AddressObjectType' %}
-    <div role="tabpanel" class="tab-pane active" id="address">
-        <br/>
-    </div>
-    {% endif %}
     <!-- DNS QUERY -->
     {% if observable.observable_type == 'DNSQueryObjectType' %}
     <div role="tabpanel" class="tab-pane active" id="dns">
         <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                    <tr><td><b>Successful</b></td><td>{% if object.successful %}<span class="label label-success">{% else %}<span class="label label-danger">{% endif %}{{ object.successful }}</span></td></tr>
+                    <tr><td><b>QName</b></td><td>{{ object.question.qname.uri_value }}</td></tr>
+                    <tr><td><b>QType</b></td><td>{{ object.question.qtype }}</td></tr>
+                    <tr><td><b>QClass</b></td><td>{{ object.question.qclass }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     {% endif %}
   </div>
