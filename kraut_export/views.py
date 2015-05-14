@@ -24,6 +24,14 @@ def cybox_observable(request, pk):
         cybox_xml = cybox_uri(observable, observable.observable_type, objects)
     elif observable.observable_type == 'HTTPSessionObjectType':
         cybox_xml = cybox_http(observable, observable.observable_type, objects)
+    ### MISSING
+    # MutexObjectType
+    # CodeObjectType
+    # WindowsDriverObjectType
+    # LinkObjectType
+    # WindowsRegistryKeyObjectType
+    # EmailMessageObjectType
+    # DNSQueryObjectType
     if cybox_xml:
         return HttpResponse(cybox_xml.to_xml(), content_type="text/xml")
     return HttpResponseNotFound("Object %s not handled!" % (observable.observable_type))
