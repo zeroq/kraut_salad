@@ -92,14 +92,14 @@ def package_quick(request, pk, otype, format=None):
         writer = csv.writer(response)
         for obs in pack.observables.all():
             if obs.observable_type == otype:
-                objects = get_object_for_observable(obs.observable_type, obs, no_hash=False)
+                objects = get_object_for_observable(observable_type=obs.observable_type, observable_object=obs, no_hash=False)
                 for obj in objects:
                     writer.writerow(['%s' % (obj)])
         return response
     response = {'results': []}
     for obs in pack.observables.all():
         if obs.observable_type == otype:
-            objects = get_object_for_observable(obs.observable_type, obs, no_hash=False)
+            objects = get_object_for_observable(observable_type=obs.observable_type, observable_object=obs, no_hash=False)
             for obj in objects:
                 item = {'value': '%s' % (obj)}
                 if item not in response['results']:
@@ -953,7 +953,7 @@ def observable_related_objects(request, pk, format=None):
     except Observable.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'GET':
-        objects = get_object_for_observable(observable.observable_type, observable)
+        objects = get_object_for_observable(observable_type=observable.observable_type, observable_object=observable)
         final_list = []
         covered = []
         for obj in objects:
@@ -986,7 +986,8 @@ def object_get_observables(request, object_id, object_type):
     """Return a list of observables that contain the given object
     """
     final_list = []
-    objects = get_object_for_observable(object_type, object_id)
+    objects = get_object_for_observable(observable_type=object_type, object_id=object_id)
+    print objects
     for obj in objects:
         for obs in obj.observables.all():
             obs_dict = {'id': obs.pk, 'name': obs.name}
@@ -1006,7 +1007,7 @@ def object_get_packages(request, object_id, object_type):
     """Return a list of intelligence packages that contain the given object
     """
     final_list = []
-    objects = get_object_for_observable(object_type, object_id)
+    objects = get_object_for_observable(observable_type=object_type, object_id=object_id)
     for obj in objects:
         for obs in obj.observables.all():
             try:

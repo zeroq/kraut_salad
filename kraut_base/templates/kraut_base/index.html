@@ -123,6 +123,8 @@ $(function () {
 $('#hashesModal').on('show.bs.modal', function (event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
   var objectid = button.data('objectid') // Extract info from data-* attributes
+  var modal = $(this)
+  modal.find('.modal-title').text('Select Observable for Object ID: ' + objectid)
   var HashObservableTable = $('#hash_observable_table').DataTable({
     ordering: false,
     paging: false,
@@ -154,6 +156,7 @@ $('#hashesModal').on('show.bs.modal', function (event) {
       },
     ],
   });
+  HashObservableTable.destroy();
 });
 
 $(document).ready( function () {
