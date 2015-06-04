@@ -52,6 +52,7 @@ class Campaign(models.Model):
     short_description = models.CharField(max_length=255, null=True, blank=True)
     namespace = models.CharField(max_length=255, default='nospace')
     status = models.CharField(max_length=255, default='Ongoing')
+    campaign_id = models.CharField(max_length=255)
     confidence = models.ManyToManyField(Confidence, blank=True)
     related_indicators = models.ManyToManyField('Indicator', blank=True)
     associated_campaigns = models.ManyToManyField('self', blank=True)
@@ -68,6 +69,7 @@ class ThreatActor(models.Model):
     namespace = models.CharField(max_length=255, default='nospace')
     campaigns = models.ManyToManyField(Campaign, blank=True)
     associated_threat_actors = models.ManyToManyField('self', blank=True)
+    threat_actor_id = models.CharField(max_length=255)
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -116,6 +118,7 @@ class Indicator(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
+    indicator_id = models.CharField(max_length=255)
     namespace = models.CharField(max_length=255, default='nospace')
     indicator_types = models.ManyToManyField(Indicator_Type, blank=True)
     confidence = models.ManyToManyField(Confidence, blank=True)
@@ -144,6 +147,7 @@ class Observable(models.Model):
     namespace = models.CharField(max_length=255, default='nospace')
     indicators = models.ManyToManyField(Indicator, blank=True)
     observable_type = models.CharField(max_length=255, null=True, blank=True)
+    observable_id = models.CharField(max_length=255)
 
     def __unicode__(self):
         return u"%s" % (self.name)

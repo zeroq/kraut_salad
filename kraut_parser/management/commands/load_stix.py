@@ -359,7 +359,8 @@ class Command(BaseCommand):
                 'description': observable.get('description', 'No Description'),
                 'short_description': observable.get('short_description', 'No Short Description'),
                 'namespace': observable_namespace,
-                'observable_type': object_type
+                'observable_type': object_type,
+                'observable_id': observable_id.split(':')[1]
             }
             observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
             # create observable mapping
@@ -502,7 +503,8 @@ class Command(BaseCommand):
                     'name': indicator.get('title', indicator_id),
                     'namespace': indicator_id.split(':')[0],
                     'description': indicator.get('description', 'No Description'),
-                    'short_description': indicator.get('short_description', 'No Short Description')
+                    'short_description': indicator.get('short_description', 'No Short Description'),
+                    'indicator_id': indicator_id.split(':')[1]
                 }
                 indicator_object, indicator_object_created = Indicator.objects.get_or_create(**indicator_dict)
                 # create observable mapping
@@ -635,7 +637,8 @@ class Command(BaseCommand):
                     'description': campaign.get('description', 'No Description'),
                     'short_description': campaign.get('short_description', 'No Short Description'),
                     'namespace': campaign_namespace,
-                    'status': campaign.get('status', 'Ongoing')
+                    'status': campaign.get('status', 'Ongoing'),
+                    'campaign_id': campaign_id.split(':')[1]
                 }
                 campaign_object, campaign_object_created = Campaign.objects.get_or_create(**campaign_dict)
                 # create campaign mapping
@@ -683,7 +686,8 @@ class Command(BaseCommand):
                     'name': threat_actor_name,
                     'description': threat_actor.get('description', 'No Description'),
                     'short_description': threat_actor.get('short_description', 'No Short Description'),
-                    'namespace': threat_actor_namespace
+                    'namespace': threat_actor_namespace,
+                    'threat_actor_id': threat_actor_id.split(':')[1]
                 }
                 threat_actor_object, threat_actor_object_created = ThreatActor.objects.get_or_create(**threat_actor_dict)
                 # create threat actor mapping
@@ -818,7 +822,7 @@ class Command(BaseCommand):
             title = package_id
         package_namespace = stix_json['id'].split(':')[0]
         package_dict = {
-            'package_id': package_id,
+            'package_id': package_id.split(':')[1],
             'namespace': package_namespace,
             'version': stix_json['version'],
             'name': title,
