@@ -982,6 +982,26 @@ def observable_related_objects(request, pk, format=None):
 ################### OBJECTS #####################
 
 @api_view(['GET'])
+def object_get_observables(request, object_id, object_type):
+    """Return a list of observables that contain the given object
+    """
+    final_list = []
+    objects = get_object_for_observable(object_type, object_id)
+    for obj in objects:
+        for obs in obj.observables.all():
+            obs_dict = {'id': obs.pk, 'name': obs.name}
+            final_list.append(obs_dict)
+    total_results = len(final_list)
+    response = {
+        'count': total_results,
+        'iTotalRecords': total_results,
+        'iTotalDisplayRecords': total_results,
+        'results': final_list
+    }
+    return JsonResponse(response)
+
+
+@api_view(['GET'])
 def object_get_packages(request, object_id, object_type):
     """Return a list of intelligence packages that contain the given object
     """

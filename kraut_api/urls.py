@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^packages/(?P<pk>[0-9]+)/quick/(?P<otype>[a-zA-Z]+)/$', views.package_quick, name="package_quick"),
     url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
     url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/packages/$', views.object_get_packages),
+    url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/observables/$', views.object_get_observables),
     url(r'^objects/hashes/$', views.object_hash_list),
     url(r'^compositions/(?P<pk>[0-9]+)/$', views.composition_details),
     url(r'^compositions/(?P<pk>[0-9]+)/d3/$', views.composition_details_d3),
