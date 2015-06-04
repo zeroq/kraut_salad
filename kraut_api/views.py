@@ -991,7 +991,8 @@ def object_get_observables(request, object_id, object_type):
     for obj in objects:
         for obs in obj.observables.all():
             obs_dict = {'id': obs.pk, 'name': obs.name}
-            final_list.append(obs_dict)
+            if obs_dict not in final_list:
+                final_list.append(obs_dict)
     total_results = len(final_list)
     response = {
         'count': total_results,
