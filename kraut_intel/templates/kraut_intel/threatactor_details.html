@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load split_at %}
 {% block header %}
 .wrapdiv {
     word-wrap: break-word;         /* All browsers since IE 5.5+ */
@@ -16,7 +17,7 @@
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ ta.namespace }}</h2>Side Panel
+            <h2 class="media-heading">{{ ta.namespace|split_at:":,0" }}</h2>Side Panel
         </div>
     </div>
 </div>
