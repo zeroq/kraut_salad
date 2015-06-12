@@ -143,7 +143,7 @@ def cybox_object_email(obj):
     return e, attachment_objects
 
 def cybox_file(observable, observable_type, objects):
-    nsname, nsurl = observable.namespace.split(':')
+    nsname, nsurl = observable.namespace.split(':', 1)
     NS = cybox.utils.Namespace(nsurl, nsname)
     cybox.utils.set_id_namespace(NS)
     observables = Observables()
@@ -184,7 +184,7 @@ def cybox_file(observable, observable_type, objects):
     return observables
 
 def cybox_address(observable, observable_type, objects):
-    nsname, nsurl = observable.namespace.split(':')
+    nsname, nsurl = observable.namespace.split(':', 1)
     NS = cybox.utils.Namespace(nsurl, nsname)
     cybox.utils.set_id_namespace(NS)
     observables = Observables()
@@ -200,7 +200,7 @@ def cybox_address(observable, observable_type, objects):
     return observables
 
 def cybox_uri(observable, observable_type, objects):
-    nsname, nsurl = observable.namespace.split(':')
+    nsname, nsurl = observable.namespace.split(':', 1)
     NS = cybox.utils.Namespace(nsurl, nsname)
     cybox.utils.set_id_namespace(NS)
     observables = Observables()
@@ -216,7 +216,7 @@ def cybox_uri(observable, observable_type, objects):
     return observables
 
 def cybox_http(observable, observable_type, objects):
-    nsname, nsurl = observable.namespace.split(':')
+    nsname, nsurl = observable.namespace.split(':', 1)
     NS = cybox.utils.Namespace(nsurl, nsname)
     cybox.utils.set_id_namespace(NS)
     observables = Observables()
