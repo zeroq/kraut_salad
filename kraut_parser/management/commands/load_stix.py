@@ -334,7 +334,7 @@ class Command(BaseCommand):
         """
         # get ID and namespace
         observable_id = observable['id']
-        observable_namespace = self.get_full_namespace(observable_id.split(':')[0])
+        observable_namespace = self.get_full_namespace(observable_id.split(':', 1)[0])
         # determine object type and get object ID
         if 'object' in observable and 'properties' in observable['object']:
             object_type = observable['object']['properties']['xsi:type']
@@ -361,7 +361,7 @@ class Command(BaseCommand):
                 'short_description': observable.get('short_description', 'No Short Description'),
                 'namespace': observable_namespace,
                 'observable_type': object_type,
-                'observable_id': observable_id.split(':')[1]
+                'observable_id': observable_id.split(':', 1)[1]
             }
             observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
             # create observable mapping
@@ -502,10 +502,10 @@ class Command(BaseCommand):
             else:
                 indicator_dict = {
                     'name': indicator.get('title', indicator_id),
-                    'namespace': self.get_full_namespace(indicator_id.split(':')[0]),
+                    'namespace': self.get_full_namespace(indicator_id.split(':', 1)[0]),
                     'description': indicator.get('description', 'No Description'),
                     'short_description': indicator.get('short_description', 'No Short Description'),
-                    'indicator_id': indicator_id.split(':')[1]
+                    'indicator_id': indicator_id.split(':', 1)[1]
                 }
                 indicator_object, indicator_object_created = Indicator.objects.get_or_create(**indicator_dict)
                 # create observable mapping
@@ -622,7 +622,7 @@ class Command(BaseCommand):
         # iterate over campaign elements
         for campaign in stix_json['campaigns']:
             campaign_id = campaign['id']
-            campaign_namespace = self.get_full_namespace(campaign_id.split(':')[0])
+            campaign_namespace = self.get_full_namespace(campaign_id.split(':', 1)[0])
             # check if campaign already exists
             if campaign_id in self.id_mapping['campaigns']:
                 campaign_object = Campaign.objects.get(id=self.id_mapping['campaigns'][campaign_id])
@@ -639,7 +639,7 @@ class Command(BaseCommand):
                     'short_description': campaign.get('short_description', 'No Short Description'),
                     'namespace': campaign_namespace,
                     'status': campaign.get('status', 'Ongoing'),
-                    'campaign_id': campaign_id.split(':')[1]
+                    'campaign_id': campaign_id.split(':', 1)[1]
                 }
                 campaign_object, campaign_object_created = Campaign.objects.get_or_create(**campaign_dict)
                 # create campaign mapping
@@ -670,7 +670,7 @@ class Command(BaseCommand):
         # iterate over threat actor elements
         for threat_actor in  stix_json['threat_actors']:
             threat_actor_id = threat_actor['id']
-            threat_actor_namespace = self.get_full_namespace(threat_actor_id.split(':')[0])
+            threat_actor_namespace = self.get_full_namespace(threat_actor_id.split(':', 1)[0])
             # check if threat actor already exists
             if threat_actor_id in self.id_mapping['threat_actors']:
                 threat_actor_object = ThreatActor.objects.get(id=self.id_mapping['threat_actors'][threat_actor_id])
@@ -688,7 +688,7 @@ class Command(BaseCommand):
                     'description': threat_actor.get('description', 'No Description'),
                     'short_description': threat_actor.get('short_description', 'No Short Description'),
                     'namespace': threat_actor_namespace,
-                    'threat_actor_id': threat_actor_id.split(':')[1]
+                    'threat_actor_id': threat_actor_id.split(':', 1)[1]
                 }
                 threat_actor_object, threat_actor_object_created = ThreatActor.objects.get_or_create(**threat_actor_dict)
                 # create threat actor mapping
@@ -830,9 +830,9 @@ class Command(BaseCommand):
         package_id = stix_json['id']
         if title == 'No Title':
             title = package_id
-        package_namespace = self.get_full_namespace(stix_json['id'].split(':')[0])
+        package_namespace = self.get_full_namespace(stix_json['id'].split(':', 1)[0])
         package_dict = {
-            'package_id': package_id.split(':')[1],
+            'package_id': package_id.split(':', 1)[1],
             'namespace': package_namespace,
             'version': stix_json['version'],
             'name': title,
