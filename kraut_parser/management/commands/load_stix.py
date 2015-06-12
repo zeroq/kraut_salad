@@ -19,6 +19,7 @@ class Command(BaseCommand):
         """
         super(Command, self).__init__(*args, **kwargs)
         self.supported_stix_versions = set(['1.0.1', '1.1.1', '1.0', '1.1'])
+        self.stix_namespaces_dict = {}
         self.common_elements = (
             'description',
             'id',
@@ -333,7 +334,7 @@ class Command(BaseCommand):
         """
         # get ID and namespace
         observable_id = observable['id']
-        observable_namespace = observable_id.split(':')[0]
+        observable_namespace = self.get_full_namespace(observable_id.split(':')[0])
         # determine object type and get object ID
         if 'object' in observable and 'properties' in observable['object']:
             object_type = observable['object']['properties']['xsi:type']
@@ -501,7 +502,7 @@ class Command(BaseCommand):
             else:
                 indicator_dict = {
                     'name': indicator.get('title', indicator_id),
-                    'namespace': indicator_id.split(':')[0],
+                    'namespace': self.get_full_namespace(indicator_id.split(':')[0]),
                     'description': indicator.get('description', 'No Description'),
                     'short_description': indicator.get('short_description', 'No Short Description'),
                     'indicator_id': indicator_id.split(':')[1]
@@ -621,7 +622,7 @@ class Command(BaseCommand):
         # iterate over campaign elements
         for campaign in stix_json['campaigns']:
             campaign_id = campaign['id']
-            campaign_namespace = campaign_id.split(':')[0]
+            campaign_namespace = self.get_full_namespace(campaign_id.split(':')[0])
             # check if campaign already exists
             if campaign_id in self.id_mapping['campaigns']:
                 campaign_object = Campaign.objects.get(id=self.id_mapping['campaigns'][campaign_id])
@@ -669,7 +670,7 @@ class Command(BaseCommand):
         # iterate over threat actor elements
         for threat_actor in  stix_json['threat_actors']:
             threat_actor_id = threat_actor['id']
-            threat_actor_namespace = threat_actor_id.split(':')[0]
+            threat_actor_namespace = self.get_full_namespace(threat_actor_id.split(':')[0])
             # check if threat actor already exists
             if threat_actor_id in self.id_mapping['threat_actors']:
                 threat_actor_object = ThreatActor.objects.get(id=self.id_mapping['threat_actors'][threat_actor_id])
@@ -779,6 +780,15 @@ class Command(BaseCommand):
         #print json.dumps(threat_actor, indent=4, sort_keys=True)
         return package_object
 
+    def get_full_namespace(self, ns):
+        """ iterate over list of XML namespaces to find the appropriate one
+        and return the complete namespace string
+        """
+        for nsurl, nsname in self.stix_namespaces_dict.iteritems():
+            if nsname == ns:
+                return "%s:%s" % (nsname, nsurl)
+        return "%s:%s" % (ns, empty)
+
     def perform_stix_header_extraction(self, stix_json):
         """ examine the stix header and base information to create a package object
         @stix_json: json representation of a stix report
@@ -820,7 +830,7 @@ class Command(BaseCommand):
         package_id = stix_json['id']
         if title == 'No Title':
             title = package_id
-        package_namespace = stix_json['id'].split(':')[0]
+        package_namespace = self.get_full_namespace(stix_json['id'].split(':')[0])
         package_dict = {
             'package_id': package_id.split(':')[1],
             'namespace': package_namespace,
@@ -861,8 +871,9 @@ class Command(BaseCommand):
             self.stdout.write('reading xml: %s ... ' % (xml), ending='')
             sys.stdout.flush()
             stix_object = parser.parse_xml(xml, check_version=False)
+            stix_namespaces = stix_object.__input_namespaces__
             stix_json = json.loads(stix_object.to_json())
-            result_list.append(stix_json)
+            result_list.append((stix_json, stix_namespaces))
             self.stdout.write('[DONE]')
             del stix_object
         except Exception as e:
@@ -892,8 +903,9 @@ class Command(BaseCommand):
                         child.tag = "{http://stix.mitre.org/stix-1}"+ "STIX_Package"
                     try:
                         stix_object = parser.parse_xml(StringIO(unicode(etree.tostring(child))), check_version=False)
+                        stix_namespaces = stix_object.__input_namespaces__
                         stix_json = json.loads(stix_object.to_json())
-                        result_list.append(stix_json)
+                        result_list.append((stix_json, stix_namespaces))
                         failed = False
                         del stix_object
                     except Exception as e:
@@ -916,7 +928,9 @@ class Command(BaseCommand):
             result_list = self.iterate_xml(xml, parser)
             #for stix_json_index in xrange(0, len(result_list)):
             for stix_json_index in xrange(len(result_list) - 1, -1, -1):
-                stix_json = result_list[stix_json_index]
+                stix_json_tuple = result_list[stix_json_index]
+                stix_json = stix_json_tuple[0]
+                self.stix_namespaces_dict = stix_json_tuple[1]
                 # version check
                 if not self.perform_version_check(stix_json):
                     # free stix json
