@@ -229,6 +229,8 @@ def observable(request, observable_id="1"):
         for obj in context['objects']:
             context['related_objects'].append(get_related_objects_for_object(obj.id, observable[0].observable_type))
             context['related_observables'].append(obj.observables.all())
+        if len(context['related_observables'])<=0:
+            context['related_observables'].append(observable)
         # check object type specific settings
         if observable[0].observable_type == 'FileObjectType':
             context['custom'] = []

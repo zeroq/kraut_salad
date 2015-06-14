@@ -66,6 +66,7 @@
     </div>
 </div>
 {% endif %}
+{% if related_observables|length > 0 %}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Observables
@@ -91,6 +92,7 @@
         </table>
     </div>
 </div>
+{% endif %}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Related Observables
@@ -436,7 +438,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/objects/{{ observable_id }}/{{ observable.observable_type }}/packages/",
+                url: "/api/observables/{{ observable_id }}/related_packages/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"

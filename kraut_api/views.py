@@ -977,6 +977,43 @@ def observable_related_objects(request, pk, format=None):
         return JsonResponse(response)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def observable_related_packages(request, pk, format=None):
+    try:
+        observable = Observable.objects.get(pk=pk)
+    except Observable.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        final_list = []
+        ### get for initial observable
+        try:
+            packages = Package.objects.filter(observables=observable)
+            for package in packages:
+                pack_dict = {'id': package.pk, 'name': package.name}
+                final_list.append(pack_dict)
+        except Package.DoesNotExist:
+            pass
+        ### check if object in other observables
+        objects = get_object_for_observable(observable_type=observable.observable_type, observable_object=observable)
+        for obj in objects:
+            for obs in obj.observables.all():
+                try:
+                    packages = Package.objects.filter(observables=obs)
+                except Package.DoesNotExist:
+                    continue
+                for package in packages:
+                    pack_dict = {'id': package.pk, 'name': package.name}
+                    if pack_dict not in final_list:
+                        final_list.append(pack_dict)
+        total_results = len(final_list)
+        response = {
+            'count': total_results,
+            'iTotalRecords': total_results,
+            'iTotalDisplayRecords': total_results,
+            'results': final_list
+        }
+        return JsonResponse(response)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 ################### OBJECTS #####################
