@@ -40,7 +40,6 @@
         </table>
     </div>
 </div>
-{% if observable.indicators.all|length > 0 or observable.observablecomposition_set.all|length > 0%}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Linked Indicators
@@ -48,24 +47,18 @@
         </h3>
     </div>
     <div id="quick-container" class="panel-body">
-        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+        <table id="related_indicators_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
             <thead>
                 <tr><th>Name</th></tr>
             </thead>
             <tbody>
-                {% for indicator in observable.indicators.all %}
-                    <tr><td><a href="{% url 'intel:indicator' indicator_id=indicator.id %}">{{ indicator.name }}</a></td></tr>
-                {% endfor %}
-                {% for indicator in observable.observablecomposition_set.all %}
-                    {% for indi_id in indicator.indicator.all %}
-                        <tr><td><a href="{% url 'intel:indicator' indicator_id=indi_id.id %}">{{ indicator.name }}</a></td></tr>
-                    {% endfor %}
-                {% endfor %}
+                <tr>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
-{% endif %}
 {% if related_observables|length > 0 %}
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -456,9 +449,43 @@ $(document).ready( function () {
             ],
         });
 });
-</script>
 
-<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var iTable = $('#related_indicators_table').DataTable({
+            ordering: false,
+            paging: false,
+            info: false,
+            filter: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No related indicators found ...",
+                sZeroRecords: "No related indicators found ...",
+                sEmptyTable: "No related indicators found ...",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/observables/{{ observable_id }}/related_indicators/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+            ],
+        });
+});
+
 $(document).ready( function () {
         var pTable = $('#related_objects_table').DataTable({
             ordering: false,

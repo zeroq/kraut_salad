@@ -977,6 +977,47 @@ def observable_related_objects(request, pk, format=None):
         return JsonResponse(response)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
+def recurse_composition(item, test_list, done):
+    for ind in item.indicator.all():
+        ind_dict = {'id': ind.id, 'name': ind.name}
+        if ind_dict not in test_list:
+            test_list.append(ind_dict)
+    for obs in item.observables.all():
+        for ind in obs.indicators.all():
+            ind_dict = {'id': ind.id, 'name': ind.name}
+            if ind_dict not in test_list:
+                test_list.append(ind_dict)
+    for comp in item.observable_compositions.all():
+        if comp.name not in done:
+            done.append(comp.name)
+            recurse_composition(comp, test_list, done)
+    return test_list
+
+@api_view(['GET'])
+def observable_related_indicators(request, pk, format=None):
+    try:
+        observable = Observable.objects.get(pk=pk)
+    except Observable.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        final_list = []
+        done = []
+        for indicator_item in observable.indicators.all():
+            indicator_dict = {'id': indicator_item.id, 'name': indicator_item.name}
+            final_list.append(indicator_dict)
+        for obs_comp in observable.observablecomposition_set.all():
+            recurse_composition(obs_comp, final_list, done)
+
+        total_results = len(final_list)
+        response = {
+            'count': total_results,
+            'iTotalRecords': total_results,
+            'iTotalDisplayRecords': total_results,
+            'results': final_list
+        }
+        return JsonResponse(response)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET'])
 def observable_related_packages(request, pk, format=None):
     try:
