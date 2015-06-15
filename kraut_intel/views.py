@@ -31,9 +31,18 @@ def delete_package(request, package_id="1"):
         messages.error(request, 'The requested package does not exist!')
         return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
     ### iterate over observables/objects and delete
+    for ob in package.observables.all():
+        ### TODO: check for unneeded objects
+        ob.delete()
     ### iterate over indicators
+    for ic in package.indicators.all():
+        ic.delete()
     ### iterate over campaigns
+    for ca in package.campaigns.all():
+        ca.delete()
     ### iterate over threat actors
+    for ta in package.threat_actors.all():
+        ta.delete()
     # delete package
     package.delete()
     messages.info(request, 'The intelligence package was deleted successfully!')
@@ -78,6 +87,18 @@ def package(request, package_id="1"):
 def threatactors(request):
     context = {}
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
+
+def delete_threatactor(request, threat_actor_id="1"):
+    try:
+        ta = ThreatActor.objects.get(pk=int(threat_actor_id))
+    except ThreatAcotr.DoesNotExist:
+        messages.error(request, 'The requested threat actor does not exist!')
+        return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
+    ### TODO: check campaigns
+    # delete threat actor
+    ta.delete()
+    messages.info(request, 'The threat actor was deleted successfully!')
+    return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
 
 def threatactor(request, threat_actor_id="1"):
     context = {'ta_id': threat_actor_id, 'ta': None}

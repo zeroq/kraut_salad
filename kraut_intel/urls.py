@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^package/(?P<package_id>\d+)/delete/$', views.delete_package, name='delete_package'),
     url(r'^threatactors/$', views.threatactors, name='threatactors'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/$', views.threatactor, name='threatactor'),
+    url(r'^threatactor/(?P<threat_actor_id>\d+)/delete/$', views.delete_threatactor, name='delete_threatactor'),
     url(r'^campaigns/$', views.campaigns, name='campaigns'),
     url(r'^campaign/(?P<campaign_id>\d+)/$', views.campaign, name='campaign'),
     url(r'^indicators/$', views.indicators, name='indicators'),

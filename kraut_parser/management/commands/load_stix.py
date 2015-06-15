@@ -131,7 +131,11 @@ class Command(BaseCommand):
                 file_object, file_created = File_Object.objects.get_or_create(**file_dict)
             else:
                 try:
-                    file_object = File_Object.objects.get(md5_hash=file_dict['md5_hash'], sha256_hash=file_dict['sha256_hash'], observables=observable_object)
+                    file_object = File_Object.objects.get(
+                        md5_hash=file_dict['md5_hash'],
+                        sha256_hash=file_dict['sha256_hash'],
+                        file_meta=file_meta_object,
+                        observables=observable_object)
                 except File_Object.DoesNotExist:
                     file_object = File_Object(**file_dict)
                     file_object.save()
