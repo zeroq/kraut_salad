@@ -283,6 +283,9 @@ class PaginatedContactSerializer(PaginationSerializer):
 ################### INCIDENT #####################
 
 class IncidentSerializer(serializers.ModelSerializer):
+    status = serializers.StringRelatedField()
+    category = serializers.StringRelatedField()
+
     class Meta:
         model = Incident
         fields = ('id', 'incident_number', 'title', 'creation_time', 'last_modified', 'status', 'category')

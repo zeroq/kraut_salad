@@ -1282,6 +1282,7 @@ def incident_list(request, format=None):
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
+                print search_value
             else:
                 search_value = None
         else:
@@ -1294,8 +1295,8 @@ def incident_list(request, format=None):
             queryset = queryset.filter(
                 Q(incident_number__icontains=search_value)|
                 Q(title__icontains=search_value)|
-                Q(status__istartswith=search_value)|
-                Q(category__icontains=search_value)
+                Q(status__name__istartswith=search_value)|
+                Q(category__name__icontains=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:

@@ -150,5 +150,6 @@ class Incident(models.Model):
     incident_handler = models.ManyToManyField(Handler, blank=True, related_name="incident_handler")
     contacts = models.ManyToManyField(Contact, blank=True, related_name="contacts")
 
-
+    def __unicode__(self):
+        return u"%s" % (self.title)
 
