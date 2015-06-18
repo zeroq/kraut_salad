@@ -166,6 +166,7 @@ class Related_Object(models.Model):
 
     class Meta:
         unique_together = (("relationship", "object_one_id", "object_two_id", "object_one_type", "object_two_type"),)
+        index_together = (("object_one_id", "object_one_type"), ("object_two_id", "object_two_type"))
 
 class File_Custom_Properties(models.Model):
     property_name = models.CharField(max_length=255, null=True, blank=True)
