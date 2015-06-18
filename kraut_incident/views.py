@@ -10,6 +10,7 @@ from django.contrib import messages
 
 from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm
 from kraut_incident.models import Contact, Handler, Incident
+from kraut_incident.utils import slicedict
 
 # Create your views here.
 
@@ -57,7 +58,15 @@ def new_incident(request):
         ### {'status': <Incident_Status: Open>, 'incident_number': 4976401221, 'category': <Incident_Category: Investigation>, 'description': u'', 'title': u'Unnamed Incident'}
         incident_form = IncidentForm(request.POST)
         if incident_form.is_valid():
-            print incident_form.cleaned_data
+            # check if handler and contact given
+            handler_dict = slicedict(request.POST, 'HandlerCheckBox')
+            contact_dict = slicedict(request.POST, 'ContactCheckBox')
+            if len(handler_dict)<=0:
+                messages.error(request, 'Missing an incident handler!')
+                return HttpResponseRedirect(reverse("incidents:new"))
+            if len(contact_dict)<=0:
+                messages.error(request, 'Missing an incident contact!')
+                return HttpResponseRedirect(reverse("incidents:new"))
             new_incident = Incident(
                 incident_number = incident_form.cleaned_data['incident_number'],
                 title = incident_form.cleaned_data['title'],
@@ -66,21 +75,20 @@ def new_incident(request):
                 category = incident_form.cleaned_data['category']
             )
             new_incident.save()
-            for key in request.POST:
-                if key.startswith('HandlerCheckBox'):
-                    handler_id = request.POST[key]
-                    try:
-                        handler = Handler.objects.get(pk=handler_id)
-                        new_incident.incident_handler.add(handler)
-                    except Handler.DoesNotExist:
-                        messages.error(request, 'Failed getting incident handler with ID: %s' % (handler_id))
-                elif key.startswith('ContactCheckBox'):
-                    contact_id = request.POST[key]
-                    try:
-                        contact = Contact.objects.get(pk=contact_id)
-                        new_incident.contacts.add(contact)
-                    except Contact.DoesNotExist:
-                        messages.error(request, 'Failed getting incident contact with ID: %s' % (contact_id))
+            for key in handler_dict:
+                handler_id = handler_dict[key]
+                try:
+                    handler = Handler.objects.get(pk=handler_id)
+                    new_incident.incident_handler.add(handler)
+                except Handler.DoesNotExist:
+                    messages.error(request, 'Failed getting incident handler with ID: %s' % (handler_id))
+            for key in contact_dict:
+                contact_id = contact_dict[key]
+                try:
+                    contact = Contact.objects.get(pk=contact_id)
+                    new_incident.contacts.add(contact)
+                except Contact.DoesNotExist:
+                    messages.error(request, 'Failed getting incident contact with ID: %s' % (contact_id))
             new_incident.save()
             messages.info(request, "Incident successfully created!")
         return HttpResponseRedirect(reverse("incidents:new"))
