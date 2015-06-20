@@ -8,44 +8,53 @@ def get_object_for_observable(observable_type, observable_object=None, object_id
         The optional no_hash parameter determines if also file objects without a hash should be returned.
 
         TODO: support all observable types that are implemented!
+        TODO: replace OR clause of Q queries to increase performance!
     """
     return_list = []
+    # create filter
+    if observable_object:
+        q_filter = Q(observables=observable_object)
+    elif object_id:
+        q_filter = Q(id=object_id)
+    else:
+        q_filter = Q(observables=observable_object)|Q(id=object_id)
+    # check observable type and query
     if observable_type == 'FileObjectType':
-        for obj in File_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in File_Object.objects.filter(q_filter):
             if no_hash:
                 return_list.append(obj)
             else:
                 if (obj.md5_hash and obj.md5_hash != 'No MD5') or (obj.sha256_hash and obj.sha256_hash != 'No SHA256'):
                     return_list.append(obj)
     elif observable_type == 'HTTPSessionObjectType':
-        for obj in HTTPSession_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in HTTPSession_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'URIObjectType':
-        for obj in URI_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in URI_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'AddressObjectType':
-        for obj in Address_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in Address_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'MutexObjectType':
-        for obj in Mutex_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in Mutex_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'CodeObjectType':
-        for obj in Code_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in Code_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'EmailMessageObjectType':
-        for obj in EmailMessage_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in EmailMessage_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'WindowsRegistryKeyObjectType':
-        for obj in Win_Registry_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in Win_Registry_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'DNSQueryObjectType':
-        for obj in DNSQuery_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in DNSQuery_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'WindowsDriverObjectType':
-        for obj in Driver_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in Driver_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'LinkObjectType':
-        for obj in Link_Object.objects.filter(Q(observables=observable_object)|Q(id=object_id)):
+        for obj in Link_Object.objects.filter(q_filter):
             return_list.append(obj)
 
     return return_list

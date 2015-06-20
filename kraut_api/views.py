@@ -1065,7 +1065,6 @@ def object_get_observables(request, object_id, object_type):
     """
     final_list = []
     objects = get_object_for_observable(observable_type=object_type, object_id=object_id)
-    print objects
     for obj in objects:
         for obs in obj.observables.all():
             obs_dict = {'id': obs.pk, 'name': obs.name}
@@ -1282,7 +1281,6 @@ def incident_list(request, format=None):
             # search
             if 'search[value]' in request.query_params:
                 search_value = request.query_params['search[value]']
-                print search_value
             else:
                 search_value = None
         else:
