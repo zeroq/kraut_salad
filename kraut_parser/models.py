@@ -26,6 +26,7 @@ class Package(models.Model):
     campaigns = models.ManyToManyField('Campaign', blank=True)
     indicators = models.ManyToManyField('Indicator', blank=True)
     observables = models.ManyToManyField('Observable', blank=True)
+    ttps = models.ManyToManyField('TTP', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -44,6 +45,26 @@ class Package_Reference(models.Model):
     def __unicode__(self):
         return u"%s" % (self.reference)
 
+class TTP(models.Model):
+    """ Tools, Tactics, and Procedures
+    """
+    name = models.CharField(max_length=255)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    description = models.TextField(null=True, blank=True)
+    short_description = models.CharField(max_length=255, null=True, blank=True)
+    namespace = models.CharField(max_length=255, default='nospace')
+    ttp_id = models.CharField(max_length=255)
+    related_ttps = models.ManyToManyField('self', through='RelatedTTP', symmetrical=False, related_name='ttp_related_to_ttp', blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
+class RelatedTTP(models.Model):
+    from_ttp = models.ForeignKey(TTP, related_name='from_ttp')
+    to_ttp = models.ForeignKey(TTP, related_name='to_ttp')
+    relationship = models.CharField(max_length=255)
+
 class Campaign(models.Model):
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
@@ -55,10 +76,17 @@ class Campaign(models.Model):
     campaign_id = models.CharField(max_length=255)
     confidence = models.ManyToManyField(Confidence, blank=True)
     related_indicators = models.ManyToManyField('Indicator', blank=True)
+    related_ttps = models.ManyToManyField(TTP, through='RelationCampaignTTP', symmetrical=False, related_name='ttp_related_to_campaign', blank=True)
     associated_campaigns = models.ManyToManyField('self', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
+
+class RelationCampaignTTP(models.Model):
+    campaign = models.ForeignKey(Campaign)
+    ttp = models.ForeignKey(TTP)
+    relationship = models.CharField(max_length=255)
+
 
 class ThreatActor(models.Model):
     name = models.CharField(max_length=255)
@@ -70,9 +98,15 @@ class ThreatActor(models.Model):
     campaigns = models.ManyToManyField(Campaign, blank=True)
     associated_threat_actors = models.ManyToManyField('self', blank=True)
     threat_actor_id = models.CharField(max_length=255)
+    observed_ttps = models.ManyToManyField(TTP, through='ObservedTTP', symmetrical=False, related_name='ttp_observed_at_ta', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)
+
+class ObservedTTP(models.Model):
+    ta = models.ForeignKey(ThreatActor)
+    ttp = models.ForeignKey(TTP)
+    relationship = models.CharField(max_length=255)
 
 class TA_Types(models.Model):
     ta_type = models.CharField(max_length=255)

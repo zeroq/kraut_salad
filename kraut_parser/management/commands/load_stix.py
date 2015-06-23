@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference, ObservableComposition
-from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
+from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion, TTP
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
 
@@ -37,13 +37,15 @@ class Command(BaseCommand):
             'indicator': {},
             'observable': {},
             'stix': {},
+            'ttps': {}
         }
         self.id_mapping = {
             'observables': {},
             'objects': {},
             'indicators': {},
             'threat_actors': {},
-            'campaigns': {}
+            'campaigns': {},
+            'ttps': {}
         }
         self.missing_references = {
             'actor_2_actor': {},
@@ -614,6 +616,54 @@ class Command(BaseCommand):
             self.stdout.write('[DONE]')
         return package_object
 
+    def perform_ttp_extraction(self, stix_json, package_object):
+        """iterate over ttps and extract ttp information and create ttp object
+        @stix_json: json representation of a stix report
+        @package_object: base object that represents the stix package
+        returns: package db object
+        """
+        self.stdout.write('--> extracting ttp information ... ', ending='')
+        sys.stdout.flush()
+        first_entry = True
+        if not 'ttps' in stix_json['ttps']:
+            self.stdout.write('[FAIL]')
+            return package_object
+        # iterate over ttp elements
+        for ttp in stix_json['ttps']['ttps']:
+            ttp_id = ttp['id']
+            ttp_namespace = self.get_full_namespace(ttp_id.split(':', 1)[0])
+            # check if ttp already exists
+            if ttp_id in self.id_mapping['ttps']:
+                ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][ttp_id])
+                ttp_object_created = False
+            else:
+                # get ttp name
+                if 'title' in ttp:
+                    ttp_name = ttp.get('title', ttp_id)
+                else:
+                    ttp_name = ttp_id
+                ttp_dict = {
+                    'name': ttp_name,
+                    'description': ttp.get('description', 'No Description'),
+                    'short_description': ttp.get('short_description', 'No Short Description'),
+                    'namespace': ttp_namespace,
+                    'ttp_id': ttp_id
+                }
+                ttp_object, ttp_object_created = TTP.objects.get_or_create(**ttp_dict)
+                # create ttp mapping
+                self.id_mapping['ttps'][ttp_id] = ttp_object.id
+            # add to package
+            package_object.ttps.add(ttp_object)
+            # add missed elements
+            for element in ttp.keys():
+                if element not in self.common_elements:
+                    self.missed_elements['ttps'][element] = True
+            ### TODO: continue here ...
+        if first_entry:
+            self.stdout.write('[DONE]')
+        print json.dumps(ttp, indent=4, sort_keys=True)
+        return package_object
+
     def perform_campaign_extraction(self, stix_json, package_object):
         """iterate over campaigns and extract campaign information and create campaign object
         @stix_json: json representation of a stix report
@@ -961,6 +1011,10 @@ class Command(BaseCommand):
                 if 'threat_actors' in stix_json:
                     package_object = self.perform_threat_actor_extraction(stix_json, package_object)
                     stix_json.pop('threat_actors')
+                # extract ttps
+                if 'ttps' in stix_json:
+                    package_object = self.perform_ttp_extraction(stix_json, package_object)
+                    stix_json.pop('ttps')
 
                 package_object.save()
                 #print json.dumps(stix_json, indent=4, sort_keys=True)
