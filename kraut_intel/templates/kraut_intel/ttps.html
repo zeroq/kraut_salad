@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/TTP.svg' %}" height="64" class="media-object"/>
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Tools, Tactics, & Procedures</h2>browse recently submitted TTP information ...
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<table id="ttps_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Creation Time</th>
+            <th>Last Modified</th>
+            <th>NS</th>
+            <th>Operations</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+{% endspaceless %}
+{% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready( function () {
+        var pTable = $('#ttps_table').DataTable({
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
+            order: [[ 1, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/ttps/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {'data': 'name', 'sName': 'name', 'aTargets': [ 1 ]},
+                {'data': 'creation_time', 'sName': 'creation_time', 'aTargets': [ 2 ]},
+                {'data': 'last_modified', 'sName': 'last_modified', 'aTargets': [ 3 ]},
+                {
+                    'data': 'namespace_icon',
+                    'sName': 'namespace',
+                    'aTargets': [ 4 ],
+                    "mRender": function (data, type, full) {
+                        return '<img src="'+data+'" width="32" height="32" rel="tooltip" data-placement="top" data-original-title="'+full.namespace+'">';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("img", nTd).tooltip();
+                    }
+                },
+                {
+                    "data": 'id',
+                    'sName': 'operations',
+                    'bSortable': false,
+                    'aTargets': [ 5 ],
+                    "mRender": function (data, type, full) {
+                        return '<div class="btn-group1">' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit">' +
+                            '<i class="fa fa-edit"></i>' +
+                            '</a> ' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="#">' +
+                            '<i class="fa fa-eye"></i>' +
+                            '</a>' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="bottom" data-original-title="Remove" href="#">' +
+                            '<i class="fa fa-remove"></i>' +
+                            '</a>' +
+                            '</div>';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("a", nTd).tooltip();
+                    }
+                }
+            ],
+        });
+    });
+</script>
+{% endblock%}
