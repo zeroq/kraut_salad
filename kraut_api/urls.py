@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^packages/(?P<pk>[0-9]+)/indicators/$', views.package_detail_indicators),
     url(r'^packages/(?P<pk>[0-9]+)/campaigns/$', views.package_detail_campaigns),
     url(r'^packages/(?P<pk>[0-9]+)/threatactors/$', views.package_detail_threatactors),
+    url(r'^packages/(?P<pk>[0-9]+)/ttps/$', views.package_detail_ttps),
     url(r'^packages/(?P<pk>[0-9]+)/quick/(?P<otype>[a-zA-Z]+)/$', views.package_quick, name="package_quick"),
     url(r'^packagesd3/tree/(?P<pk>[0-9]+)/$', views.package_tree),
     url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/packages/$', views.object_get_packages),
@@ -37,6 +38,7 @@ urlpatterns = [
     url(r'^incident/contacts/$', views.contact_list),
     url(r'^incident/handlers/$', views.handler_list),
     url(r'^incidents/$', views.incident_list),
+    url(r'^ttps/$', views.ttp_list),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

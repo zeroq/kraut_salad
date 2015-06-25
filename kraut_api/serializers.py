@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
-from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object
+from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object, TTP
 from kraut_intel.utils import get_icon_for_namespace
 from kraut_incident.models import Contact, Handler, Incident
 
@@ -81,6 +81,35 @@ class PaginatedThreatActorSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = TASerializer
+
+################### TTPS #####################
+
+# TTP List
+class TTPSerializer(serializers.ModelSerializer):
+    creation_time = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+    namespace_icon = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TTP
+        fields = ('id', 'name', 'description', 'short_description', 'namespace', 'namespace_icon', 'creation_time', 'last_modified', 'related_ttps')
+
+    def get_namespace_icon(self, obj):
+        return get_icon_for_namespace(obj.namespace)
+
+    def get_creation_time(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_last_modified(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+# Paginated TTPs
+class PaginatedTTPSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = TTPSerializer
 
 ################### CAMPAIGN #####################
 

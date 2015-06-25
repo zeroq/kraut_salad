@@ -69,6 +69,7 @@ def package(request, package_id="1"):
         context['namespace_icon'] = get_icon_for_namespace(package[0].namespace)
         context['num_threat_actors'] = package[0].threat_actors.count()
         context['num_campaigns'] = package[0].campaigns.count()
+        context['num_ttps'] = package[0].ttps.count()
         context['num_indicators'] = package[0].indicators.count()
         context['num_observables'] = package[0].observables.count()
         if context['num_threat_actors'] > 0:
@@ -177,6 +178,10 @@ def campaign(request, campaign_id="1"):
             context['confidence'] = 'Low'
             context['confidence_color'] = 'success'
     return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+
+def ttps(request):
+    context = {}
+    return render_to_response('kraut_intel/ttps.html', context, context_instance=RequestContext(request))
 
 def indicators(request):
     context = {}
