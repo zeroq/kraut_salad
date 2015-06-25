@@ -6,7 +6,8 @@ from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference, ObservableComposition
-from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion, TTP
+from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
+from kraut_parser.models import TTP, RelatedTTP
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
 
@@ -654,11 +655,28 @@ class Command(BaseCommand):
                 self.id_mapping['ttps'][ttp_id] = ttp_object.id
             # add to package
             package_object.ttps.add(ttp_object)
+            if 'related_ttps' in ttp:
+                for related_ttp_json in ttp['related_ttps']['ttps']:
+                    if 'ttp' in related_ttp_json and 'idref' in related_ttp_json['ttp']:
+                        # check if related ttp already exists
+                        if related_ttp_json['ttp']['idref'] in self.id_mapping['ttps']:
+                            related_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][related_ttp_json['ttp']['idref']])
+                            if 'relationship' in related_ttp_json:
+                                ttp_object.add_related_ttp(related_ttp_object, related_ttp_json['relationship'])
+                            else:
+                                ttp_object.add_related_ttp(related_ttp_object, 'Unknown Relation')
+                            ttp_object.save()
+                        else:
+                            self.stdout.write('----> ERROR: related TTP object not found!')
+                            first_entry = False
+                            # TODO: add missing relation
+                    else:
+                        self.stdout.write('----> ERROR: inline related TTP not handled yet!')
+                        first_entry = False
             # add missed elements
             for element in ttp.keys():
                 if element not in self.common_elements:
                     self.missed_elements['ttps'][element] = True
-            ### TODO: continue here ...
         if first_entry:
             self.stdout.write('[DONE]')
         print json.dumps(ttp, indent=4, sort_keys=True)

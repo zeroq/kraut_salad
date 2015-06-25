@@ -57,6 +57,10 @@ class TTP(models.Model):
     ttp_id = models.CharField(max_length=255)
     related_ttps = models.ManyToManyField('self', through='RelatedTTP', symmetrical=False, related_name='ttp_related_to_ttp', blank=True)
 
+    def add_related_ttp(self, ttp, relationship):
+        rel_ttp, rel_ttp_created = RelatedTTP.objects.get_or_create(from_ttp=self, to_ttp=ttp, relationship=relationship)
+        return rel_ttp
+
     def __unicode__(self):
         return u"%s" % (self.name)
 
