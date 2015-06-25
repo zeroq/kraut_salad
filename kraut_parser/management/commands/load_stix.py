@@ -55,7 +55,8 @@ class Command(BaseCommand):
             'indicator_2_observable': {},
             'object_2_object': {},
             'email_2_attachment': {},
-            'composite_2_observable': {}
+            'composite_2_observable': {},
+            'ttp_2_ttp': {}
         }
 
     def __check_version(self, version):
@@ -659,17 +660,20 @@ class Command(BaseCommand):
                 for related_ttp_json in ttp['related_ttps']['ttps']:
                     if 'ttp' in related_ttp_json and 'idref' in related_ttp_json['ttp']:
                         # check if related ttp already exists
-                        if related_ttp_json['ttp']['idref'] in self.id_mapping['ttps']:
-                            related_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][related_ttp_json['ttp']['idref']])
-                            if 'relationship' in related_ttp_json:
-                                ttp_object.add_related_ttp(related_ttp_object, related_ttp_json['relationship'])
-                            else:
-                                ttp_object.add_related_ttp(related_ttp_object, 'Unknown Relation')
+                        if 'relationship' in related_ttp_json:
+                            ttp_relationship = related_ttp_json['relationship']
+                        else:
+                            ttp_relationship = 'Unknown Relation'
+                        related_ttp_id = related_ttp_json['ttp']['idref']
+                        if related_ttp_id in self.id_mapping['ttps']:
+                            related_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][related_ttp_id])
+                            ttp_object.add_related_ttp(related_ttp_object, ttp_relationship)
                             ttp_object.save()
                         else:
-                            self.stdout.write('----> ERROR: related TTP object not found!')
-                            first_entry = False
-                            # TODO: add missing relation
+                            try:
+                                self.missing_references['ttp_2_ttp'][ttp_id].append(related_ttp_id, ttp_relationship)
+                            except:
+                                self.missing_references['ttp_2_ttp'][ttp_id] = [(related_ttp_id, ttp_relationship)]
                     else:
                         self.stdout.write('----> ERROR: inline related TTP not handled yet!')
                         first_entry = False
@@ -1128,6 +1132,23 @@ class Command(BaseCommand):
                                         except KeyError as e:
                                             continue
                                     indicator_object.save()
+                                    del self.missing_references[item][object_id]
+                                except KeyError as e:
+                                    continue
+                        if item == 'ttp_2_ttp':
+                            for object_id in self.missing_references[item].keys():
+                                try:
+                                    ttp_db_id = self.id_mapping['ttps'][object_id]
+                                    ttp_object = TTP.objects.get(id=ttp_db_id)
+                                    for related_ttp_idref, related_ttp_relationship in self.missing_references[item][object_id]:
+                                        try:
+                                            related_ttp_db_id = self.id_mapping['ttps'][related_ttp_idref]
+                                            related_ttp_object = TTP.objects.get(id=related_ttp_db_id)
+                                            ttp_object.add_related_ttp(related_ttp_object, related_ttp_relationship)
+                                            ttp_object.save()
+                                        except KeyError as e:
+                                            continue
+                                    ttp_object.save()
                                     del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
