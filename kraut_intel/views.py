@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias, TTP, MalwareInstance
+from kraut_parser.models import AttackPattern
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -198,6 +199,7 @@ def ttp(request, ttp_id="1"):
         context['ttp'] = ttp[0]
         context['num_rel_ttps'] = ttp[0].related_ttps.count()
         context['num_instances'] = MalwareInstance.objects.filter(ttp_ref=ttp[0]).count()
+        context['num_patterns'] = AttackPattern.objects.filter(ttp_ref=ttp[0]).count()
         context['tab'] = 'malware_instances'
     return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
 

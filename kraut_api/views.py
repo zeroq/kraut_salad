@@ -13,7 +13,7 @@ from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerialize
 from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
 from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSerializer, PaginatedFileObjectSerializer, PaginatedIncidentSerializer
 from kraut_api.serializers import PaginatedTTPSerializer
-from kraut_api.serializers import PaginatedMalwareInstanceSerializer
+from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
 
@@ -680,6 +680,7 @@ def ttp_related_packages(request, pk, format=None):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+################### MALWARE INSTANCES #####################
 
 
 @api_view(['GET'])
@@ -732,8 +733,60 @@ def ttp_malware_instances(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-################### CAMPAIGN #####################
+################### ATTACK PATTERN #####################
 
+@api_view(['GET'])
+def ttp_attack_patterns(request, pk, format=None):
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        try:
+            ttp = TTP.objects.get(pk=pk)
+        except TTP.DoestNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        queryset = ttp.attackpattern_set.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(description__istartswith=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            mw = paginator.page(page)
+        except:
+            mw = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedAttackPatternSerializer(mw, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+################### CAMPAIGN #####################
 
 @api_view(['GET'])
 def campaign_list(request, format=None):

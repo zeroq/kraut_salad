@@ -105,12 +105,20 @@
 </div>
 <div role="tabpanel">
   <!-- Nav tabs -->
-    {% if num_instances > 0 %}
   <ul class="nav nav-tabs" role="tablist">
+    {% if num_instances > 0 %}
     <li role="presentation" {% if tab == 'malware_instances' %}class="active"{% endif %}>
         <a href="#malwareinstance" aria-controls="malwareinstance" role="tab" data-toggle="tab">
             <img src="{% static 'images/Kraut.svg' %}" height="32" />&nbsp;&nbsp;Malware Instances
             <span class="badge">{{ num_instances }}</span>
+        </a>
+    </li>
+    {% endif %}
+    {% if num_patterns > 0 %}
+    <li role="presentation" {% if tab == 'attack_patterns' %}class="active"{% endif %}>
+        <a href="#attackpattern" aria-controls="attackpattern" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Kraut.svg' %}" height="32" />&nbsp;&nbsp;Attack Patterns
+            <span class="badge">{{ num_patterns }}</span>
         </a>
     </li>
     {% endif %}
@@ -136,6 +144,10 @@
                     </tr>
             </tbody>
         </table>
+    </div>
+    <!-- ATTACK PATTERNS -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'attack_patterns' %}active{% endif %}" id="attackpattern">
+        <br/>
     </div>
   </div>
 </div>
