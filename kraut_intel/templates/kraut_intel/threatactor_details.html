@@ -21,6 +21,25 @@
         </div>
     </div>
 </div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Linked Packages
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all intelligence packages that contain/link the displayed threat actor."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table id="linked_packages_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <th>Name</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 {% if ta_alias %}
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -226,6 +245,43 @@ $(document).ready( function () {
             ],
         });
     });
+
+$(document).ready( function () {
+        var pTable = $('#linked_packages_table').DataTable({
+            ordering: false,
+            paging: false,
+            info: false,
+            filter: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No linked packages found ...",
+                sZeroRecords: "No linked packages found ...",
+                sEmptyTable: "No linked packages found ...",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/threatactors/{{ ta_id }}/related_packages/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:package' package_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                }
+            ],
+        });
+});
+
 
 
 $(function () {

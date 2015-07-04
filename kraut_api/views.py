@@ -562,6 +562,7 @@ def threatactor_detail_campaigns(request, pk, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
 def threatactor_detail_associated_threatactors(request, pk, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -573,6 +574,34 @@ def threatactor_detail_associated_threatactors(request, pk, format=None):
     for asta in ta.associated_threat_actors.all():
         response['results'].append({'name': asta.name, 'threatactor_id': asta.id})
     return JsonResponse(response)
+
+@api_view(['GET'])
+def threatactor_detail_related_packages(request, pk, format=None):
+    if not request.method == 'GET':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        ta = ThreatActor.objects.get(pk=pk)
+    except ThreatActor.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    final_list = []
+    ### get for initial observable
+    try:
+        packages = Package.objects.filter(threat_actors=ta)
+        for package in packages:
+            pack_dict = {'id': package.pk, 'name': package.name}
+            final_list.append(pack_dict)
+    except Package.DoesNotExist:
+        pass
+    total_results = len(final_list)
+    response = {
+        'count': total_results,
+        'iTotalRecords': total_results,
+        'iTotalDisplayRecords': total_results,
+        'results': final_list
+    }
+    return JsonResponse(response)
+
+
 
 ################### TTPS #####################
 
