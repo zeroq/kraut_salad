@@ -1,5 +1,5 @@
 from django.contrib import admin
-from kraut_parser.models import Package, Campaign, ThreatActor, Indicator, Observable, HTTPSession_Object, HTTPClientRequest, Related_Object, ObservableComposition, Package_Intent, Package_Reference, TA_Types, TA_Roles, TA_Alias, DNSQuery_Object, DNSQuestion, URI_Object, File_Object, TTP, RelatedTTP
+from kraut_parser.models import Package, Campaign, ThreatActor, Indicator, Observable, HTTPSession_Object, HTTPClientRequest, Related_Object, ObservableComposition, Package_Intent, Package_Reference, TA_Types, TA_Roles, TA_Alias, DNSQuery_Object, DNSQuestion, URI_Object, File_Object, TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes
 from django.db.models import get_models, get_app
 
 
@@ -25,3 +25,6 @@ admin.site.register(URI_Object)
 admin.site.register(File_Object)
 admin.site.register(TTP)
 admin.site.register(RelatedTTP)
+admin.site.register(MalwareInstance)
+admin.site.register(MalwareInstanceNames)
+admin.site.register(MalwareInstanceTypes)

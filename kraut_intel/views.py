@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias
+from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias, TTP, MalwareInstance
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -182,6 +182,24 @@ def campaign(request, campaign_id="1"):
 def ttps(request):
     context = {}
     return render_to_response('kraut_intel/ttps.html', context, context_instance=RequestContext(request))
+
+def ttp(request, ttp_id="1"):
+    context = {'ttp_id': ttp_id, 'ttp': None}
+    try:
+        ttp = TTP.objects.filter(pk=int(ttp_id)).prefetch_related(
+            Prefetch('related_ttps'),
+        )
+    except TTP.DoesNotExist:
+        messages.error(request, 'The requested TTP does not exist!')
+        return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
+    if len(ttp)<=0:
+        messages.error(request, 'No TTP with given ID exists in the system.')
+    else:
+        context['ttp'] = ttp[0]
+        context['num_rel_ttps'] = ttp[0].related_ttps.count()
+        context['num_instances'] = MalwareInstance.objects.filter(ttp_ref=ttp[0]).count()
+        context['tab'] = 'malware_instances'
+    return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
 
 def indicators(request):
     context = {}

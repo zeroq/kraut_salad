@@ -39,6 +39,9 @@ urlpatterns = [
     url(r'^incident/handlers/$', views.handler_list),
     url(r'^incidents/$', views.incident_list),
     url(r'^ttps/$', views.ttp_list),
+    url(r'^ttp/(?P<pk>[0-9]+)/related_ttps/$', views.ttp_related_ttps),
+    url(r'^ttp/(?P<pk>[0-9]+)/related_packages/$', views.ttp_related_packages),
+    url(r'^ttp/(?P<pk>[0-9]+)/malware_instances/$', views.ttp_malware_instances),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -465,9 +465,8 @@ $(document).ready( function () {
                     'sName': 'name', 
                     'aTargets': [ 1 ],
                     'mRender': function (data, type, full) {
-                        //var view_url = "{% url 'intel:threatactor' threat_actor_id=0 %}".replace(0, Number(full.id));
-                        //return '<a href="'+view_url+'">'+data+'</a>';
-                        return data;
+                        var view_url = "{% url 'intel:ttp' ttp_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
                     }
                 },
                 {'data': 'short_description', 'sName': 'short_description', 'aTargets': [ 2 ]},

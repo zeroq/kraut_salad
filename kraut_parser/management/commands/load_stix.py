@@ -7,7 +7,7 @@ from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference, ObservableComposition
 from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
-from kraut_parser.models import TTP, RelatedTTP
+from kraut_parser.models import TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
 
@@ -656,6 +656,7 @@ class Command(BaseCommand):
                 self.id_mapping['ttps'][ttp_id] = ttp_object.id
             # add to package
             package_object.ttps.add(ttp_object)
+            # check for related ttps
             if 'related_ttps' in ttp:
                 for related_ttp_json in ttp['related_ttps']['ttps']:
                     if 'ttp' in related_ttp_json and 'idref' in related_ttp_json['ttp']:
@@ -677,12 +678,35 @@ class Command(BaseCommand):
                     else:
                         self.stdout.write('----> ERROR: inline related TTP not handled yet!')
                         first_entry = False
+                #ttp.pop('related_ttps')
+            # check for behavior elements
+            if 'behavior' in ttp:
+                for behavior_type in ttp['behavior']:
+                    if behavior_type == 'malware_instances':
+                        for mw_instance in ttp['behavior']['malware_instances']:
+                            mw_instance_dict = {
+                                'ttp_ref': ttp_object,
+                                'name': mw_instance.get('title', 'No Title'),
+                                'description': mw_instance.get('description', 'No Description'),
+                                'short_description': mw_instance.get('short_description', 'No Short Description'),
+                            }
+                            mw_instance_object, mw_instance_object_created = MalwareInstance.objects.get_or_create(**mw_instance_dict)
+                            if 'names' in mw_instance:
+                                for name in mw_instance['names']:
+                                    mw_names_object, mw_names_object_created = MalwareInstanceNames.objects.get_or_create(instance_ref=mw_instance_object, name=name)
+                            if 'types' in mw_instance:
+                                for _type in mw_instance['types']:
+                                    mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object, _type=_type)
+                    else:
+                        self.missed_elements['ttps'][behavior_type] = True
+                #ttp.pop('behavior')
             # add missed elements
             for element in ttp.keys():
                 if element not in self.common_elements:
                     self.missed_elements['ttps'][element] = True
         if first_entry:
             self.stdout.write('[DONE]')
+        # debug output for TTP
         print json.dumps(ttp, indent=4, sort_keys=True)
         return package_object
 

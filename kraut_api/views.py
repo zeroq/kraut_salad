@@ -7,12 +7,13 @@ from django.core.paginator import Paginator
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP
+from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer
 from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer
 from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
 from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSerializer, PaginatedFileObjectSerializer, PaginatedIncidentSerializer
 from kraut_api.serializers import PaginatedTTPSerializer
+from kraut_api.serializers import PaginatedMalwareInstanceSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
 
@@ -623,6 +624,113 @@ def ttp_list(request, format=None):
         serializer = PaginatedTTPSerializer(ttps, context=serializer_context)
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def ttp_related_ttps(request, pk, format=None):
+    try:
+        ttp = TTP.objects.get(pk=pk)
+    except TTP.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        final_list = []
+        try:
+            relttps = RelatedTTP.objects.filter(from_ttp=ttp)
+            for rel in relttps:
+                rel_dict = {'id': rel.to_ttp.id, 'name': rel.to_ttp.name, 'relation': rel.relationship}
+                final_list.append(rel_dict)
+            relttps = RelatedTTP.objects.filter(to_ttp=ttp)
+            for rel in relttps:
+                rel_dict = {'id': rel.from_ttp.id, 'name': rel.from_ttp.name, 'relation': rel.relationship}
+                final_list.append(rel_dict)
+        except RelatedTTP.DoesNotExist:
+            pass
+        total_results = len(final_list)
+        response = {
+            'count': total_results,
+            'iTotalRecords': total_results,
+            'iTotalDisplayRecords': total_results,
+            'results': final_list
+        }
+        return JsonResponse(response)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def ttp_related_packages(request, pk, format=None):
+    try:
+        ttp = TTP.objects.get(pk=pk)
+    except TTP.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        final_list = []
+        try:
+            packages = Package.objects.filter(ttps=ttp)
+            for package in packages:
+                pack_dict = {'id': package.pk, 'name': package.name}
+                final_list.append(pack_dict)
+        except Package.DoesNotExist:
+            pass
+        total_results = len(final_list)
+        response = {
+            'count': total_results,
+            'iTotalRecords': total_results,
+            'iTotalDisplayRecords': total_results,
+            'results': final_list
+        }
+        return JsonResponse(response)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['GET'])
+def ttp_malware_instances(request, pk, format=None):
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        try:
+            ttp = TTP.objects.get(pk=pk)
+        except TTP.DoestNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        queryset = ttp.malwareinstance_set.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__istartswith=search_value)|
+                Q(subname__istartswith=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            mw = paginator.page(page)
+        except:
+            mw = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedMalwareInstanceSerializer(mw, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 ################### CAMPAIGN #####################
 

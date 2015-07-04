@@ -3,6 +3,7 @@
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
 from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object, TTP
+from kraut_parser.models import MalwareInstance
 from kraut_intel.utils import get_icon_for_namespace
 from kraut_incident.models import Contact, Handler, Incident
 
@@ -110,6 +111,40 @@ class PaginatedTTPSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = TTPSerializer
+
+
+################### MALWARE INSTANCE #####################
+
+class MalwareInstance(serializers.ModelSerializer):
+    creation_time = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+    subname = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MalwareInstance
+        fields = ('id', 'name', 'description', 'short_description', 'creation_time', 'last_modified', 'subname')
+
+    def get_creation_time(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_last_modified(self, obj):
+        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_subname(self, obj):
+        try:
+            return obj.malwareinstancenames_set.first().name
+        except:
+            return "Unknown"
+
+# Paginated Malware Instances
+class PaginatedMalwareInstanceSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = MalwareInstance
+
+
 
 ################### CAMPAIGN #####################
 

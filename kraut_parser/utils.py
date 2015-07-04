@@ -8,7 +8,6 @@ def get_object_for_observable(observable_type, observable_object=None, object_id
         The optional no_hash parameter determines if also file objects without a hash should be returned.
 
         TODO: support all observable types that are implemented!
-        TODO: replace OR clause of Q queries to increase performance!
     """
     return_list = []
     # create filter

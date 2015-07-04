@@ -69,6 +69,38 @@ class RelatedTTP(models.Model):
     to_ttp = models.ForeignKey(TTP, related_name='to_ttp')
     relationship = models.CharField(max_length=255)
 
+class MalwareInstance(models.Model):
+    ttp_ref = models.ForeignKey(TTP)
+    name = models.CharField(max_length=255)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    description = models.TextField(null=True, blank=True)
+    short_description = models.CharField(max_length=255, null=True, blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
+class MalwareInstanceNames(models.Model):
+    instance_ref = models.ForeignKey(MalwareInstance)
+    name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
+class MalwareInstanceTypes(models.Model):
+    instance_ref = models.ForeignKey(MalwareInstance)
+    _type = models.CharField(max_length=255)
+
+class AttackPattern(models.Model):
+    ttp_ref = models.ForeignKey(TTP)
+    name = models.CharField(max_length=255)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    description = models.TextField(null=True, blank=True)
+    short_description = models.CharField(max_length=255, null=True, blank=True)
+    capec_id = models.CharField(max_length=255)
+
+
 class Campaign(models.Model):
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)

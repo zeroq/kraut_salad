@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load split_at %}
+{% block header %}
+.wrapdiv {
+    word-wrap: break-word;         /* All browsers since IE 5.5+ */
+    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+    width: 100%;
+}
+{% endblock %}
+{% block sidebar %}
+{% spaceless %}
+{% if ttp %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ ttp.namespace|split_at:":,0" }}</h2>Side Panel
+        </div>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Linked Packages
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all packages that reference this TTP entry."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table id="linked_packages_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Related TTPs
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all ttps that are related to the currently viewed ttp."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table id="related_ttp_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Relation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/TTP.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ ttp.name }}</h2>TTP ID: {{ ttp_id }}
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if ttp %}
+{% spaceless %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ ttp.name }}</h3>
+    </div>
+    <table class="table table-condensed table-borderless">
+        <tbody>
+            <tr>
+                <td align="right"><b>Namespace</b></td>
+                <td>{{ ttp.namespace }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Import Time</b></td>
+                <td>{{ ttp.creation_time }}</td>
+                <td align="right"><b>Modified Time</b></td>
+                <td>{{ ttp.last_modified }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel-body">
+        <pre class="pre-scrollable wrapdiv">{{ ttp.description }}</pre>
+    </div>
+</div>
+<div role="tabpanel">
+  <!-- Nav tabs -->
+    {% if num_instances > 0 %}
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" {% if tab == 'malware_instances' %}class="active"{% endif %}>
+        <a href="#malwareinstance" aria-controls="malwareinstance" role="tab" data-toggle="tab">
+            <img src="{% static 'images/Kraut.svg' %}" height="32" />&nbsp;&nbsp;Malware Instances
+            <span class="badge">{{ num_instances }}</span>
+        </a>
+    </li>
+    {% endif %}
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <!-- MALWARE INSTANCES -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'malware_instances' %}active{% endif %}" id="malwareinstance">
+        <br/>
+        <table id="malware_instance_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Name</th>
+                    <th>Short Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+{% endspaceless %}
+{% endif %}
+{% endblock %}
+
+{% block javascript%}
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#linked_packages_table').DataTable({
+            ordering: false,
+            paging: false,
+            info: false,
+            filter: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No related packages found ...",
+                sZeroRecords: "No related packages found ...",
+                sEmptyTable: "No related packages found ...",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/ttp/{{ ttp_id }}/related_packages/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:package' package_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                }
+            ],
+        });
+});
+
+$(document).ready( function () {
+        var pTable = $('#related_ttp_table').DataTable({
+            ordering: false,
+            paging: false,
+            info: false,
+            filter: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No related ttps found ...",
+                sZeroRecords: "No related ttps found ...",
+                sEmptyTable: "No related ttps found ...",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/ttp/{{ ttp_id }}/related_ttps/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:ttp' ttp_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {'data': 'relation', 'sName': 'Relation', 'aTargets': [ 2 ]},
+            ],
+        });
+});
+
+$(document).ready( function () {
+        var pTable = $('#malware_instance_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/ttp/{{ ttp_id }}/malware_instances/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {'data': 'name', 'sName': 'Title', 'aTargets': [ 1 ]},
+                {'data': 'subname', 'sName': 'Name', 'aTargets': [ 2 ]},
+                {'data': 'short_description', 'sName': 'Short Description', 'aTargets': [ 3 ]},
+            ],
+        });
+});
+
+$(function () {
+    $('[data-toggle="popover"]').popover()
+});
+</script>
+{% endblock%}
