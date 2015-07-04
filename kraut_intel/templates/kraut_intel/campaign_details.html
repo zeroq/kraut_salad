@@ -124,6 +124,14 @@
         </a>
     </li>
     {% endif %}
+    {% if num_ttps > 0 %}
+    <li role="presentation" {% if tab == 'ttps' %}class="active"{% endif %}>
+        <a href="#ttps" aria-controls="ttps" role="tab" data-toggle="tab">
+            <img src="{% static 'images/TTP.svg' %}" height="32" />&nbsp;&nbsp;TTPs
+            <span class="badge">{{ num_ttps }}</span>
+        </a>
+    </li>
+    {% endif %}
   </ul>
   <!-- Tab panes -->
   <div class="tab-content">
@@ -155,6 +163,22 @@
                         <td></td>
                         <td></td>
                     </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- TTPS -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'ttps' %}active{% endif %}" id="campaigns">
+        <br/>
+        <table id="ttps_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <th>Name</th>
+                <th>Short Description</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -237,6 +261,39 @@ $(document).ready( function () {
             ],
         });
 });
+
+$(document).ready( function () {
+        var pTable = $('#ttps_table').DataTable({
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/campaigns/{{ campaign_id }}/related_ttps/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:ttp' ttp_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {'data': 'short_description', 'sName': 'Short Description', 'aTargets': [ 2 ]},
+            ],
+        });
+});
+
+
+
 
 $(function () {
     $('[data-toggle="popover"]').popover()

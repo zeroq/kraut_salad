@@ -155,6 +155,7 @@ def campaign(request, campaign_id="1"):
             Prefetch('confidence'),
             Prefetch('related_indicators'),
             Prefetch('associated_campaigns'),
+            Prefetch('related_ttps'),
         )
     except Campaign.DoesNotExist:
         messages.error(request, 'The requested campaign does not exist!')
@@ -166,18 +167,24 @@ def campaign(request, campaign_id="1"):
         context['namespace_icon'] = get_icon_for_namespace(campaign[0].namespace)
         try:
             context['confidence'] = campaign[0].confidence.last().value
-            context['num_indicators'] = campaign[0].related_indicators.count()
-            context['num_campaigns'] = campaign[0].associated_campaigns.count()
-            context['tab'] = 'indicators'
-            if context['confidence'] == 'Low':
-                context['confidence_color'] = 'success'
-            elif context['confidence'] == 'Medium':
-                context['confidence_color'] = 'warning'
-            else:
-                context['confidence_color'] = 'danger'
         except:
             context['confidence'] = 'Low'
             context['confidence_color'] = 'success'
+        context['num_indicators'] = campaign[0].related_indicators.count()
+        context['num_campaigns'] = campaign[0].associated_campaigns.count()
+        context['num_ttps'] = campaign[0].related_ttps.count()
+        if context['num_indicators'] >0:
+            context['tab'] = 'indicators'
+        elif context['num_campaigns']:
+            context['tab'] = 'campaigns'
+        else:
+            context['tab'] = 'ttps'
+        if context['confidence'] == 'Low':
+            context['confidence_color'] = 'success'
+        elif context['confidence'] == 'Medium':
+            context['confidence_color'] = 'warning'
+        else:
+            context['confidence_color'] = 'danger'
     return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
 
 def ttps(request):
