@@ -204,6 +204,7 @@ def ttp(request, ttp_id="1"):
         messages.error(request, 'No TTP with given ID exists in the system.')
     else:
         context['ttp'] = ttp[0]
+        context['namespace_icon'] = get_icon_for_namespace(ttp[0].namespace)
         context['num_rel_ttps'] = ttp[0].related_ttps.count()
         context['num_instances'] = MalwareInstance.objects.filter(ttp_ref=ttp[0]).count()
         context['num_patterns'] = AttackPattern.objects.filter(ttp_ref=ttp[0]).count()
