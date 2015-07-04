@@ -115,6 +115,14 @@ class Campaign(models.Model):
     related_ttps = models.ManyToManyField(TTP, through='RelationCampaignTTP', symmetrical=False, related_name='ttp_related_to_campaign', blank=True)
     associated_campaigns = models.ManyToManyField('self', blank=True)
 
+    def add_related_ttp(self, ttp, relationship):
+        rel_ttp, rel_ttp_created = RelationCampaignTTP.objects.get_or_create(
+            campaign=self,
+            ttp=ttp,
+            relationship=relationship
+        )
+        return rel_ttp
+
     def __unicode__(self):
         return u"%s" % (self.name)
 

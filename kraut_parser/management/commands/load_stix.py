@@ -5,9 +5,10 @@ from dateutil.parser import parse as date_parser
 from django.core.management.base import BaseCommand, CommandError
 from stix.utils.parser import EntityParser
 # import database models
-from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Campaign, Package, Package_Intent, Package_Reference, ObservableComposition
+from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Package, Package_Intent, Package_Reference, ObservableComposition
 from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
-from kraut_parser.models import TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes
+from kraut_parser.models import TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes, AttackPattern
+from kraut_parser.models import Campaign, RelationCampaignTTP
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
 
@@ -56,7 +57,8 @@ class Command(BaseCommand):
             'object_2_object': {},
             'email_2_attachment': {},
             'composite_2_observable': {},
-            'ttp_2_ttp': {}
+            'ttp_2_ttp': {},
+            'campaign_2_ttp': {},
         }
 
     def __check_version(self, version):
@@ -485,7 +487,6 @@ class Command(BaseCommand):
                         composition_object.observables.add(observable_object)
                     else:
                         self.missing_references['composite_2_observable'][composition_object.name] = observable_item['idref']
-                    pass
                 elif "id" and "observable_composition" in observable_item:
                     composition_object.observable_compositions.add(self.create_observable_composition(observable_item, observable_item['id'], None))
         composition_object.save()
@@ -672,13 +673,13 @@ class Command(BaseCommand):
                             ttp_object.save()
                         else:
                             try:
-                                self.missing_references['ttp_2_ttp'][ttp_id].append(related_ttp_id, ttp_relationship)
+                                self.missing_references['ttp_2_ttp'][ttp_id].append((related_ttp_id, ttp_relationship))
                             except:
                                 self.missing_references['ttp_2_ttp'][ttp_id] = [(related_ttp_id, ttp_relationship)]
                     else:
                         self.stdout.write('----> ERROR: inline related TTP not handled yet!')
                         first_entry = False
-                #ttp.pop('related_ttps')
+                ttp.pop('related_ttps')
             # check for behavior elements
             if 'behavior' in ttp:
                 for behavior_type in ttp['behavior']:
@@ -697,6 +698,16 @@ class Command(BaseCommand):
                             if 'types' in mw_instance:
                                 for _type in mw_instance['types']:
                                     mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object, _type=_type)
+                    elif behavior_type == 'attack_patterns':
+                        for pattern in ttp['behavior']['attack_patterns']:
+                            pattern_dict = {
+                                'ttp_ref': ttp_object,
+                                'name': pattern.get('title', 'No Title'),
+                                'description': pattern.get('description', 'No Description'),
+                                'short_description': pattern.get('short_description', 'No Short Description'),
+                                'capec_id': pattern.get('capec_id', 'No Capec ID'),
+                            }
+                            pattern_object, pattern_object_created = AttackPattern.objects.get_or_create(**pattern_dict)
                     else:
                         self.missed_elements['ttps'][behavior_type] = True
                 #ttp.pop('behavior')
@@ -707,7 +718,7 @@ class Command(BaseCommand):
         if first_entry:
             self.stdout.write('[DONE]')
         # debug output for TTP
-        print json.dumps(ttp, indent=4, sort_keys=True)
+        #print json.dumps(ttp, indent=4, sort_keys=True)
         return package_object
 
     def perform_campaign_extraction(self, stix_json, package_object):
@@ -753,9 +764,28 @@ class Command(BaseCommand):
             for element in campaign.keys():
                 if element not in self.common_elements:
                     self.missed_elements['campaign'][element] = True
+            # check for related ttps
+            if 'related_ttps' in campaign:
+                for related_ttp in campaign['related_ttps']['ttps']:
+                    # get relationship information
+                    if 'relationship' in related_ttp:
+                        ttp_relationship = related_ttp['relationship']
+                    else:
+                        ttp_relationship = 'Unknown Relation'
+                    related_ttp_id = related_ttp['ttp']['idref']
+                    if related_ttp_id in self.id_mapping['ttps']:
+                        related_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][related_ttp_id])
+                        campaign_object.add_related_ttp(related_ttp_object, ttp_relationship)
+                        campaign_object.save()
+                    else:
+                        try:
+                            self.missing_references['campaign_2_ttp'][campaign_id].append((related_ttp_id, ttp_relationship))
+                        except:
+                            self.missing_references['campaign_2_ttp'][campaign_id] = [(related_ttp_id, ttp_relationship)]
         if first_entry:
             self.stdout.write('[DONE]')
-        #print json.dumps(campaign, indent=4, sort_keys=True)
+        # DEBUG Output
+        print json.dumps(campaign, indent=4, sort_keys=True)
         return package_object
 
     def perform_threat_actor_extraction(self, stix_json, package_object):
@@ -1173,6 +1203,23 @@ class Command(BaseCommand):
                                         except KeyError as e:
                                             continue
                                     ttp_object.save()
+                                    del self.missing_references[item][object_id]
+                                except KeyError as e:
+                                    continue
+                        if item == 'campaign_2_ttp':
+                            for object_id in self.missing_references[item].keys():
+                                try:
+                                    campaign_db_id = self.id_mapping['campaigns'][object_id]
+                                    campaign_object = Campaign.objects.get(id=campaign_db_id)
+                                    for related_ttp_idref, related_ttp_relationship in self.missing_references[item][object_id]:
+                                        try:
+                                            related_ttp_db_id = self.id_mapping['ttps'][related_ttp_idref]
+                                            related_ttp_object = TTP.objects.get(id=related_ttp_db_id)
+                                            campaign_object.add_related_ttp(related_ttp_object, related_ttp_relationship)
+                                            campaign_object.save()
+                                        except KeyError as e:
+                                            continue
+                                    campaign_object.save()
                                     del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue

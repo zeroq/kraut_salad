@@ -772,7 +772,8 @@ def ttp_attack_patterns(request, pk, format=None):
         if search_value:
             queryset = queryset.filter(
                 Q(name__istartswith=search_value)|
-                Q(description__istartswith=search_value)
+                Q(description__istartswith=search_value)|
+                Q(capec_id__icontains=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:

@@ -200,7 +200,10 @@ def ttp(request, ttp_id="1"):
         context['num_rel_ttps'] = ttp[0].related_ttps.count()
         context['num_instances'] = MalwareInstance.objects.filter(ttp_ref=ttp[0]).count()
         context['num_patterns'] = AttackPattern.objects.filter(ttp_ref=ttp[0]).count()
-        context['tab'] = 'malware_instances'
+        if context['num_instances'] > 0:
+            context['tab'] = 'malware_instances'
+        else:
+            context['tab'] = 'attack_patterns'
     return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
 
 def indicators(request):

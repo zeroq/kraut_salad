@@ -126,15 +126,14 @@
   <!-- Tab panes -->
   <div class="tab-content">
     <!-- MALWARE INSTANCES -->
+    {% if num_instances > 0 %}
     <div role="tabpanel" class="tab-pane {% if tab == 'malware_instances' %}active{% endif %}" id="malwareinstance">
         <br/>
         <table id="malware_instance_table" class="table table-condensed" style="font-size: 0.9em;">
             <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Name</th>
-                    <th>Short Description</th>
-                </tr>
+                <th>Title</th>
+                <th>Name</th>
+                <th>Short Description</th>
             </thead>
             <tbody>
                     <tr>
@@ -145,10 +144,27 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
     <!-- ATTACK PATTERNS -->
+    {% if num_patterns > 0 %}
     <div role="tabpanel" class="tab-pane {% if tab == 'attack_patterns' %}active{% endif %}" id="attackpattern">
         <br/>
+        <table id="attack_pattern_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <th>Name</th>
+                <th>Capec ID</th>
+                <th>Short Description</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
+    {% endif %}
   </div>
 </div>
 {% endspaceless %}
@@ -249,6 +265,31 @@ $(document).ready( function () {
             ],
         });
 });
+
+$(document).ready( function () {
+        var pTable = $('#attack_pattern_table').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/ttp/{{ ttp_id }}/attack_patterns/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {'data': 'name', 'sName': 'Name', 'aTargets': [ 1 ]},
+                {'data': 'capec_id', 'sName': 'Capec ID', 'aTargets': [ 2 ]},
+                {'data': 'short_description', 'sName': 'Short Description', 'aTargets': [ 3 ]},
+            ],
+        });
+});
+
+
+
+
+
 
 $(function () {
     $('[data-toggle="popover"]').popover()
