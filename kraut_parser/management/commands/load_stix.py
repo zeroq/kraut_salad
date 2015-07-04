@@ -760,10 +760,6 @@ class Command(BaseCommand):
             # remove status as it has been already used
             if 'status' in campaign:
                 campaign.pop('status')
-            # add missed elements
-            for element in campaign.keys():
-                if element not in self.common_elements:
-                    self.missed_elements['campaign'][element] = True
             # check for related ttps
             if 'related_ttps' in campaign:
                 for related_ttp in campaign['related_ttps']['ttps']:
@@ -782,6 +778,11 @@ class Command(BaseCommand):
                             self.missing_references['campaign_2_ttp'][campaign_id].append((related_ttp_id, ttp_relationship))
                         except:
                             self.missing_references['campaign_2_ttp'][campaign_id] = [(related_ttp_id, ttp_relationship)]
+                campaign.pop('related_ttps')
+            # add missed elements
+            for element in campaign.keys():
+                if element not in self.common_elements:
+                    self.missed_elements['campaign'][element] = True
         if first_entry:
             self.stdout.write('[DONE]')
         # DEBUG Output

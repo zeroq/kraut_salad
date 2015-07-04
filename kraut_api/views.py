@@ -877,6 +877,32 @@ def campaign_detail_associated_campaigns(request, pk, format=None):
     return JsonResponse(response)
 
 @api_view(['GET'])
+def campaign_detail_related_packages(request, pk, format=None):
+    if not request.method == 'GET':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        campaign = Campaign.objects.get(pk=pk)
+    except Campaign.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    final_list = []
+    ### get for initial observable
+    try:
+        packages = Package.objects.filter(campaigns=campaign)
+        for package in packages:
+            pack_dict = {'id': package.pk, 'name': package.name}
+            final_list.append(pack_dict)
+    except Package.DoesNotExist:
+        pass
+    total_results = len(final_list)
+    response = {
+        'count': total_results,
+        'iTotalRecords': total_results,
+        'iTotalDisplayRecords': total_results,
+        'results': final_list
+    }
+    return JsonResponse(response)
+
+@api_view(['GET'])
 def campaign_detail_related_ttps(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
