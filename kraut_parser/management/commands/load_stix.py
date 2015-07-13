@@ -52,6 +52,7 @@ class Command(BaseCommand):
         self.missing_references = {
             'actor_2_actor': {},
             'actor_2_campaign': {},
+            'actor_2_ttp': {},
             'indicator_2_indicator': {},
             'indicator_2_observable': {},
             'object_2_object': {},
@@ -761,7 +762,7 @@ class Command(BaseCommand):
             if 'status' in campaign:
                 campaign.pop('status')
             # check for related ttps
-            if 'related_ttps' in campaign:
+            if 'related_ttps' in campaign and 'ttps' in campaign['related_ttps']:
                 for related_ttp in campaign['related_ttps']['ttps']:
                     # get relationship information
                     if 'relationship' in related_ttp:
@@ -786,7 +787,7 @@ class Command(BaseCommand):
         if first_entry:
             self.stdout.write('[DONE]')
         # DEBUG Output
-        print json.dumps(campaign, indent=4, sort_keys=True)
+        #print json.dumps(campaign, indent=4, sort_keys=True)
         return package_object
 
     def perform_threat_actor_extraction(self, stix_json, package_object):
@@ -902,12 +903,32 @@ class Command(BaseCommand):
                             self.missing_references['actor_2_campaign'][threat_actor_id] = [associated_campaign_id]
                 threat_actor_object.save()
                 threat_actor.pop('associated_campaigns')
+            # create observed ttps
+            if 'observed_ttps' in threat_actor and 'ttps' in threat_actor['observed_ttps']:
+                for observed_ttp in threat_actor['observed_ttps']['ttps']:
+                    # get relationship information
+                    if 'relationship' in observed_ttp:
+                        ttp_relationship = observed_ttp['relationship']
+                    else:
+                        ttp_relationship = 'Unknown Relation'
+                    observed_ttp_id = observed_ttp['ttp']['idref']
+                    if observed_ttp_id in self.id_mapping['ttps']:
+                        observed_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][observed_ttp_id])
+                        threat_actor_object.add_observed_ttp(observed_ttp_object, ttp_relationship)
+                        threat_actor_object.save()
+                    else:
+                        try:
+                            self.missing_references['actor_2_ttp'][threat_actor_id].append((observed_ttp_id, ttp_relationship))
+                        except:
+                            self.missing_references['actor_2_ttp'][threat_actor_id] = [(observed_ttp_id, ttp_relationship)]
+                threat_actor.pop('observed_ttps')
             # add missed elements
             for element in threat_actor.keys():
                 if element not in self.common_elements:
                     self.missed_elements['threat_actor'][element] = True
         if first_entry:
             self.stdout.write('[DONE]')
+        # DEBUG Output
         #print json.dumps(threat_actor, indent=4, sort_keys=True)
         return package_object
 
@@ -1221,6 +1242,23 @@ class Command(BaseCommand):
                                         except KeyError as e:
                                             continue
                                     campaign_object.save()
+                                    del self.missing_references[item][object_id]
+                                except KeyError as e:
+                                    continue
+                        if item == 'actor_2_ttp':
+                            for object_id in self.missing_references[item].keys():
+                                try:
+                                    actor_db_id = self.id_mapping['threat_actors'][object_id]
+                                    actor_object = ThreatActor.objects.get(id=actor_db_id)
+                                    for observed_ttp_idref, observed_ttp_relationship in self.missing_references[item][object_id]:
+                                        try:
+                                            observed_ttp_db_id = self.id_mapping['ttps'][observed_ttp_idref]
+                                            observed_ttp_object = TTP.objects.get(id=observed_ttp_db_id)
+                                            actor_object.add_observed_ttp(observed_ttp_object, observed_ttp_relationship)
+                                            actor_object.save()
+                                        except KeyError as e:
+                                            continue
+                                    actor_object.save()
                                     del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue

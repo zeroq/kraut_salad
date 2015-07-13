@@ -131,7 +131,6 @@ class RelationCampaignTTP(models.Model):
     ttp = models.ForeignKey(TTP)
     relationship = models.CharField(max_length=255)
 
-
 class ThreatActor(models.Model):
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
@@ -143,6 +142,14 @@ class ThreatActor(models.Model):
     associated_threat_actors = models.ManyToManyField('self', blank=True)
     threat_actor_id = models.CharField(max_length=255)
     observed_ttps = models.ManyToManyField(TTP, through='ObservedTTP', symmetrical=False, related_name='ttp_observed_at_ta', blank=True)
+
+    def add_observed_ttp(self, ttp, relationship):
+        obs_ttp, obs_ttp_created = ObservedTTP.objects.get_or_create(
+            ta=self,
+            ttp=ttp,
+            relationship=relationship
+        )
+        return obs_ttp
 
     def __unicode__(self):
         return u"%s" % (self.name)
