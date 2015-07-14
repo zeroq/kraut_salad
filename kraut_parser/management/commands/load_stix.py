@@ -718,8 +718,8 @@ class Command(BaseCommand):
                     self.missed_elements['ttps'][element] = True
         if first_entry:
             self.stdout.write('[DONE]')
-        # debug output for TTP
-        #print json.dumps(ttp, indent=4, sort_keys=True)
+        # DEBUG output for TTP
+        print json.dumps(ttp, indent=4, sort_keys=True)
         return package_object
 
     def perform_campaign_extraction(self, stix_json, package_object):
@@ -911,16 +911,21 @@ class Command(BaseCommand):
                         ttp_relationship = observed_ttp['relationship']
                     else:
                         ttp_relationship = 'Unknown Relation'
-                    observed_ttp_id = observed_ttp['ttp']['idref']
-                    if observed_ttp_id in self.id_mapping['ttps']:
-                        observed_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][observed_ttp_id])
-                        threat_actor_object.add_observed_ttp(observed_ttp_object, ttp_relationship)
-                        threat_actor_object.save()
+                    if 'idref' in observed_ttp['ttp']:
+                        observed_ttp_id = observed_ttp['ttp']['idref']
+                        if observed_ttp_id in self.id_mapping['ttps']:
+                            observed_ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][observed_ttp_id])
+                            threat_actor_object.add_observed_ttp(observed_ttp_object, ttp_relationship)
+                            threat_actor_object.save()
+                        else:
+                            try:
+                                self.missing_references['actor_2_ttp'][threat_actor_id].append((observed_ttp_id, ttp_relationship))
+                            except:
+                                self.missing_references['actor_2_ttp'][threat_actor_id] = [(observed_ttp_id, ttp_relationship)]
                     else:
-                        try:
-                            self.missing_references['actor_2_ttp'][threat_actor_id].append((observed_ttp_id, ttp_relationship))
-                        except:
-                            self.missing_references['actor_2_ttp'][threat_actor_id] = [(observed_ttp_id, ttp_relationship)]
+                        # inline TTP ? TODO
+                        print json.dumps(observed_ttp, indent=4, sort_keys=True)
+                        continue
                 threat_actor.pop('observed_ttps')
             # add missed elements
             for element in threat_actor.keys():

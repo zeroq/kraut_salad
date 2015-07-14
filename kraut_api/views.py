@@ -1560,7 +1560,7 @@ def object_hash_list(request, format=None):
                 else:
                     order_direction = ''
             else:
-                order_by_column = 'lastname'
+                order_by_column = 'md5_hash'
                 order_direction = '-'
             # search
             if 'search[value]' in request.query_params:
@@ -1568,7 +1568,7 @@ def object_hash_list(request, format=None):
             else:
                 search_value = None
         else:
-            order_by_column = 'lastname'
+            order_by_column = 'md5_hash'
             order_direction = '-'
             search_value = None
         # construct queryset
