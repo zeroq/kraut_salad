@@ -96,7 +96,7 @@ def delete_threatactor(request, threat_actor_id="1"):
     except ThreatAcotr.DoesNotExist:
         messages.error(request, 'The requested threat actor does not exist!')
         return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
-    ### TODO: check campaigns
+    ### TODO: check campaigns, ttps
     # delete threat actor
     ta.delete()
     messages.info(request, 'The threat actor was deleted successfully!')
@@ -108,6 +108,7 @@ def threatactor(request, threat_actor_id="1"):
         ta = ThreatActor.objects.filter(pk=int(threat_actor_id)).prefetch_related(
             Prefetch('campaigns'),
             Prefetch('associated_threat_actors'),
+            Prefetch('observed_ttps'),
         )
     except ThreatActor.DoesNotExist:
         messages.error(request, 'The requested threat actor does not exist!')
@@ -142,6 +143,7 @@ def threatactor(request, threat_actor_id="1"):
         context['tab'] = 'campaigns'
         context['num_campaigns'] = ta[0].campaigns.count()
         context['num_assoc_ta'] = ta[0].associated_threat_actors.count()
+        context['num_ttps'] = ta[0].observed_ttps.count()
     return render_to_response('kraut_intel/threatactor_details.html', context, context_instance=RequestContext(request))
 
 def campaigns(request):
