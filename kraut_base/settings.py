@@ -113,3 +113,5 @@ REST_FRAMEWORK = {
 MENU_SELECT_PARENTS = True
 
 MY_NAMESPACE = {'http://pi-one.net': 'pi-one'}
+
+CELERY_DISABLE_RATE_LIMITS = True
