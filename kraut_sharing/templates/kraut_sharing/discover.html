@@ -13,14 +13,4 @@
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 <br/>
-<form method="post">
-    {% csrf_token %}
-    <div class="form-group">
-        {{ form.url.errors }}
-        <label for="discoveryURL">{{ form.url.label }}</label>
-        {{ form.url }}
-    </div>
-    <button type="submit" class="btn btn-default">Discover</button>
-</form>
-
 {% endblock%}
