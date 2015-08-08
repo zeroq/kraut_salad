@@ -17,6 +17,9 @@ from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedA
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
 
+from kraut_sharing.forms import DiscoveryForm
+from kraut_sharing.feed import CollectionRequest
+
 import json, csv
 
 ################### PACKAGE #####################
@@ -1742,5 +1745,32 @@ def incident_list(request, format=None):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-################### INCIDENTS #####################
+################### SHARING #####################
+
+@api_view(['POST'])
+def taxii_feed_information(request, format=None):
+    if not request.method == 'POST':
+        return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+    discovery_form = DiscoveryForm(request.POST)
+    if discovery_form.is_valid():
+        discovery_url = discovery_form.cleaned_data['url']
+        #script = CollectionRequest(discovery_url)
+        script = CollectionRequest('http://hailataxii.com/taxii-discovery-service/')
+        result = script.run()
+        response = {'results': []}
+        for item in  result['collection_informations']:
+            if 'available' in item and item['available']:
+                entry = {'name': item['collection_name'], 'address': item['polling_service_instances'][0]['poll_address'], 'type': item['collection_type']}
+                response['results'].append(entry)
+        return JsonResponse(response)
+    else:
+        script = CollectionRequest('http://hailataxii.com/taxii-discovery-service/')
+        result = script.run()
+        response = {'results': []}
+        for item in  result['collection_informations']:
+            if 'available' in item and item['available']:
+                entry = {'name': item['collection_name'], 'address': item['polling_service_instances'][0]['poll_address'], 'type': item['collection_type']}
+                response['results'].append(entry)
+        return HttpResponse(json.dumps(response), content_type="application/json")
+    return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
 
