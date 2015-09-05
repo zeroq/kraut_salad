@@ -47,7 +47,11 @@
 // Submit post on submit
 $('#post-discovery').on('submit', function(event){
     event.preventDefault();
-    list_feeds_post();
+    if($('#discoveryURL').val()!='') {
+        list_feeds_post();
+    } else {
+        $('#create_results').html("<div class='alert alert-danger alert-dismissible' role='alert'>No URL provided!<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+    };
 });
 
 function list_feeds_post() {
