@@ -63,7 +63,7 @@ function list_feeds_post() {
             'csrfmiddlewaretoken': '{{csrf_token}}',
         },
         success : function(json) {
-            $('#discoveryURL').val('');
+            //$('#discoveryURL').val('');
             var dataTable = $('#feed_table').dataTable();
             dataTable.fnClearTable(this);
             dataTable.fnAddData(json.results);
@@ -78,6 +78,29 @@ function list_feeds_post() {
     });
 };
 
+function post(path, params, method) {
+    method = method || "post";
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+            form.appendChild(hiddenField);
+        }
+    }
+    var hiddenField = document.createElement("input");
+    hiddenField.setAttribute("type", "hidden");
+    hiddenField.setAttribute("name", "csrfmiddlewaretoken");
+    hiddenField.setAttribute("value", "{{ csrf_token }}");
+    form.appendChild(hiddenField);
+    document.body.appendChild(form);
+    form.submit();
+}
 
 $(document).ready( function () {
         $('#hide_datatable').hide();
@@ -96,7 +119,7 @@ $(document).ready( function () {
                     'aTargets': [ 2 ],
                     "mRender": function (data, type, full) {
                         return '<div class="btn-group1">' +
-                            '<a class="btn btn-small" rel="tooltip" data-placement="right" data-original-title="Poll Service">' +
+                            '<a href="#" onClick="post(\'/sharing/poll/\', {url: \'pollURL\', service: \'pollService\'})" class="btn btn-small" rel="tooltip" data-placement="right" data-original-title="Poll Feed">'.replace('pollService', data).replace('pollURL', $('#discoveryURL').val()) +
                             '<i class="fa fa-cloud-download"></i>' +
                             '</a>' +
                             '</div>';

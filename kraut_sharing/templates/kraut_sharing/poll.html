@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Taxii.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Hail a Taxii</h2>poll feed information from a TAXII server ...
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<br/>
+<form method="post" id="poll-service" action="">
+    {% csrf_token %}
+    <div class="form-group">{{ form.url.errors }}
+        <label for="serviceURL">{{ form.url.label }}</label>
+        {{ form.url }}
+    </div>
+    <div class="form-group">{{ form.service.errors }}
+        <label for="serviceNAME">{{ form.service.label }}</label>
+        {{ form.service }}
+    </div>
+    <div class="form-group">{{ form.begin_time.errors }}
+        <label for="begin">{{ form.begin_time.label }}</label>
+        {{ form.begin_time }}
+    </div>
+    <div class="form-group">{{ form.end_time.errors }}
+        <label for="end">{{ form.end_time.label }}</label>
+        {{ form.end_time }}
+    </div>
+    <div class="form-group">{{ form.poll.errors }}
+        <label for="poll">{{ form.poll.label }}</label>
+        {{ form.poll }}
+    </div>
+    <button type="submit" class="btn btn-primary">Poll Intelligence</button>
+</form>
+<br/>
+{% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+</script>
+{% endblock %}

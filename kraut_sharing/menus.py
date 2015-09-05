@@ -3,15 +3,21 @@
 from django.core.urlresolvers import reverse
 from menu import Menu, MenuItem
 
-incident_children = (
-    MenuItem("Taxii",
+sharing_children = (
+    MenuItem("Discover Taxii Feeds",
             reverse("sharing:home"),
             weight=10,
-            image="images/Taxii.svg"),
+            image="images/Taxii.svg"
+        ),
+    MenuItem("Poll Taxii Feed",
+            reverse("sharing:poll"),
+            weight=20,
+            image="images/Taxii.svg"
+        ),
 )
 
 Menu.add_item("sharing", MenuItem("Sharing",
     reverse("sharing:home"),
     weight=10,
-    children=incident_children)
+    children=sharing_children)
 )
