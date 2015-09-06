@@ -232,7 +232,7 @@ class Observable(models.Model):
     namespace = models.CharField(max_length=255, default='nospace')
     indicators = models.ManyToManyField(Indicator, blank=True)
     observable_type = models.CharField(max_length=255, null=True, blank=True)
-    observable_id = models.CharField(max_length=255)
+    observable_id = models.CharField(max_length=255, unique=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)

@@ -374,7 +374,13 @@ class Command(BaseCommand):
                 'observable_type': object_type,
                 'observable_id': observable_id
             }
-            observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
+            # check if database object with same ID already exists and update
+            try:
+                Observable.objects.filter(observable_id=observable_id).update(**observable_dict)
+                observable_object = Observable.objects.get(observable_id=observable_id)
+                observable_created = False
+            except Observable.DoesNotExist:
+                observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
             # create observable mapping
             self.id_mapping['observables'][observable_id] = observable_object.id
         # add to package
@@ -560,7 +566,13 @@ class Command(BaseCommand):
                         observable_object.indicators.add(indicator_object)
                         observable_object.save()
                     else:
-                        self.missing_references['indicator_2_observable'][indicator_id] = indicator['observable']['idref']
+                        # check if database entry with given IDREF exists
+                        try:
+                            observable_object = Observable.objects.get(observable_id=indicator['observable']['idref'])
+                            observable_object.indicators.add(indicator_object)
+                            observable_object.save()
+                        except Observable.DoesNotExist:
+                            self.missing_references['indicator_2_observable'][indicator_id] = indicator['observable']['idref']
                 elif 'id' in indicator['observable']:
                     # create new observable and object entry
                     first_entry, package_object = self.extract_observable_data(indicator['observable'], first_entry, package_object, indicator_object)
@@ -698,7 +710,11 @@ class Command(BaseCommand):
                                     mw_names_object, mw_names_object_created = MalwareInstanceNames.objects.get_or_create(instance_ref=mw_instance_object, name=name)
                             if 'types' in mw_instance:
                                 for _type in mw_instance['types']:
-                                    mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object, _type=_type)
+                                    # TODO: _type instance of dictionary
+                                    if isinstance(_type, dict):
+                                        mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object,           _type=_type['value'])
+                                    else:
+                                        mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object, _type=_type)
                     elif behavior_type == 'attack_patterns':
                         for pattern in ttp['behavior']['attack_patterns']:
                             pattern_dict = {
@@ -1216,6 +1232,34 @@ class Command(BaseCommand):
                                     del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
+                        if item == 'indicator_2_observable':
+                            for object_id in self.missing_references[item].keys():
+                                try:
+                                    indicator_db_id = self.id_mapping['indicators'][object_id]
+                                    indicator_object = Indicator.objects.get(id=indicator_db_id)
+                                    observable_idref = self.missing_references[item][object_id]
+                                    try:
+                                        observable_db_id = self.id_mapping['observables'][observable_idref]
+                                        observable_object = Observable.objects.get(id=observable_db_id)
+                                        observable_object.indicators.add(indicator_object)
+                                        observable_object.save()
+                                        del self.missing_references[item][object_id]
+                                    except KeyError as e:
+                                        # create dummy observable with IDREF for later update
+                                        observable_dict = {
+                                            'name': observable_idref,
+                                            'description': 'No Description',
+                                            'short_description': 'No Short Description',
+                                            'namespace': self.get_full_namespace(observable_idref.split(':', 1)[0]),
+                                            'observable_type': 'Dummy',
+                                            'observable_id': observable_idref
+                                        }
+                                        observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
+                                        observable_object.indicators.add(indicator_object)
+                                        observable_object.save()
+                                except KeyError as e:
+                                    continue
+
                         if item == 'ttp_2_ttp':
                             for object_id in self.missing_references[item].keys():
                                 try:
