@@ -231,6 +231,7 @@ class Observable(models.Model):
     short_description = models.CharField(max_length=255, null=True, blank=True)
     namespace = models.CharField(max_length=255, default='nospace')
     indicators = models.ManyToManyField(Indicator, blank=True)
+    compositions = models.ManyToManyField(ObservableComposition, blank=True)
     observable_type = models.CharField(max_length=255, null=True, blank=True)
     observable_id = models.CharField(max_length=255, unique=True)
 

@@ -312,4 +312,8 @@ def observable(request, observable_id="1"):
                 if obj.md5_hash != 'No MD5' or obj.sha256_hash != 'No SHA256':
                     context['hashes'] = True
                     context['active_tab'] = 'hashes'
+        elif observable[0].observable_type == 'CompositionContainer':
+            ### TODO: currently supports only single composition in observable
+            for composition in observable[0].compositions.all():
+                context['composition_id'] = composition.id
     return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))

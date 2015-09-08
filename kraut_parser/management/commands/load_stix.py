@@ -47,7 +47,8 @@ class Command(BaseCommand):
             'indicators': {},
             'threat_actors': {},
             'campaigns': {},
-            'ttps': {}
+            'ttps': {},
+            'compositions': {}
         }
         self.missing_references = {
             'actor_2_actor': {},
@@ -353,6 +354,37 @@ class Command(BaseCommand):
                 object_id = observable['object']['id']
             else:
                 object_id = observable_id
+        elif 'observable_composition' in observable:
+            # handle observable composition
+            composition_object = self.create_observable_composition(observable, observable_id, None, None)
+            # check if observable already exists
+            if observable_id in self.id_mapping['observables']:
+                observable_object = Observable.objects.get(id=self.id_mapping['observables'][observable_id])
+                observable_created = False
+            else:
+                # create dummy observable to attach composition to
+                observable_dict = {
+                    'name': observable.get('title', observable_id),
+                    'description': 'Observable Composition Container',
+                    'short_description': 'Observable Composition Container',
+                    'namespace': observable_namespace,
+                    'observable_type': 'CompositionContainer',
+                    'observable_id': observable_id
+                }
+                # check if database object with same ID already exists and update
+                try:
+                    Observable.objects.filter(observable_id=observable_id).update(**observable_dict)
+                    observable_object = Observable.objects.get(observable_id=observable_id)
+                    observable_created = False
+                except Observable.DoesNotExist:
+                    observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
+                # create observable mapping
+                self.id_mapping['observables'][observable_id] = observable_object.id
+            # add composition
+            observable_object.compositions.add(composition_object)
+            # add to package
+            package_object.observables.add(observable_object)
+            return first_entry, package_object
         else:
             object_type = None
             if first_entry:
@@ -464,7 +496,7 @@ class Command(BaseCommand):
                         self.stdout.write("----> related object without ID found")
         return first_entry, package_object
 
-    def create_observable_composition(self, composition_json, composition_id=None, indicator=None):
+    def create_observable_composition(self, composition_json, composition_id=None, indicator=None, observable=None):
         """recursively check for observable composition objects
         @composition_json: json representation of an observable composition
         @composition_id: identifier/name for the observable composition (first takes the name of the indicator embedded in)
@@ -482,6 +514,8 @@ class Command(BaseCommand):
             composition_dict['operator'] = composition_json['observable_composition']['operator']
         # create composition object
         composition_object, composition_object_created = ObservableComposition.objects.get_or_create(**composition_dict)
+        # add mapping
+        self.id_mapping['compositions'][composition_id] = composition_object.id
         if indicator:
             composition_object.indicator.add(indicator)
         # check for observables
@@ -493,9 +527,13 @@ class Command(BaseCommand):
                         observable_object = Observable.objects.get(id=self.id_mapping['observables'][observable_item['idref']])
                         composition_object.observables.add(observable_object)
                     else:
-                        self.missing_references['composite_2_observable'][composition_object.name] = observable_item['idref']
+                        try:
+                            observable_object = Observable.objects.get(observable_id=observable_item['idref'])
+                            composition_object.observables.add(observable_object)
+                        except Observable.DoesNotExist:
+                            self.missing_references['composite_2_observable'][composition_id] = observable_item['idref']
                 elif "id" and "observable_composition" in observable_item:
-                    composition_object.observable_compositions.add(self.create_observable_composition(observable_item, observable_item['id'], None))
+                    composition_object.observable_compositions.add(self.create_observable_composition(observable_item, observable_item['id'], None, None))
         composition_object.save()
         return composition_object
 
@@ -557,7 +595,7 @@ class Command(BaseCommand):
             if 'observable' in indicator:
                 # check if composite observable is present
                 if 'observable_composition' in indicator['observable']:
-                    self.create_observable_composition(indicator['observable'], indicator_object.name, indicator_object)
+                    self.create_observable_composition(indicator['observable'], indicator_object.name, indicator_object, None)
                 # check for observable reference
                 if 'idref' in indicator['observable']:
                     if indicator['observable']['idref'] in self.id_mapping['observables']:
@@ -710,7 +748,7 @@ class Command(BaseCommand):
                                     mw_names_object, mw_names_object_created = MalwareInstanceNames.objects.get_or_create(instance_ref=mw_instance_object, name=name)
                             if 'types' in mw_instance:
                                 for _type in mw_instance['types']:
-                                    # TODO: _type instance of dictionary
+                                    #  _type instance of dictionary
                                     if isinstance(_type, dict):
                                         mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object,           _type=_type['value'])
                                     else:
@@ -1259,7 +1297,23 @@ class Command(BaseCommand):
                                         observable_object.save()
                                 except KeyError as e:
                                     continue
-
+                        if item == 'composite_2_observable':
+                            for object_id in self.missing_references[item].keys():
+                                try:
+                                    comp_db_id = self.id_mapping['compositions'][object_id]
+                                    comp_object = ObservableComposition.objects.get(id=comp_db_id)
+                                    observable_idref = self.missing_references[item][object_id]
+                                    try:
+                                        observable_db_id = self.id_mapping['observables'][observable_idref]
+                                        observable_object = Observable.objects.get(id=observable_db_id)
+                                        comp_object.observables.add(observable_object)
+                                        comp_object.save()
+                                        del self.missing_references[item][object_id]
+                                    except KeyError as e:
+                                        # TODO: create dummy observable
+                                        pass
+                                except KeyError as e:
+                                    continue
                         if item == 'ttp_2_ttp':
                             for object_id in self.missing_references[item].keys():
                                 try:
