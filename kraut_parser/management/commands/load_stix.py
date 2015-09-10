@@ -531,9 +531,14 @@ class Command(BaseCommand):
                             observable_object = Observable.objects.get(observable_id=observable_item['idref'])
                             composition_object.observables.add(observable_object)
                         except Observable.DoesNotExist:
-                            self.missing_references['composite_2_observable'][composition_id] = observable_item['idref']
+                            try:
+                                self.missing_references['composite_2_observable'][composition_id].append(observable_item['idref'])
+                            except:
+                                self.missing_references['composite_2_observable'][composition_id] = [observable_item['idref']]
                 elif "id" and "observable_composition" in observable_item:
                     composition_object.observable_compositions.add(self.create_observable_composition(observable_item, observable_item['id'], None, None))
+                else:
+                    print observable_item
         composition_object.save()
         return composition_object
 
@@ -773,7 +778,7 @@ class Command(BaseCommand):
         if first_entry:
             self.stdout.write('[DONE]')
         # DEBUG output for TTP
-        print json.dumps(ttp, indent=4, sort_keys=True)
+        #print json.dumps(ttp, indent=4, sort_keys=True)
         return package_object
 
     def perform_campaign_extraction(self, stix_json, package_object):
@@ -1227,31 +1232,41 @@ class Command(BaseCommand):
                                 try:
                                     threat_actor_db_id = self.id_mapping['threat_actors'][object_id]
                                     threat_actor_object = ThreatActor.objects.get(id=threat_actor_db_id)
-                                    for associated_actor_idref in self.missing_references[item][object_id]:
+                                    for associated_actor_idref in list(self.missing_references[item][object_id]):
                                         try:
                                             associated_actor_db_id = self.id_mapping['threat_actors'][associated_actor_idref]
                                             associated_actor_object = ThreatActor.objects.get(id=associated_actor_db_id)
                                             threat_actor_object.associated_threat_actors.add(associated_actor_object)
+                                            self.missing_references[item][object_id].remove(associated_actor_idref)
                                         except KeyError as e:
-                                            continue
+                                            try:
+                                                associated_actor_object = ThreatActor.objects.get(threat_actor_id=associated_actor_idref)
+                                                threat_actor_object.associated_threat_actors.add(associated_actor_object)
+                                                self.missing_references[item][object_id].remove(associated_actor_idref)
+                                            except ThreatActor.DoesNotExist:
+                                                continue
                                     threat_actor_object.save()
-                                    del self.missing_references[item][object_id]
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
                                 except KeyError as e:
+                                    print e
                                     continue
                         if item == 'actor_2_campaign':
                             for object_id in self.missing_references[item].keys():
                                 try:
                                     threat_actor_db_id = self.id_mapping['threat_actors'][object_id]
                                     threat_actor_object = ThreatActor.objects.get(id=threat_actor_db_id)
-                                    for associated_campaign_idref in self.missing_references[item][object_id]:
+                                    for associated_campaign_idref in list(self.missing_references[item][object_id]):
                                         try:
                                             associated_campaign_db_id = self.id_mapping['campaigns'][associated_campaign_idref]
                                             associated_campaign_object = Campaign.objects.get(id=associated_campaign_db_id)
                                             threat_actor_object.campaigns.add(associated_campaign_object)
+                                            self.missing_references[item][object_id].remove(associated_campaign_idref)
                                         except KeyError as e:
                                             continue
                                     threat_actor_object.save()
-                                    del self.missing_references[item][object_id]
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
                         if item == 'indicator_2_indicator':
@@ -1259,15 +1274,22 @@ class Command(BaseCommand):
                                 try:
                                     indicator_db_id = self.id_mapping['indicators'][object_id]
                                     indicator_object = Indicator.objects.get(id=indicator_db_id)
-                                    for composite_indicator_idref in self.missing_references[item][object_id]:
+                                    for composite_indicator_idref in list(self.missing_references[item][object_id]):
                                         try:
                                             composite_indicator_db_id = self.id_mapping['indicators'][composite_indicator_idref]
                                             composite_indicator_object = Indicator.objects.get(id=composite_indicator_db_id)
                                             indicator_object.related_indicators.add(composite_indicator_object)
+                                            self.missing_references[item][object_id].remove(composite_indicator_idref)
                                         except KeyError as e:
-                                            continue
+                                            try:
+                                                composite_indicator_object = Indicator.objects.get(indicator_id=composite_indicator_idref)
+                                                indicator_object.related_indicators.add(composite_indicator_object)
+                                                self.missing_references[item][object_id].remove(composite_indicator_idref)
+                                            except Indicator.DoesNotExist:
+                                                continue
                                     indicator_object.save()
-                                    del self.missing_references[item][object_id]
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
                         if item == 'indicator_2_observable':
@@ -1302,16 +1324,23 @@ class Command(BaseCommand):
                                 try:
                                     comp_db_id = self.id_mapping['compositions'][object_id]
                                     comp_object = ObservableComposition.objects.get(id=comp_db_id)
-                                    observable_idref = self.missing_references[item][object_id]
-                                    try:
-                                        observable_db_id = self.id_mapping['observables'][observable_idref]
-                                        observable_object = Observable.objects.get(id=observable_db_id)
-                                        comp_object.observables.add(observable_object)
-                                        comp_object.save()
+                                    for observable_idref in list(self.missing_references[item][object_id]):
+                                        try:
+                                            observable_db_id = self.id_mapping['observables'][observable_idref]
+                                            observable_object = Observable.objects.get(id=observable_db_id)
+                                            comp_object.observables.add(observable_object)
+                                            self.missing_references[item][object_id].remove(observable_idref)
+                                        except KeyError as e:
+                                            try:
+                                                observable_object = Observable.objects.get(observable_id=observable_idref)
+                                                comp_object.observables.add(observable_object)
+                                                self.missing_references[item][object_id].remove(observable_idref)
+                                            except Observable.DoesNotExist:
+                                                # TODO: create dummy observable?
+                                                continue
+                                    comp_object.save()
+                                    if len(self.missing_references[item][object_id])<=0:
                                         del self.missing_references[item][object_id]
-                                    except KeyError as e:
-                                        # TODO: create dummy observable
-                                        pass
                                 except KeyError as e:
                                     continue
                         if item == 'ttp_2_ttp':
@@ -1319,16 +1348,18 @@ class Command(BaseCommand):
                                 try:
                                     ttp_db_id = self.id_mapping['ttps'][object_id]
                                     ttp_object = TTP.objects.get(id=ttp_db_id)
-                                    for related_ttp_idref, related_ttp_relationship in self.missing_references[item][object_id]:
+                                    for related_ttp_idref, related_ttp_relationship in list(self.missing_references[item][object_id]):
                                         try:
                                             related_ttp_db_id = self.id_mapping['ttps'][related_ttp_idref]
                                             related_ttp_object = TTP.objects.get(id=related_ttp_db_id)
                                             ttp_object.add_related_ttp(related_ttp_object, related_ttp_relationship)
                                             ttp_object.save()
+                                            self.missing_references[item][object_id].remove((related_ttp_idref, related_ttp_relationship))
                                         except KeyError as e:
                                             continue
                                     ttp_object.save()
-                                    del self.missing_references[item][object_id]
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
                         if item == 'campaign_2_ttp':
@@ -1336,16 +1367,18 @@ class Command(BaseCommand):
                                 try:
                                     campaign_db_id = self.id_mapping['campaigns'][object_id]
                                     campaign_object = Campaign.objects.get(id=campaign_db_id)
-                                    for related_ttp_idref, related_ttp_relationship in self.missing_references[item][object_id]:
+                                    for related_ttp_idref, related_ttp_relationship in list(self.missing_references[item][object_id]):
                                         try:
                                             related_ttp_db_id = self.id_mapping['ttps'][related_ttp_idref]
                                             related_ttp_object = TTP.objects.get(id=related_ttp_db_id)
                                             campaign_object.add_related_ttp(related_ttp_object, related_ttp_relationship)
                                             campaign_object.save()
+                                            self.missing_references[item][object_id].remove((related_ttp_idref, related_ttp_relationship))
                                         except KeyError as e:
                                             continue
                                     campaign_object.save()
-                                    del self.missing_references[item][object_id]
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
                         if item == 'actor_2_ttp':
@@ -1353,16 +1386,18 @@ class Command(BaseCommand):
                                 try:
                                     actor_db_id = self.id_mapping['threat_actors'][object_id]
                                     actor_object = ThreatActor.objects.get(id=actor_db_id)
-                                    for observed_ttp_idref, observed_ttp_relationship in self.missing_references[item][object_id]:
+                                    for observed_ttp_idref, observed_ttp_relationship in list(self.missing_references[item][object_id]):
                                         try:
                                             observed_ttp_db_id = self.id_mapping['ttps'][observed_ttp_idref]
                                             observed_ttp_object = TTP.objects.get(id=observed_ttp_db_id)
                                             actor_object.add_observed_ttp(observed_ttp_object, observed_ttp_relationship)
                                             actor_object.save()
+                                            self.missing_references[item][object_id].remove((observed_ttp_idref, observed_ttp_relationship))
                                         except KeyError as e:
                                             continue
                                     actor_object.save()
-                                    del self.missing_references[item][object_id]
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
                                 except KeyError as e:
                                     continue
                 # free stix json
