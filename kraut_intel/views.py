@@ -290,6 +290,9 @@ def observable(request, observable_id="1"):
             context['related_observables'].append(obj.observables.all())
         if len(context['related_observables'])<=0:
             context['related_observables'].append(observable)
+        # check if observable is in a composition
+        for obs_comp in observable[0].observablecomposition_set.all():
+            context['related_observables'].append(obs_comp.observable_set.all())
         # check object type specific settings
         if observable[0].observable_type == 'FileObjectType':
             context['custom'] = []
