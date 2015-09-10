@@ -107,12 +107,14 @@ path.link {
                 <td>{{ indicator.last_modified }}</td>
             </tr>
             <tr>
+                <td align="right"><b>Composition Operator</b></td>
+                <td>{{ indicator.indicator_composition_operator }}</td>
                 <td align="right"><b>Confidence</b></td>
                 <td><span class="label label-{{ confidence_color }}">{{ confidence }}</span></td>
             </tr>
             <tr>
-                <td align="right"><b>Indicator Composition Operator</b></td>
-                <td>{{ indicator.indicator_composition_operator }}</td>
+                <td align="right"><b>Indicator ID</b></td>
+                <td>{{ indicator.indicator_id }}</td>
             </tr>
         </tbody>
     </table>
