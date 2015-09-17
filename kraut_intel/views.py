@@ -320,3 +320,16 @@ def observable(request, observable_id="1"):
             for composition in observable[0].compositions.all():
                 context['composition_id'] = composition.id
     return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
+
+def malware_instance(request, mwi_id="1"):
+    """ details of a single malware instance
+    """
+    context = {'mwi_id': mwi_id, 'mwi': None, 'related_ttps': []}
+    try:
+        mwi = MalwareInstance.objects.get(pk=int(mwi_id))
+    except MalwareInstance.DoesNotExist:
+        messages.error(request, 'The requested Malware Instance object does not exist')
+        return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
+    context['mwi'] = mwi
+    context['namespace_icon'] = get_icon_for_namespace(mwi.ttp_ref.namespace)
+    return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))

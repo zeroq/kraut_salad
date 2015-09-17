@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load split_at %}
+{% block header %}
+.wrapdiv {
+    word-wrap: break-word;         /* All browsers since IE 5.5+ */
+    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+    width: 100%;
+}
+{% endblock %}
+{% block sidebar %}
+{% spaceless %}
+{% if mwi %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ mwi.ttp_ref.namespace|split_at:":,0" }}</h2>Side Panel
+        </div>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Linked Packages
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all packages that reference this TTP entry."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table id="linked_packages_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Embedded in TTP
+            <i class="fa fa-question-circle fa-sm" data-container="body" data-toggle="popover" data-placement="right" data-content="List of all ttps that are related to the currently viewed ttp."></i>
+        </h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table id="related_ttp_table" class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <thead>
+                <th>Name</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href="{% url 'intel:ttp' ttp_id=mwi.ttp_ref.id %}">{{ mwi.ttp_ref.name }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Kraut.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ mwi.name }}</h2>Malware Instance ID: {{ mwi_id }}
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if mwi %}
+{% spaceless %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ mwi.name }}</h3>
+    </div>
+    <table class="table table-condensed table-borderless">
+        <tbody>
+            <tr>
+                <td align="right"><b>Namespace</b></td>
+                <td>{{ mwi.ttp_ref.namespace }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>Import Time</b></td>
+                <td>{{ mwi.creation_time }}</td>
+                <td align="right"><b>Modified Time</b></td>
+                <td>{{ mwi.last_modified }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel-body">
+        <pre class="pre-scrollable wrapdiv">{{ mwi.description }}</pre>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Malware Instance Names</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-condensed table-borderless">
+            <thead>
+                <th>Name</th>
+            </thead>
+            <tbody>
+            {% for name in mwi.malwareinstancenames_set.all %}<tr><td>{{ name }}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+    </div>
+    <div class="col-sm-6">
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Malware Instance Types</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-condensed table-borderless">
+            <thead>
+                <th>Types</th>
+            </thead>
+            <tbody>
+            {% for name in mwi.malwareinstancetypes_set.all %}<tr><td>{{ name }}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+    </div>
+</div>
+{% endspaceless %}
+{% endif %}
+{% endblock %}
+
+{% block javascript%}
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#linked_packages_table').DataTable({
+            ordering: false,
+            paging: false,
+            info: false,
+            filter: false,
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+                emptyTable: "No related packages found ...",
+                sZeroRecords: "No related packages found ...",
+                sEmptyTable: "No related packages found ...",
+            },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/ttp/{{ mwi.ttp_ref.id }}/related_packages/",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:package' package_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                }
+            ],
+        });
+});
+</script>
+{% endblock%}

@@ -266,7 +266,15 @@ $(document).ready( function () {
                 dataType: "json"
             },
             columns: [
-                {'data': 'name', 'sName': 'Title', 'aTargets': [ 1 ]},
+                {
+                    'data': 'name',
+                    'sName': 'Title',
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:malware_instance' mwi_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
                 {'data': 'subname', 'sName': 'Name', 'aTargets': [ 2 ]},
                 {'data': 'short_description', 'sName': 'Short Description', 'aTargets': [ 3 ]},
             ],

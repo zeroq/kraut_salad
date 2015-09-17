@@ -17,5 +17,6 @@ urlpatterns = [
     url(r'^indicator/(?P<indicator_id>\d+)/$', views.indicator, name='indicator'),
     url(r'^observables/$', views.observables, name='observables'),
     url(r'^observable/(?P<observable_id>\d+)/$', views.observable, name='observable'),
+    url(r'^mwinstance/(?P<mwi_id>\d+)/$', views.malware_instance, name='malware_instance'),
 ]
 
