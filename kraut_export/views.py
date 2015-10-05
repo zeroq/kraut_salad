@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from kraut_parser.models import Observable
 from kraut_parser.utils import get_object_for_observable
 
-from kraut_export.utils import cybox_file, cybox_address, cybox_uri, cybox_http
+from kraut_export.utils import cybox_file, cybox_address, cybox_uri, cybox_http, cybox_mutex
 
 # Create your views here.
 
@@ -24,8 +24,9 @@ def cybox_observable(request, pk):
         cybox_xml = cybox_uri(observable, observable.observable_type, objects)
     elif observable.observable_type == 'HTTPSessionObjectType':
         cybox_xml = cybox_http(observable, observable.observable_type, objects)
+    elif observable.observable_type == 'MutexObjectType':
+        cybox_xml = cybox_mutex(observable, observable.observable_type, objects)
     ### MISSING
-    # MutexObjectType
     # CodeObjectType
     # WindowsDriverObjectType
     # LinkObjectType

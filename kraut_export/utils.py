@@ -11,6 +11,7 @@ from cybox.objects.link_object import Link
 from cybox.objects.uri_object import URI
 from cybox.objects.http_session_object import HTTPMessage, HTTPClientRequest, HTTPRequestResponse, HTTPSession, HTTPRequestHeader, HTTPRequestLine, HTTPRequestHeaderFields, HostField
 from cybox.objects.port_object import Port
+from cybox.objects.mutex_object import Mutex
 from cybox.common import Hash, String, PositiveInteger
 
 from kraut_parser.models import EmailMessage_Object, File_Object, Address_Object, URI_Object, HTTPSession_Object
@@ -226,6 +227,20 @@ def cybox_http(observable, observable_type, objects):
         related_objects_list = get_related_objects_for_object(obj.id, observable_type)
 
         o = Observable(h)
+        o.title = observable.name
+        o.description = observable.description
+        observables.add(o)
+    return observables
+
+def cybox_mutex(observable, observable_type, objects):
+    nsname, nsurl = observable.namespace.split(':', 1)
+    NS = cybox.utils.Namespace(nsurl, nsname)
+    cybox.utils.set_id_namespace(NS)
+    observables = Observables()
+    for obj in objects:
+        m = Mutex()
+        m.name = obj.mutex_name
+        o = Observable(m)
         o.title = observable.name
         o.description = observable.description
         observables.add(o)
