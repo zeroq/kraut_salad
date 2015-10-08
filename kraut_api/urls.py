@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^objects/(?P<object_id>[0-9]+)/(?P<object_type>[a-zA-Z0-9]+)/observables/$', views.object_get_observables),
     url(r'^objects/hashes/$', views.object_hash_list),
     url(r'^objects/ips/$', views.object_ip_list),
+    url(r'^objects/domains/$', views.object_domain_list),
     url(r'^compositions/(?P<pk>[0-9]+)/$', views.composition_details),
     url(r'^compositions/(?P<pk>[0-9]+)/d3/$', views.composition_details_d3),
     url(r'^incident/contacts/$', views.contact_list),

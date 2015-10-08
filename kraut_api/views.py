@@ -8,12 +8,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance
-from kraut_parser.models import Address_Object
+from kraut_parser.models import Address_Object, URI_Object
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer
 from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer
 from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
 from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSerializer, PaginatedFileObjectSerializer, PaginatedIncidentSerializer
-from kraut_api.serializers import PaginatedAddressObjectSerializer
+from kraut_api.serializers import PaginatedAddressObjectSerializer, PaginatedURIObjectSerializer
 from kraut_api.serializers import PaginatedTTPSerializer
 from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
@@ -1642,6 +1642,56 @@ def object_hash_list(request, format=None):
             handler = paginator.page(1)
         serializer_context = {'request': request}
         serializer = PaginatedFileObjectSerializer(handler, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def object_domain_list(request, format=None):
+    """Return a list of domains
+    """
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_by_column = 'uri_value'
+                order_direction = '-'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'uri_value'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = URI_Object.objects.all().order_by('-observables__last_modified')
+        if search_value:
+            queryset = queryset.filter(
+                Q(uri_value__icontains=search_value)|
+                Q(uri_type__icontains=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            handler = paginator.page(page)
+        except:
+            handler = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedURIObjectSerializer(handler, context=serializer_context)
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
