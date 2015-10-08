@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from rest_framework.pagination import PaginationSerializer
-from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object, TTP
+from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object, TTP, Address_Object
 from kraut_parser.models import MalwareInstance, AttackPattern
 from kraut_intel.utils import get_icon_for_namespace
 from kraut_incident.models import Contact, Handler, Incident
@@ -402,3 +402,17 @@ class PaginatedFileObjectSerializer(PaginationSerializer):
     class Meta:
         object_serializer_class = FileObjectSerializer
 
+
+class AddressObjectSerializer(serializers.ModelSerializer):
+    observables = ObservableSerializer(many=True)
+
+    class Meta:
+        model = Address_Object
+        fields = ('id', 'address_value', 'category', 'observables')
+
+class PaginatedAddressObjectSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = AddressObjectSerializer

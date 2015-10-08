@@ -61,6 +61,30 @@
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
 <div class="panel panel-primary">
     <div class="panel-heading">
+        <h3 class="panel-title">Recent IP Addresses</h3>
+    </div>
+    <div class="panel-body">
+        <div role="tabpanel">
+        <table id="ip_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>IP Address</th>
+                    <th>Category</th>
+                    <th>Operations</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
         <h3 class="panel-title">Recent Hashes</h3>
     </div>
     <div class="panel-body">
@@ -126,6 +150,7 @@ $(function () {
 $('#hashesModal').on('show.bs.modal', function (event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
   var objectid = button.data('objectid') // Extract info from data-* attributes
+  var category = button.data('cat')
   var modal = $(this)
   modal.find('.modal-title').text('Select Observable for Object ID: ' + objectid)
   var HashObservableTable = $('#hash_observable_table').DataTable({
@@ -141,7 +166,7 @@ $('#hashesModal').on('show.bs.modal', function (event) {
     },
     ajax: {
       processing: true,
-      url: "/api/objects/"+objectid+"/FileObjectType/observables/",
+      url: "/api/objects/"+objectid+"/"+category+"/observables/",
       dataSrc: "results",
       type: "GET",
       dataType: "json"
@@ -187,7 +212,7 @@ $(document).ready( function () {
                 'aTargets': [ 3 ],
                 "mRender": function (data, type, full) {
                     return '<div class="btn-group1">' +
-                        '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#hashesModal" data-objectid="'+data+'">' +
+                        '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#hashesModal" data-objectid="'+data+'" data-cat="FileObjectType">' +
                         '<i class="fa fa-eye"></i>' +
                         '</a>' +
                         '</div>';
@@ -200,6 +225,43 @@ $(document).ready( function () {
     });
 });
 
+$(document).ready( function () {
+    var IPTable = $('#ip_table').DataTable({
+        processing: true,
+        serverSide: true,
+        bLengthChange: false,
+        oLanguage: {
+            sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+        },
+        ajax: {
+            processing: true,
+            url: "/api/objects/ips/.json",
+            dataSrc: "results",
+            type: "GET",
+            dataType: "json"
+        },
+        columns: [
+            {'data': 'address_value', 'sName': 'IP Address', 'aTargets': [ 1 ]},
+            {'data': 'category', 'sName': 'Category', 'aTargets': [ 2 ]},
+            {
+                'data': 'id',
+                'sName': 'operations',
+                'bSortable': false,
+                'aTargets': [ 3 ],
+                "mRender": function (data, type, full) {
+                    return '<div class="btn-group1">' +
+                        '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#hashesModal" data-objectid="'+data+'" data-cat="AddressObjectType">' +
+                        '<i class="fa fa-eye"></i>' +
+                        '</a>' +
+                        '</div>';
+                },
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $("a", nTd).tooltip();
+                }
+            }
+        ],
+    });
+});
 
 
 </script>
