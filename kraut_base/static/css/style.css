@@ -114,3 +114,7 @@ a.caret-after {
 .fa-question-circle {
     cursor: help;
 }
+
+.fa-bars, .fa-pencil-square-o {
+    cursor: pointer;
+}

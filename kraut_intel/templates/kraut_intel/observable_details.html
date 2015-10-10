@@ -146,7 +146,7 @@ path.link {
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ observable.name }} &nbsp;<a href="{% url 'export:cybox_observable' pk=observable_id %}" class="btn btn-warning btn-xs" role="button"><i class="fa fa-download fa-sm"></i> Export Cybox</a></h3>
+        <h3 class="panel-title">{{ observable.name }} &nbsp;<a href="{% url 'export:cybox_observable' pk=observable_id %}" class="btn btn-warning btn-xs" role="button"><i class="fa fa-download fa-sm"></i> Export Cybox</a><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -171,6 +171,21 @@ path.link {
     <div class="panel-body">
         <pre class="pre-scrollable wrapdiv">{{ observable.description }}</pre>
     </div>
+</div>
+<div id="navsidebar" class="navsidebar navsidebar-right">
+  <div id="navsidebar-wrapper" class="navsidebar-wrapper">
+    <header class="navsidebar-header">Kraut Editor</header>
+    <nav class="navsidebar-menu">
+            <ul>
+                <li><a class="close-navsidebar" href="#">Title</a></li>
+                <li><input class="form-control" type="text" value="{{ observable.name }}"></li>
+                <li><a class="close-navsidebar" href="#">Namespace</a></li>
+                <li><input class="form-control" type="text" value="{{ observable.namespace }}"></li>
+                <li><a class="close-navsidebar" href="#">Description</a></li>
+                <li><textarea class="form-control" rows="13">{{ observable.description }}</textarea></li>
+            </ul>
+    </nav>
+  </div>
 </div>
 {% endspaceless %}
 <div class="panel panel-primary">
@@ -563,25 +578,19 @@ $(document).ready( function () {
 </script>
 <script>    
 var test_composition = "{{ composition_id }}"
-if (test_composition != "None")
+if (test_composition != "None" && test_composition != "")
 {
-
-
 var margin = {top: 30, right: 20, bottom: 30, left: 20},
     width = 960 - margin.left - margin.right,
     barHeight = 25,
     barWidth = width * .8;
-
 var i = 0,
     duration = 400,
     root;
-
 var tree = d3.layout.tree()
     .nodeSize([0, 20]);
-
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
-
 var svg = d3.select("#tree-container").append("svg")
     .attr("width", width + margin.left + margin.right)
   .append("g")
@@ -713,6 +722,22 @@ function color(d) {
 
 $(function () {
     $('[data-toggle="popover"]').popover()
-    });
+});
+
+$(document).ready(function() {
+  $('#navsidebar').simplerSidebar({
+    opener: '#toggle-navsidebar',
+    sidebar: {
+      align: 'right', 
+      width: 560,
+      closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
+});
+
 </script>
 {% endblock%}

@@ -1,0 +1,54 @@
+#navsidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 320px;
+    background-color: white
+}
+
+#navsidebar .navsidebar-wrapper {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+}
+
+#navsidebar header {
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    text-transform: uppercase
+}
+
+#navsidebar .navsidebar-header {
+    padding: 100px 1em 1em;
+    background-color: #337ab7;
+    color: white
+}
+
+#navsidebar .navsidebar-menu {
+    font-size: 12px;
+    margin-top: 24px;
+    padding: 0 1em
+}
+
+#navsidebar .navsidebar-menu header {
+    margin-bottom: 4px;
+    font-weight: 300
+}
+
+#navsidebar .navsidebar-menu li, #navsidebar .navsidebar-menu a {
+    display: block
+}
+
+#navsidebar .navsidebar-menu li {
+    padding: 4px 0
+}
+
+.navsidebar-right {
+    right: -320px;
+    text-align: right
+}
+
+.navsidebar-left {
+    left: -320px;
+    text-align: left
+}
