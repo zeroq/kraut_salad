@@ -197,7 +197,7 @@ path.link {
   {% spaceless %}
   <!-- Nav tabs -->
   <ul class="nav nav-tabs" role="tablist">
-    {% if observable.observable_type == 'URIObjectType' %}
+    {% if observable.observable_type == 'URIObjectType' or observable.observable_type == 'DomainNameObjectType' %}
     <li role="presentation" class="active">
         <a href="#uri" aria-controls="uri" role="tab" data-toggle="tab">
             <i class="fa fa-link"></i>&nbsp;&nbsp;URI Object
@@ -290,7 +290,7 @@ path.link {
   <!-- Tab panes -->
   <div class="tab-content">
     <!-- URI -->
-    {% if observable.observable_type == 'URIObjectType' %}
+    {% if observable.observable_type == 'URIObjectType' or observable.observable_type == 'DomainNameObjectType'%}
     <div role="tabpanel" class="tab-pane active" id="uri">
         <br/>
         {% for object in objects %}

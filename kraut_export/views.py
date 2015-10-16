@@ -20,7 +20,7 @@ def cybox_observable(request, pk):
         cybox_xml = cybox_file(observable, observable.observable_type, objects)
     elif observable.observable_type == 'AddressObjectType':
         cybox_xml = cybox_address(observable, observable.observable_type, objects)
-    elif observable.observable_type == 'URIObjectType':
+    elif observable.observable_type == 'URIObjectType' or observable.observable_type == 'DomainNameObjectType':
         cybox_xml = cybox_uri(observable, observable.observable_type, objects)
     elif observable.observable_type == 'HTTPSessionObjectType':
         cybox_xml = cybox_http(observable, observable.observable_type, objects)

@@ -28,7 +28,7 @@ def get_object_for_observable(observable_type, observable_object=None, object_id
     elif observable_type == 'HTTPSessionObjectType':
         for obj in HTTPSession_Object.objects.filter(q_filter):
             return_list.append(obj)
-    elif observable_type == 'URIObjectType':
+    elif observable_type == 'URIObjectType' or observable_type == 'DomainNameObjectType':
         for obj in URI_Object.objects.filter(q_filter):
             return_list.append(obj)
     elif observable_type == 'AddressObjectType':

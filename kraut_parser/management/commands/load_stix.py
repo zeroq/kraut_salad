@@ -98,7 +98,7 @@ class Command(BaseCommand):
         db_object = None
         if object_type == 'FileObjectType':
             db_object = File_Object.objects.get(id=object_id)
-        elif object_type == 'URIObjectType':
+        elif object_type == 'URIObjectType' or object_type == 'DomainNameObjectType':
             db_object = URI_Object.objects.get(id=object_id)
         elif object_type == 'AddressObjectType':
             db_object = Address_Object.objects.get(id=object_id)
@@ -164,7 +164,7 @@ class Command(BaseCommand):
             else:
                 self.id_mapping['objects'][object_id] = [{'object_id': file_object.id, 'object_type': object_type}]
             object_list.append(file_object)
-        elif object_type == 'URIObjectType':
+        elif object_type == 'URIObjectType' or object_type == 'DomainNameObjectType':
             # create uri object
             uri_dict = handle_uri_object(object_data)
             uri_object, uri_object_created = URI_Object.objects.get_or_create(**uri_dict)
