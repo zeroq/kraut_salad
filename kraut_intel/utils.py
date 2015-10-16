@@ -8,6 +8,8 @@ def get_icon_for_namespace(namespace):
     """ Return the static path to the icon associated with given namespace
     """
     try:
+        if namespace.count(':')>0:
+            namespace = namespace.split(':')[0]
         icon = NamespaceIcon.objects.get(namespace=namespace)
     except:
         return static('ns_icon/octalpus.png')
