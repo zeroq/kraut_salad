@@ -23,13 +23,17 @@ class PackSerializer(serializers.ModelSerializer):
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
     namespace_icon = serializers.SerializerMethodField()
+    namespace = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        return get_icon_for_namespace(obj.namespace)
+        return get_icon_for_namespace(obj.namespace.last().namespace)
+
+    def get_namespace(self, obj):
+        return obj.namespace.last().namespace
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")

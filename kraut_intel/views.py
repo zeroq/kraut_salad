@@ -1,12 +1,14 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
+from django.http import HttpResponseRedirect
 from django.db.models import Prefetch, Q
 from django.contrib import messages
 from django.shortcuts import render_to_response
+from django.core.urlresolvers import reverse
 from django.template import RequestContext
 
 from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias, TTP, MalwareInstance
-from kraut_parser.models import AttackPattern
+from kraut_parser.models import AttackPattern, Namespace
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -49,6 +51,30 @@ def delete_package(request, package_id="1"):
     messages.info(request, 'The intelligence package was deleted successfully!')
     return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
 
+def update_package_header(request, package_id="1"):
+    """ update header information of given package
+    """
+    try:
+        package = Package.objects.get(pk=int(package_id))
+    except Package.DoesNotExist:
+        messages.error(request, 'The requested package does not exist!')
+        return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+    if request.method == "POST":
+        print "HERE"
+        pg_name = request.POST.get('package_name', None)
+        pg_ns = request.POST.get('package_namespace', None)
+        pg_descr = request.POST.get('package_description', None)
+        if pg_name:
+            package.name = pg_name
+        if pg_ns:
+            pg_obj, pg_created = Namespace.objects.get_or_create(namespace=pg_ns)
+            package.namespace.add(pg_obj)
+        if pg_descr:
+            package.description = pg_descr
+        package.save()
+    return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
+
+
 def package(request, package_id="1"):
     """ details of a single intelligence package
     """
@@ -67,7 +93,8 @@ def package(request, package_id="1"):
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
         context['package'] = package[0]
-        context['namespace_icon'] = get_icon_for_namespace(package[0].namespace)
+        context['namespaces'] = Namespace.objects.all()
+        context['namespace_icon'] = get_icon_for_namespace(package[0].namespace.last().namespace)
         context['num_threat_actors'] = package[0].threat_actors.count()
         context['num_campaigns'] = package[0].campaigns.count()
         context['num_ttps'] = package[0].ttps.count()
@@ -283,6 +310,7 @@ def observable(request, observable_id="1"):
     else:
         context['observable'] = observable[0]
         context['namespace_icon'] = get_icon_for_namespace(observable[0].namespace)
+        context['namespaces'] = Namespace.objects.all()
         context['objects'] = get_object_for_observable(observable[0].observable_type, observable[0])
         # get related objects
         for obj in context['objects']:

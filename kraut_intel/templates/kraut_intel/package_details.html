@@ -25,7 +25,7 @@
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ package.namespace|split_at:":,0" }}</h2>Side Panel
+            <h2 class="media-heading">{{ package.namespace.last.namespace|split_at:":,0" }}</h2>Side Panel
         </div>
     </div>
 </div>
@@ -94,13 +94,13 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ package.name }}</h3>
+        <h3 class="panel-title">{{ package.name }}<i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
             <tr>
                 <td align="right"><b>Namespace</b></td>
-                <td>{{ package.namespace }}</td>
+                <td>{{ package.namespace.last.namespace }}</td>
                 <td align="right"><b>Produced Time</b></td>
                 <td>{{ package.produced_time }}</td>
             </tr>
@@ -121,6 +121,35 @@
     <div class="panel-body">
         <pre class="pre-scrollable wrapdiv">{{ package.description }}</pre>
     </div>
+</div>
+<div id="navsidebar" class="navsidebar navsidebar-right">
+  <div id="navsidebar-wrapper" class="navsidebar-wrapper">
+    <header class="navsidebar-header">Kraut Editor</header>
+    <nav class="navsidebar-menu">
+        <form action="{% url 'intel:update_package_header' package_id=package_id %}" method="POST">
+        {% csrf_token %}
+            <ul>
+                <li>Title</li>
+                <li><input name="package_name" class="form-control" type="text" value="{{ package.name }}"></li>
+                <li>Namespace</li>
+                <li>
+                <select class="form-control" name="package_namespace">
+                    {% for ns in namespaces %}
+                        {% if ns.namespace == package.namespace.last.namespace %}
+                            <option selected>{{ ns }}</option>
+                        {% else %}
+                            <option>{{ ns }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
+                <li>Description</li>
+                <li><textarea class="form-control" name="package_description" rows="13">{{ package.description }}</textarea></li>
+                <li><button type="submit" class="btn btn-default close-navsidebar">Submit</button></li>
+            </ul>
+            </form>
+    </nav>
+  </div>
 </div>
 {% endspaceless %}
 
@@ -265,7 +294,7 @@
 
 {% block javascript%}
 <script type="text/javascript" language="javascript" class="init">
-$(document).ready( function () {
+    $(document).ready( function () {
         var pTable = $('#address_quick_table').DataTable({
             ordering: false,
             paging: false,
@@ -756,6 +785,21 @@ function isNumber(n) {
 
 $(function () {
     $('[data-toggle="popover"]').popover()
+});
+
+$(document).ready(function() {
+  $('#navsidebar').simplerSidebar({
+    opener: '#toggle-navsidebar',
+    sidebar: {
+      align: 'right',
+      width: 560,
+      closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
 });
 </script>
 {% endblock%}

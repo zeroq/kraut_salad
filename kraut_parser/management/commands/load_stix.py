@@ -9,6 +9,7 @@ from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidenc
 from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
 from kraut_parser.models import TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes, AttackPattern
 from kraut_parser.models import Campaign, RelationCampaignTTP
+from kraut_parser.models import Namespace
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
 
@@ -996,6 +997,15 @@ class Command(BaseCommand):
         #print json.dumps(threat_actor, indent=4, sort_keys=True)
         return package_object
 
+    def get_full_namespace2(self, ns):
+        for nsurl, nsname in self.stix_namespaces_dict.iteritems():
+            if nsname == ns:
+                ns_obj, ns_created = Namespace.objects.get_or_create(namespace="%s:%s" % (nsname, nsurl))
+                return ns_obj
+        ns_obj, ns_created = Namespace.objects.get_or_create(namespace="%s:%s" % (ns, 'empty'))
+        return ns_obj
+
+
     def get_full_namespace(self, ns):
         """ iterate over list of XML namespaces to find the appropriate one
         and return the complete namespace string
@@ -1003,7 +1013,7 @@ class Command(BaseCommand):
         for nsurl, nsname in self.stix_namespaces_dict.iteritems():
             if nsname == ns:
                 return "%s:%s" % (nsname, nsurl)
-        return "%s:%s" % (ns, empty)
+        return "%s:%s" % (ns, 'empty')
 
     def perform_stix_header_extraction(self, stix_json):
         """ examine the stix header and base information to create a package object
@@ -1046,10 +1056,9 @@ class Command(BaseCommand):
         package_id = stix_json['id']
         if title == 'No Title':
             title = package_id
-        package_namespace = self.get_full_namespace(stix_json['id'].split(':', 1)[0])
+        package_namespace_obj = self.get_full_namespace2(stix_json['id'].split(':', 1)[0])
         package_dict = {
             'package_id': package_id,
-            'namespace': package_namespace,
             'version': stix_json['version'],
             'name': title,
             'description': TAG_RE.sub('', description).strip(),
@@ -1059,6 +1068,7 @@ class Command(BaseCommand):
         }
         # create package db object
         package_object, package_object_created = Package.objects.get_or_create(**package_dict)
+        package_object.namespace.add(package_namespace_obj)
         # get package intents
         if 'stix_header' in stix_json and 'package_intents' in stix_json['stix_header']:
             for intent in stix_json['stix_header']['package_intents']:

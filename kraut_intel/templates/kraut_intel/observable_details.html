@@ -180,7 +180,17 @@ path.link {
                 <li><a class="close-navsidebar" href="#">Title</a></li>
                 <li><input class="form-control" type="text" value="{{ observable.name }}"></li>
                 <li><a class="close-navsidebar" href="#">Namespace</a></li>
-                <li><input class="form-control" type="text" value="{{ observable.namespace }}"></li>
+                <li>
+                <select class="form-control">
+                    {% for ns in namespaces %}
+                        {% if ns.namespace == observable.namespace %}
+                            <option selected>{{ ns }}</option>
+                        {% else %}
+                            <option>{{ ns }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
                 <li><a class="close-navsidebar" href="#">Description</a></li>
                 <li><textarea class="form-control" rows="13">{{ observable.description }}</textarea></li>
             </ul>

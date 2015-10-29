@@ -4,6 +4,13 @@ from django.db import models
 
 # Create your models here.
 
+class Namespace(models.Model):
+    namespace = models.CharField(max_length=255, default='nospace', unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (self.namespace)
+
 class Confidence(models.Model):
     value = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
@@ -17,7 +24,7 @@ class Package(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
-    namespace = models.CharField(max_length=255, default='nospace')
+    namespace = models.ManyToManyField('Namespace', blank=True)
     version = models.CharField(max_length=255)
     package_id = models.CharField(max_length=255)
     source = models.CharField(max_length=255)
