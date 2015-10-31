@@ -174,12 +174,12 @@ path.link {
 </div>
 <div id="navsidebar" class="navsidebar navsidebar-right">
   <div id="navsidebar-wrapper" class="navsidebar-wrapper">
-    <header class="navsidebar-header">Kraut Editor</header>
+    <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
     <nav class="navsidebar-menu">
             <ul>
-                <li><a class="close-navsidebar" href="#">Title</a></li>
+                <li>Title</li>
                 <li><input class="form-control" type="text" value="{{ observable.name }}"></li>
-                <li><a class="close-navsidebar" href="#">Namespace</a></li>
+                <li>Namespace</li>
                 <li>
                 <select class="form-control">
                     {% for ns in namespaces %}
@@ -191,8 +191,9 @@ path.link {
                     {% endfor %}
                 </select>
                 </li>
-                <li><a class="close-navsidebar" href="#">Description</a></li>
+                <li>Description</li>
                 <li><textarea class="form-control" rows="13">{{ observable.description }}</textarea></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
             </ul>
     </nav>
   </div>
@@ -289,10 +290,16 @@ path.link {
         </a>
     </li>
     {% endif %}
+    {% if observable.observable_type == 'LinkObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#linkobj" aria-controls="linkobj" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Link Object
+        </a>
+    </li>
+    {% endif %}
     <!-- MISSING
         CodeObjectType
         WindowsDriverObjectType
-        LinkObjectType
         EmailMessageObjectType
     -->
   </ul>
@@ -339,6 +346,22 @@ path.link {
             <tbody>
                 <tr><td><b>Address</b></td><td>{{ object.address_value }}</td></tr>
                 <tr><td><b>Category</b></td><td>{{ object.category }}</td></tr>
+                <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- LINK -->
+    {% if observable.observable_type == 'LinkObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="linkobj">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                <tr><td><b>Link</b></td><td>{{ object.link }}</td></tr>
+                <tr><td><b>Link Type</b></td><td>{{ object.link_type }}</td></tr>
+                <tr><td><b>URL Label</b></td><td>{{ object.url_label }}</td></tr>
                 <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
             </tbody>
         </table>

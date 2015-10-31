@@ -60,12 +60,14 @@ def update_package_header(request, package_id="1"):
         messages.error(request, 'The requested package does not exist!')
         return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
     if request.method == "POST":
-        print "HERE"
         pg_name = request.POST.get('package_name', None)
+        pg_source = request.POST.get('package_source', None)
         pg_ns = request.POST.get('package_namespace', None)
         pg_descr = request.POST.get('package_description', None)
         if pg_name:
             package.name = pg_name
+        if pg_source:
+            package.source = pg_source
         if pg_ns:
             pg_obj, pg_created = Namespace.objects.get_or_create(namespace=pg_ns)
             package.namespace.add(pg_obj)

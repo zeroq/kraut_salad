@@ -124,13 +124,15 @@
 </div>
 <div id="navsidebar" class="navsidebar navsidebar-right">
   <div id="navsidebar-wrapper" class="navsidebar-wrapper">
-    <header class="navsidebar-header">Kraut Editor</header>
+    <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
     <nav class="navsidebar-menu">
         <form action="{% url 'intel:update_package_header' package_id=package_id %}" method="POST">
         {% csrf_token %}
             <ul>
                 <li>Title</li>
                 <li><input name="package_name" class="form-control" type="text" value="{{ package.name }}"></li>
+                <li>Source</li>
+                <li><input name="package_source" class="form-control" type="text" value="{{ package.source }}"></li>
                 <li>Namespace</li>
                 <li>
                 <select class="form-control" name="package_namespace">
@@ -145,7 +147,7 @@
                 </li>
                 <li>Description</li>
                 <li><textarea class="form-control" name="package_description" rows="13">{{ package.description }}</textarea></li>
-                <li><button type="submit" class="btn btn-default close-navsidebar">Submit</button></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
             </ul>
             </form>
     </nav>
