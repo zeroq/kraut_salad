@@ -70,6 +70,7 @@ def update_package_header(request, package_id="1"):
             package.source = pg_source
         if pg_ns:
             pg_obj, pg_created = Namespace.objects.get_or_create(namespace=pg_ns)
+            package.namespace.clear()
             package.namespace.add(pg_obj)
         if pg_descr:
             package.description = pg_descr
