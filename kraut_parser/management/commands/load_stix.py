@@ -742,10 +742,15 @@ class Command(BaseCommand):
                 for behavior_type in ttp['behavior']:
                     if behavior_type == 'malware_instances':
                         for mw_instance in ttp['behavior']['malware_instances']:
+                            pre_mw_description = mw_instance.get('description', 'No Description')
+                            if isinstance(pre_mw_description, dict):
+                                mw_description = pre_mw_description.get('value', 'No Description')
+                            else:
+                                mw_description = pre_mw_description
                             mw_instance_dict = {
                                 'ttp_ref': ttp_object,
                                 'name': mw_instance.get('title', 'No Title'),
-                                'description': mw_instance.get('description', 'No Description'),
+                                'description': mw_description,
                                 'short_description': mw_instance.get('short_description', 'No Short Description'),
                             }
                             mw_instance_object, mw_instance_object_created = MalwareInstance.objects.get_or_create(**mw_instance_dict)
@@ -761,10 +766,15 @@ class Command(BaseCommand):
                                         mw_types_object, mw_types_object_created = MalwareInstanceTypes.objects.get_or_create(instance_ref=mw_instance_object, _type=_type)
                     elif behavior_type == 'attack_patterns':
                         for pattern in ttp['behavior']['attack_patterns']:
+                            pre_ap_description = pattern.get('description', 'No Description')
+                            if isinstance(pre_ap_description, dict):
+                                ap_description = pre_ap_description.get('value', 'No Description')
+                            else:
+                                ap_description = pre_ap_description
                             pattern_dict = {
                                 'ttp_ref': ttp_object,
                                 'name': pattern.get('title', 'No Title'),
-                                'description': pattern.get('description', 'No Description'),
+                                'description': ap_description,
                                 'short_description': pattern.get('short_description', 'No Short Description'),
                                 'capec_id': pattern.get('capec_id', 'No Capec ID'),
                             }

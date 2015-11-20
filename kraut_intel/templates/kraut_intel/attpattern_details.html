@@ -10,14 +10,14 @@
 {% endblock %}
 {% block sidebar %}
 {% spaceless %}
-{% if mwi %}
+{% if ap %}
 <div class="page-header">
     <div class="media">
         <div class="media-left">
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ mwi.ttp_ref.namespace|split_at:":,0" }}</h2>Side Panel
+            <h2 class="media-heading">{{ ap.ttp_ref.namespace|split_at:":,0" }}</h2>Side Panel
         </div>
     </div>
 </div>
@@ -53,7 +53,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><a href="{% url 'intel:ttp' ttp_id=mwi.ttp_ref.id %}">{{ mwi.ttp_ref.name }}</a></td>
+                    <td><a href="{% url 'intel:ttp' ttp_id=ap.ttp_ref.id %}">{{ ap.ttp_ref.name }}</a></td>
                 </tr>
             </tbody>
         </table>
@@ -70,28 +70,32 @@
             <img src="{% static 'images/Kraut.svg' %}" height="64" class="media-object" />
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ mwi.name }}</h2>Malware Instance ID: {{ mwi_id }}
+            <h2 class="media-heading">{{ ap.name }}</h2>Attack Pattern ID: {{ ap_id }}
         </div>
     </div>
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
-{% if mwi %}
+{% if ap %}
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ mwi.name }}</h3>
+        <h3 class="panel-title">{{ ap.name }}</h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
             <tr>
                 <td align="right"><b>Namespace</b></td>
-                <td>{{ mwi.ttp_ref.namespace }}</td>
+                <td>{{ ap.ttp_ref.namespace }}</td>
             </tr>
             <tr>
                 <td align="right"><b>Import Time</b></td>
-                <td>{{ mwi.creation_time }}</td>
+                <td>{{ ap.creation_time }}</td>
                 <td align="right"><b>Modified Time</b></td>
-                <td>{{ mwi.last_modified }}</td>
+                <td>{{ ap.last_modified }}</td>
+            </tr>
+            <tr>
+                <td align="right"><b>CAPEC ID</b></td>
+                <td>{{ ap.capec_id }}</td>
             </tr>
         </tbody>
     </table>
@@ -99,42 +103,7 @@
         <pre class="pre-scrollable wrapdiv">{{ description }}</pre>
     </div>
 </div>
-<div class="row">
-    <div class="col-sm-6">
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">Malware Instance Names</h3>
-    </div>
-    <div class="panel-body">
-        <table class="table table-condensed table-borderless">
-            <thead>
-                <th>Name</th>
-            </thead>
-            <tbody>
-            {% for name in mwi.malwareinstancenames_set.all %}<tr><td>{{ name }}</td></tr>{% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-    </div>
-    <div class="col-sm-6">
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">Malware Instance Types</h3>
-    </div>
-    <div class="panel-body">
-        <table class="table table-condensed table-borderless">
-            <thead>
-                <th>Types</th>
-            </thead>
-            <tbody>
-            {% for name in mwi.malwareinstancetypes_set.all %}<tr><td>{{ name }}</td></tr>{% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-    </div>
-</div>
+
 {% endspaceless %}
 {% endif %}
 {% endblock %}
@@ -158,7 +127,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/ttp/{{ mwi.ttp_ref.id }}/related_packages/",
+                url: "/api/ttp/{{ ap.ttp_ref.id }}/related_packages/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"

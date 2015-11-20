@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
+from django.utils.html import strip_tags
 
 from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias, TTP, MalwareInstance
 from kraut_parser.models import AttackPattern, Namespace
@@ -96,6 +97,7 @@ def package(request, package_id="1"):
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
         context['package'] = package[0]
+        context['description'] = ' '.join(package[0].description.strip().split())
         context['namespaces'] = Namespace.objects.all()
         context['namespace_icon'] = get_icon_for_namespace(package[0].namespace.last().namespace)
         context['num_threat_actors'] = package[0].threat_actors.count()
@@ -363,4 +365,19 @@ def malware_instance(request, mwi_id="1"):
         return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
     context['mwi'] = mwi
     context['namespace_icon'] = get_icon_for_namespace(mwi.ttp_ref.namespace)
+    context['description'] = ' '.join(strip_tags(mwi.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
+
+def attack_pattern(request, ap_id="1"):
+    """ details of a single attack pattern
+    """
+    context = {'ap_id': ap_id, 'ap': None, 'related_ttps': []}
+    try:
+        ap = AttackPattern.objects.get(pk=int(ap_id))
+    except AttackPattern.DoesNotExist:
+        messages.error(request, 'The requested Malware Instance object does not exist')
+        return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
+    context['ap'] = ap
+    context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace)
+    context['description'] = ' '.join(strip_tags(ap.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
+    return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))

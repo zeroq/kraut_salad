@@ -294,7 +294,15 @@ $(document).ready( function () {
                 dataType: "json"
             },
             columns: [
-                {'data': 'name', 'sName': 'Name', 'aTargets': [ 1 ]},
+                {
+                    'data': 'name', 
+                    'sName': 'Name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:attack_pattern' ap_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
                 {'data': 'capec_id', 'sName': 'Capec ID', 'aTargets': [ 2 ]},
                 {'data': 'short_description', 'sName': 'Short Description', 'aTargets': [ 3 ]},
             ],
