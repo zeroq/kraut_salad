@@ -50,7 +50,7 @@ def delete_package(request, package_id="1"):
     # delete package
     package.delete()
     messages.info(request, 'The intelligence package was deleted successfully!')
-    return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+    return HttpResponseRedirect(reverse('intel:packages'))
 
 def update_package_header(request, package_id="1"):
     """ update header information of given package
@@ -132,7 +132,7 @@ def delete_threatactor(request, threat_actor_id="1"):
     # delete threat actor
     ta.delete()
     messages.info(request, 'The threat actor was deleted successfully!')
-    return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
+    return HttpResponseRedirect(reverse('intel:threatactors'))
 
 def threatactor(request, threat_actor_id="1"):
     context = {'ta_id': threat_actor_id, 'ta': None}

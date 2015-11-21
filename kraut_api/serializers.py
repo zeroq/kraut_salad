@@ -24,10 +24,11 @@ class PackSerializer(serializers.ModelSerializer):
     last_modified = serializers.SerializerMethodField()
     namespace_icon = serializers.SerializerMethodField()
     namespace = serializers.SerializerMethodField()
+    short_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
-        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
+        fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon', 'short_name')
 
     def get_namespace_icon(self, obj):
         return get_icon_for_namespace(obj.namespace.last().namespace)
@@ -40,6 +41,11 @@ class PackSerializer(serializers.ModelSerializer):
 
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def get_short_name(self, obj):
+        if len(obj.name)>55:
+            return "%s ..." % (obj.name[:55])
+        return obj.name
 
 # Paginated Packages
 class PaginatedPackageSerializer(PaginationSerializer):

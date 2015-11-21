@@ -37,6 +37,7 @@
 {% endblock%}
 
 {% block javascript %}
+<script src="{% static 'js/bootbox.min.js' %}"></script>
 <script type="text/javascript" language="javascript" class="init">
     $(document).ready( function () {
         var pTable = $('#packages_table').DataTable({
@@ -54,7 +55,17 @@
                 dataType: "json"
             },
             columns: [
-                {'data': 'name', 'sName': 'name', 'aTargets': [ 1 ]},
+                {
+                    'data': 'short_name',
+                    'sName': 'short_name', 
+                    'aTargets': [ 1 ],
+                    "mRender": function (data, type, full) {
+                        return '<div rel="tooltip" data-placement="top" data-original-title="'+full.name+'">'+data+'</div>';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("div", nTd).tooltip();
+                    }
+                },
                 {'data': 'creation_time', 'sName': 'creation_time', 'aTargets': [ 2 ]},
                 {'data': 'last_modified', 'sName': 'last_modified', 'aTargets': [ 3 ]},
                 {
@@ -83,7 +94,7 @@
                             '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="'+view_url+'">' +
                             '<i class="fa fa-eye"></i>' +
                             '</a>' +
-                            '<a class="btn btn-small" rel="tooltip" data-placement="bottom" data-original-title="Remove" href="'+delete_url+'">' +
+                            '<a class="btn btn-small confirm" rel="tooltip" data-placement="bottom" data-original-title="Remove" data-href="'+delete_url+'" data-display="'+full.name+'" href="#">' +
                             '<i class="fa fa-remove"></i>' +
                             '</a>' +
                             '</div>';
@@ -93,6 +104,17 @@
                     }
                 }
             ],
+        });
+    });
+    $(document).on("click", ".confirm", function(e) {
+        e.preventDefault();
+        var title = $(this).attr('data-display');
+        var location = $(this).attr('data-href');
+        bootbox.confirm('Are you sure?<br/>(Delete: '+title+')', function(confirmed) {
+            if(confirmed)
+            {
+                window.location.replace(location);
+            }
         });
     });
 </script>
