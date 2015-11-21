@@ -1,0 +1,48 @@
+{% extends "base_single.html" %}
+{% load staticfiles %}
+{% load split_at %}
+{% block header %}
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Package.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ package.name }}</h2>Intelligence Package ID: {{ package_id }}
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% if package %}
+{% spaceless %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Package Visualization<a href="{% url 'intel:package' package_id=package_id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="back" class="fa fa-external-link pull-right"></i></a></h3>
+    </div>
+    <div id="tree-container" class="panel-body">
+    </div>
+</div>
+<input type="hidden" id="package_id" name="variable" value="{{ package_id }}">
+{% endspaceless %}
+{% endif %}
+{% endblock%}
+
+{% block javascript%}
+<script type="text/javascript" charset="utf8" src="{% static 'js/package_graph.js' %}"></script>
+{% endblock%}

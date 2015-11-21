@@ -31,7 +31,7 @@
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">Package Visualization</h3>
+        <h3 class="panel-title">Package Visualization<a href="{% url 'intel:package_graph' package_id=package_id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="fullscreen" class="fa fa-external-link pull-right"></i></a></h3>
     </div>
     <div id="tree-container" class="panel-body">
     </div>
@@ -514,7 +514,7 @@ $(document).ready( function () {
 
 
 <script type="text/javascript" language="javascript" class="init">
-var w = 500;
+var w = parseInt(d3.select('#tree-container').style('width'))-30;
 var h = 250;
 var adjustme = 170;
 var keyi = true, keyo = true, keyp = true;
@@ -764,6 +764,10 @@ function isNumber(n) {
 
 $(function () {
     $('[data-toggle="popover"]').popover()
+});
+
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 $(document).ready(function() {

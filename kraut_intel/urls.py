@@ -5,6 +5,7 @@ urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^packages/$', views.packages, name='packages'),
     url(r'^package/(?P<package_id>\d+)/$', views.package, name='package'),
+    url(r'^package/(?P<package_id>\d+)/graph/$', views.package_graph, name='package_graph'),
     url(r'^package/(?P<package_id>\d+)/delete/$', views.delete_package, name='delete_package'),
     url(r'^package/(?P<package_id>\d+)/update/header$', views.update_package_header, name='update_package_header'),
     url(r'^threatactors/$', views.threatactors, name='threatactors'),

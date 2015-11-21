@@ -118,6 +118,18 @@ def package(request, package_id="1"):
             context['quick_pane'][obs_obj.observable_type] = True
     return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
 
+def package_graph(request, package_id="1"):
+    """ show full tree graph for package
+    """
+    context = {'package_id': package_id, 'package': None}
+    try:
+        package = Package.objects.get(pk=int(package_id))
+    except Package.DoesNotExist:
+        messages.error(request, 'The requested package does not exist!')
+        return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
+    context['package'] = package
+    return render_to_response('kraut_intel/package_full_tree.html', context, context_instance=RequestContext(request))
+
 def threatactors(request):
     context = {}
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
