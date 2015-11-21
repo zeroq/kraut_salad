@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^indicator/(?P<indicator_id>\d+)/$', views.indicator, name='indicator'),
     url(r'^observables/$', views.observables, name='observables'),
     url(r'^observable/(?P<observable_id>\d+)/$', views.observable, name='observable'),
+    url(r'^observable/(?P<observable_id>\d+)/update/header$', views.update_observable_header, name='update_observable_header'),
     url(r'^mwinstance/(?P<mwi_id>\d+)/$', views.malware_instance, name='malware_instance'),
     url(r'^attpattern/(?P<ap_id>\d+)/$', views.attack_pattern, name='attack_pattern'),
 ]

@@ -176,12 +176,14 @@ path.link {
   <div id="navsidebar-wrapper" class="navsidebar-wrapper">
     <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
     <nav class="navsidebar-menu">
+        <form action="{% url 'intel:update_observable_header' observable_id=observable_id %}" method="POST">
+        {% csrf_token %}
             <ul>
                 <li>Title</li>
-                <li><input class="form-control" type="text" value="{{ observable.name }}"></li>
+                <li><input name="observable_name" class="form-control" type="text" value="{{ observable.name }}"></li>
                 <li>Namespace</li>
                 <li>
-                <select class="form-control">
+                <select name="observable_namespace" class="form-control">
                     {% for ns in namespaces %}
                         {% if ns.namespace == observable.namespace %}
                             <option selected>{{ ns }}</option>
@@ -192,9 +194,10 @@ path.link {
                 </select>
                 </li>
                 <li>Description</li>
-                <li><textarea class="form-control" rows="13">{{ observable.description }}</textarea></li>
+                <li><textarea name="observable_description" class="form-control" rows="13">{{ observable.description }}</textarea></li>
                 <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
             </ul>
+        </form>
     </nav>
   </div>
 </div>

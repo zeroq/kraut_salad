@@ -299,6 +299,28 @@ def observables(request):
     context = {}
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
 
+def update_observable_header(request, observable_id="1"):
+    """ update observable header information
+    """
+    try:
+        observable = Observable.objects.get(pk=int(observable_id))
+    except Observable.DoesNotExist:
+        messages.error(request, 'The requested observable does not exist!')
+        return render_to_response('kraut_intel/observables.html', {}, context_instance=RequestContext(request))
+    if request.method == "POST":
+        ob_name = request.POST.get('observable_name', None)
+        ob_namespace = request.POST.get('observable_namespace', None)
+        ob_description = request.POST.get('observable_description', None)
+        if ob_name:
+            observable.name = ob_name
+        if ob_namespace:
+            ### TODO: fix as soon as namespace is own table
+            observable.namespace = ob_namespace
+        if ob_description:
+            observable.description = ob_description
+        observable.save()
+    return HttpResponseRedirect(reverse("intel:observable", kwargs={'observable_id': observable_id}))
+
 def observable(request, observable_id="1"):
     """ details of a single observable
     """
