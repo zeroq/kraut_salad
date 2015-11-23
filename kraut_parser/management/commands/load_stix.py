@@ -1339,15 +1339,16 @@ class Command(BaseCommand):
                                         del self.missing_references[item][object_id]
                                     except KeyError as e:
                                         # create dummy observable with IDREF for later update
+                                        obs_namespace_obj = self.get_full_namespace2(observable_idref.split(':', 1)[0])
                                         observable_dict = {
                                             'name': observable_idref,
                                             'description': 'No Description',
                                             'short_description': 'No Short Description',
-                                            'namespace': self.get_full_namespace(observable_idref.split(':', 1)[0]),
                                             'observable_type': 'Dummy',
                                             'observable_id': observable_idref
                                         }
                                         observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
+                                        observable_object.namespace.add(obs_namespace_obj)
                                         observable_object.indicators.add(indicator_object)
                                         observable_object.save()
                                 except KeyError as e:
