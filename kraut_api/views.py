@@ -1081,7 +1081,7 @@ def indicator_list(request, format=None):
         if search_value:
             queryset = queryset.filter(
                 Q(name__istartswith=search_value)|
-                Q(namespace__istartswith=search_value)
+                Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:
@@ -1364,7 +1364,7 @@ def observable_list(request, format=None):
             queryset = queryset.filter(
                 Q(name__istartswith=search_value)|
                 Q(observable_type__istartswith=search_value)|
-                Q(namespace__istartswith=search_value)
+                Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:

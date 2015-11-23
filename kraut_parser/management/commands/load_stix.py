@@ -347,7 +347,7 @@ class Command(BaseCommand):
         """
         # get ID and namespace
         observable_id = observable['id']
-        observable_namespace = self.get_full_namespace(observable_id.split(':', 1)[0])
+        observable_namespace_obj = self.get_full_namespace2(observable_id.split(':', 1)[0])
         # determine object type and get object ID
         if 'object' in observable and 'properties' in observable['object']:
             object_type = observable['object']['properties']['xsi:type']
@@ -368,7 +368,6 @@ class Command(BaseCommand):
                     'name': observable.get('title', observable_id),
                     'description': 'Observable Composition Container',
                     'short_description': 'Observable Composition Container',
-                    'namespace': observable_namespace,
                     'observable_type': 'CompositionContainer',
                     'observable_id': observable_id
                 }
@@ -379,6 +378,7 @@ class Command(BaseCommand):
                     observable_created = False
                 except Observable.DoesNotExist:
                     observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
+                observable_object.namespace.add(observable_namespace_obj)
                 # create observable mapping
                 self.id_mapping['observables'][observable_id] = observable_object.id
             # add composition
@@ -403,7 +403,6 @@ class Command(BaseCommand):
                 'name': observable.get('title', observable_id),
                 'description': observable.get('description', 'No Description'),
                 'short_description': observable.get('short_description', 'No Short Description'),
-                'namespace': observable_namespace,
                 'observable_type': object_type,
                 'observable_id': observable_id
             }
@@ -414,6 +413,7 @@ class Command(BaseCommand):
                 observable_created = False
             except Observable.DoesNotExist:
                 observable_object, observable_created = Observable.objects.get_or_create(**observable_dict)
+            observable_object.namespace.add(observable_namespace_obj)
             # create observable mapping
             self.id_mapping['observables'][observable_id] = observable_object.id
         # add to package
@@ -555,6 +555,7 @@ class Command(BaseCommand):
         first_entry = True
         for indicator in stix_json['indicators']:
             indicator_id = indicator['id']
+            indicator_namespace_obj = self.get_full_namespace2(indicator_id.split(':', 1)[0])
             # check if indicator already exists
             if indicator_id in self.id_mapping['indicators']:
                 indicator_object = Indicator.objects.get(id=self.id_mapping['indicators'][indicator_id])
@@ -562,12 +563,13 @@ class Command(BaseCommand):
             else:
                 indicator_dict = {
                     'name': indicator.get('title', indicator_id),
-                    'namespace': self.get_full_namespace(indicator_id.split(':', 1)[0]),
                     'description': indicator.get('description', 'No Description'),
                     'short_description': indicator.get('short_description', 'No Short Description'),
                     'indicator_id': indicator_id
                 }
+                # create indicator object
                 indicator_object, indicator_object_created = Indicator.objects.get_or_create(**indicator_dict)
+                indicator_object.namespace.add(indicator_namespace_obj)
                 # create observable mapping
                 self.id_mapping['indicators'][indicator_id] = indicator_object.id
             # add to package
@@ -690,6 +692,8 @@ class Command(BaseCommand):
             return package_object
         # iterate over ttp elements
         for ttp in stix_json['ttps']['ttps']:
+            if not 'id' in  ttp:
+                continue
             ttp_id = ttp['id']
             ttp_namespace_obj = self.get_full_namespace2(ttp_id.split(':', 1)[0])
             # check if ttp already exists

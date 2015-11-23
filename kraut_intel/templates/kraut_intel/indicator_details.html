@@ -39,7 +39,7 @@ path.link {
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ indicator.namespace|split_at:":,0" }}</h2>Side Panel
+            <h2 class="media-heading">{{ indicator.namespace.last.namespace|split_at:":,0" }}</h2>Side Panel
         </div>
     </div>
 </div>
@@ -96,7 +96,7 @@ path.link {
         <tbody>
             <tr>
                 <td align="right"><b>Namespace</b></td>
-                <td>{{ indicator.namespace }}</td>
+                <td>{{ indicator.namespace.last.namespace }}</td>
                 <td align="right"><b>Indicator Type</b></td>
                 <td>{{ indicator.indicator_types.last.itype }}</td>
             </tr>

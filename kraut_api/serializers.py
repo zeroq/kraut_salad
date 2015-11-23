@@ -77,7 +77,7 @@ class TASerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon', 'short_description')
 
     def get_namespace_icon(self, obj):
-        return get_icon_for_namespace(obj.namespace)
+        return get_icon_for_namespace(obj.namespace.last().namespace)
 
     def get_namespace(self, obj):
         return obj.namespace.last().namespace
@@ -111,7 +111,7 @@ class TTPSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'short_description', 'namespace', 'namespace_icon', 'creation_time', 'last_modified', 'related_ttps')
 
     def get_namespace_icon(self, obj):
-        return get_icon_for_namespace(obj.namespace)
+        return get_icon_for_namespace(obj.namespace.last().namespace)
 
     def get_namespace(self, obj):
         return obj.namespace.last().namespace
@@ -211,7 +211,7 @@ class CampSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon', 'confidence', 'status')
 
     def get_namespace_icon(self, obj):
-        return get_icon_for_namespace(obj.namespace)
+        return get_icon_for_namespace(obj.namespace.last().namespace)
 
     def get_namespace(self, obj):
         return obj.namespace.last().namespace
@@ -251,6 +251,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
 class IndSerializer(serializers.ModelSerializer):
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+    namespace = serializers.SerializerMethodField()
     namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
@@ -258,7 +259,10 @@ class IndSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        return get_icon_for_namespace(obj.namespace)
+        return get_icon_for_namespace(obj.namespace.last().namespace)
+
+    def get_namespace(self, obj):
+        return obj.namespace.last().namespace
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -329,6 +333,7 @@ class ObsSerializer(serializers.ModelSerializer):
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
     short_name = serializers.SerializerMethodField()
+    namespace = serializers.SerializerMethodField()
     namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
@@ -336,7 +341,10 @@ class ObsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'creation_time', 'last_modified', 'namespace', 'observable_type', 'short_name', 'namespace_icon')
 
     def get_namespace_icon(self, obj):
-        return get_icon_for_namespace(obj.namespace)
+        return get_icon_for_namespace(obj.namespace.last().namespace)
+
+    def get_namespace(self, obj):
+        return obj.namespace.last().namespace
 
     def get_short_name(self, obj):
         if len(obj.name)>35:

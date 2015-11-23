@@ -326,8 +326,9 @@ def update_observable_header(request, observable_id="1"):
         if ob_name:
             observable.name = ob_name
         if ob_namespace:
-            ### TODO: fix as soon as namespace is own table
-            observable.namespace = ob_namespace
+            ob_obj, ob_created = Namespace.objects.get_or_create(namespace=ob_namespace)
+            observable.namespace.clear()
+            observable.namespace.add(pg_obj)
         if ob_description:
             observable.description = ob_description
         observable.save()
@@ -348,7 +349,7 @@ def observable(request, observable_id="1"):
         messages.warning(request, "No observable with the given ID exists in the system.")
     else:
         context['observable'] = observable[0]
-        context['namespace_icon'] = get_icon_for_namespace(observable[0].namespace)
+        context['namespace_icon'] = get_icon_for_namespace(observable[0].namespace.last().namespace)
         context['namespaces'] = Namespace.objects.all()
         context['objects'] = get_object_for_observable(observable[0].observable_type, observable[0])
         # get related objects
@@ -398,7 +399,7 @@ def malware_instance(request, mwi_id="1"):
         messages.error(request, 'The requested Malware Instance object does not exist')
         return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
     context['mwi'] = mwi
-    context['namespace_icon'] = get_icon_for_namespace(mwi.ttp_ref.namespace)
+    context['namespace_icon'] = get_icon_for_namespace(mwi.ttp_ref.namespace.last().namespace)
     context['description'] = ' '.join(strip_tags(mwi.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
 
@@ -412,6 +413,6 @@ def attack_pattern(request, ap_id="1"):
         messages.error(request, 'The requested Malware Instance object does not exist')
         return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
     context['ap'] = ap
-    context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace)
+    context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace.last().namespace)
     context['description'] = ' '.join(strip_tags(ap.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))

@@ -11,6 +11,6 @@ def get_icon_for_namespace(namespace):
         if namespace.count(':')>0:
             namespace = namespace.split(':')[0]
         icon = NamespaceIcon.objects.get(namespace=namespace)
-    except:
+    except Exception as e:
         return static('ns_icon/octalpus.png')
     return static('ns_icon/%s' % (icon.icon))
