@@ -691,7 +691,7 @@ class Command(BaseCommand):
         # iterate over ttp elements
         for ttp in stix_json['ttps']['ttps']:
             ttp_id = ttp['id']
-            ttp_namespace = self.get_full_namespace(ttp_id.split(':', 1)[0])
+            ttp_namespace_obj = self.get_full_namespace2(ttp_id.split(':', 1)[0])
             # check if ttp already exists
             if ttp_id in self.id_mapping['ttps']:
                 ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][ttp_id])
@@ -706,10 +706,11 @@ class Command(BaseCommand):
                     'name': ttp_name,
                     'description': ttp.get('description', 'No Description'),
                     'short_description': ttp.get('short_description', 'No Short Description'),
-                    'namespace': ttp_namespace,
                     'ttp_id': ttp_id
                 }
+                # create ttp object
                 ttp_object, ttp_object_created = TTP.objects.get_or_create(**ttp_dict)
+                ttp_object.namespace.add(ttp_namespace_obj)
                 # create ttp mapping
                 self.id_mapping['ttps'][ttp_id] = ttp_object.id
             # add to package
@@ -789,7 +790,7 @@ class Command(BaseCommand):
         if first_entry:
             self.stdout.write('[DONE]')
         # DEBUG output for TTP
-        #print json.dumps(ttp, indent=4, sort_keys=True)
+        print json.dumps(ttp, indent=4, sort_keys=True)
         return package_object
 
     def perform_campaign_extraction(self, stix_json, package_object):
@@ -994,6 +995,7 @@ class Command(BaseCommand):
                                 self.missing_references['actor_2_ttp'][threat_actor_id] = [(observed_ttp_id, ttp_relationship)]
                     else:
                         # inline TTP ? TODO
+                        print "INLINE TTP !!!"
                         print json.dumps(observed_ttp, indent=4, sort_keys=True)
                         continue
                 threat_actor.pop('observed_ttps')

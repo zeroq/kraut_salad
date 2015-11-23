@@ -99,6 +99,7 @@ class PaginatedThreatActorSerializer(PaginationSerializer):
 class TTPSerializer(serializers.ModelSerializer):
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
+    namespace = serializers.SerializerMethodField()
     namespace_icon = serializers.SerializerMethodField()
 
     class Meta:
@@ -107,6 +108,9 @@ class TTPSerializer(serializers.ModelSerializer):
 
     def get_namespace_icon(self, obj):
         return get_icon_for_namespace(obj.namespace)
+
+    def get_namespace(self, obj):
+        return obj.namespace.last().namespace
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")

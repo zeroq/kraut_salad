@@ -699,7 +699,7 @@ def ttp_list(request, format=None):
             queryset = queryset.filter(
                 Q(name__istartswith=search_value)|
                 Q(short_description__istartswith=search_value)|
-                Q(namespace__istartswith=search_value)
+                Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:

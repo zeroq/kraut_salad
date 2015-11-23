@@ -60,7 +60,7 @@ class TTP(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
-    namespace = models.CharField(max_length=255, default='nospace')
+    namespace = models.ManyToManyField('Namespace', blank=True)
     ttp_id = models.CharField(max_length=255)
     related_ttps = models.ManyToManyField('self', through='RelatedTTP', symmetrical=False, related_name='ttp_related_to_ttp', blank=True)
 
