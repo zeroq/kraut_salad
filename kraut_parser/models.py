@@ -114,7 +114,7 @@ class Campaign(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
-    namespace = models.CharField(max_length=255, default='nospace')
+    namespace = models.ManyToManyField('Namespace', blank=True)
     status = models.CharField(max_length=255, default='Ongoing')
     campaign_id = models.CharField(max_length=255)
     confidence = models.ManyToManyField(Confidence, blank=True)
@@ -144,7 +144,7 @@ class ThreatActor(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
-    namespace = models.CharField(max_length=255, default='nospace')
+    namespace = models.ManyToManyField('Namespace', blank=True)
     campaigns = models.ManyToManyField(Campaign, blank=True)
     associated_threat_actors = models.ManyToManyField('self', blank=True)
     threat_actor_id = models.CharField(max_length=255)
@@ -188,7 +188,7 @@ class TA_Roles(models.Model):
 
 class TA_Alias(models.Model):
     alias = models.CharField(max_length=255)
-    namespace = models.CharField(max_length=255, default='nospace')
+    namespace = models.ManyToManyField('Namespace', blank=True)
     actor = models.ForeignKey(ThreatActor)
     alias_type = models.CharField(max_length=255, default='UnofficialName')
 
@@ -196,7 +196,7 @@ class TA_Alias(models.Model):
         return u"%s" % (self.alias)
 
     class Meta:
-        unique_together = (("alias", "namespace", "actor"),)
+        unique_together = (("alias", "actor"),)
 
 class Indicator_Type(models.Model):
     itype = models.CharField(max_length=255, unique=True)

@@ -17,7 +17,7 @@
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ campaign.namespace|split_at:":,0" }}</h2>Side Panel
+            <h2 class="media-heading">{{ campaign.namespace.last.namespace|split_at:":,0" }}</h2>Side Panel
         </div>
     </div>
 </div>
@@ -105,7 +105,7 @@
         <tbody>
             <tr>
                 <td align="right"><b>Namespace</b></td>
-                <td>{{ campaign.namespace }}</td>
+                <td>{{ campaign.namespace.last.namespace }}</td>
                 <td align="right"><b>Status</b></td>
                 <td>{{ campaign.status }}</td>
             </tr>

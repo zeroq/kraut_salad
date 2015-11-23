@@ -805,7 +805,7 @@ class Command(BaseCommand):
         # iterate over campaign elements
         for campaign in stix_json['campaigns']:
             campaign_id = campaign['id']
-            campaign_namespace = self.get_full_namespace(campaign_id.split(':', 1)[0])
+            campaign_namespace_obj = self.get_full_namespace2(campaign_id.split(':', 1)[0])
             # check if campaign already exists
             if campaign_id in self.id_mapping['campaigns']:
                 campaign_object = Campaign.objects.get(id=self.id_mapping['campaigns'][campaign_id])
@@ -820,11 +820,12 @@ class Command(BaseCommand):
                     'name': campaign_name,
                     'description': campaign.get('description', 'No Description'),
                     'short_description': campaign.get('short_description', 'No Short Description'),
-                    'namespace': campaign_namespace,
                     'status': campaign.get('status', 'Ongoing'),
                     'campaign_id': campaign_id
                 }
+                # create campaign object
                 campaign_object, campaign_object_created = Campaign.objects.get_or_create(**campaign_dict)
+                campaign_object.namespace.add(campaign_namespace_obj)
                 # create campaign mapping
                 self.id_mapping['campaigns'][campaign_id] = campaign_object.id
             # add to package
@@ -873,7 +874,7 @@ class Command(BaseCommand):
         # iterate over threat actor elements
         for threat_actor in  stix_json['threat_actors']:
             threat_actor_id = threat_actor['id']
-            threat_actor_namespace = self.get_full_namespace(threat_actor_id.split(':', 1)[0])
+            threat_actor_namespace_obj = self.get_full_namespace2(threat_actor_id.split(':', 1)[0])
             # check if threat actor already exists
             if threat_actor_id in self.id_mapping['threat_actors']:
                 threat_actor_object = ThreatActor.objects.get(id=self.id_mapping['threat_actors'][threat_actor_id])
@@ -890,10 +891,11 @@ class Command(BaseCommand):
                     'name': threat_actor_name,
                     'description': threat_actor.get('description', 'No Description'),
                     'short_description': threat_actor.get('short_description', 'No Short Description'),
-                    'namespace': threat_actor_namespace,
                     'threat_actor_id': threat_actor_id
                 }
+                # create threat actor object
                 threat_actor_object, threat_actor_object_created = ThreatActor.objects.get_or_create(**threat_actor_dict)
+                threat_actor_object.namespace.add(threat_actor_namespace_obj)
                 # create threat actor mapping
                 self.id_mapping['threat_actors'][threat_actor_id] = threat_actor_object.id
             # add to package
@@ -909,30 +911,32 @@ class Command(BaseCommand):
                         alias_type = organization.get('type', 'UnofficialName')
                         alias_list = organization.get('name_elements', [])
                         for alias_item in alias_list:
+                            # create threat actor alias object
                             ta_alias_object, ta_alias_object_created = TA_Alias.objects.get_or_create(
                                 alias=alias_item.get('value', 'No Name'),
-                                namespace=threat_actor_namespace,
                                 actor=threat_actor_object,
                                 alias_type=alias_type
                             )
+                            ta_alias_object.namespace.add(threat_actor_namespace_obj)
                 if 'person_names' in threat_actor['identity']['specification']['party_name']:
                     for person in threat_actor['identity']['specification']['party_name']['person_names']:
                         alias_type = person.get('type', 'UnofficialName')
                         alias_list = person.get('name_elements', [])
                         for alias_item in alias_list:
+                            # create threat actor alias object
                             ta_alias_object, ta_alias_object_created = TA_Alias.objects.get_or_create(
                                 alias=alias_item.get('value', 'No Name'),
-                                namespace=threat_actor_namespace,
                                 actor=threat_actor_object,
                                 alias_type=alias_type
                             )
+                            ta_alias_object.namespace.add(threat_actor_namespace_obj)
             # create threat actor alias (part 2)
             if 'identity' in threat_actor and 'name' in threat_actor['identity']:
                 ta_alias_object, ta_alias_object_created = TA_Alias.objects.get_or_create(
                     alias=threat_actor['identity']['name'],
-                    namespace=threat_actor_namespace,
                     actor=threat_actor_object,
                 )
+                ta_alias_object.namespace.add(threat_actor_namespace_obj)
             # last access to identity -> remove element
             if 'identity' in threat_actor:
                 threat_actor.pop('identity')
@@ -1010,6 +1014,9 @@ class Command(BaseCommand):
         return package_object
 
     def get_full_namespace2(self, ns):
+        """ iterate over list of XML namespaces to find the appropriate one
+        and return namespace object
+        """
         for nsurl, nsname in self.stix_namespaces_dict.iteritems():
             if nsname == ns:
                 ns_obj, ns_created = Namespace.objects.get_or_create(namespace="%s:%s" % (nsname, nsurl))

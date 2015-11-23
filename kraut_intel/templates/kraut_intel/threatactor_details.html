@@ -17,7 +17,7 @@
             <img src="{{ namespace_icon }}" height="64" class="media-object">
         </div>
         <div class="media-body">
-            <h2 class="media-heading">{{ ta.namespace|split_at:":,0" }}</h2>Side Panel
+            <h2 class="media-heading">{{ ta.namespace.last.namespace|split_at:":,0" }}</h2>Side Panel
         </div>
     </div>
 </div>
@@ -56,7 +56,7 @@
                 {% for alias in ta_alias.all %}
                 <tr>
                     <td>{{ alias.alias }}</td>
-                    <td>{{ alias.namespace }}</td>
+                    <td>{{ alias.namespace.last.namespace }}</td>
                     <td>{{ alias.alias_type }}</td>
                 </tr>
                 {% endfor %}
@@ -112,7 +112,7 @@
         <tbody>
             <tr>
                 <td align="right"><b>Namespace</b></td>
-                <td>{{ ta.namespace }}</td>
+                <td>{{ ta.namespace.last.namespace }}</td>
             </tr>
             <tr>
                 <td align="right"><b>Type</b></td>
