@@ -328,7 +328,7 @@ def update_observable_header(request, observable_id="1"):
         if ob_namespace:
             ob_obj, ob_created = Namespace.objects.get_or_create(namespace=ob_namespace)
             observable.namespace.clear()
-            observable.namespace.add(pg_obj)
+            observable.namespace.add(ob_obj)
         if ob_description:
             observable.description = ob_description
         observable.save()
