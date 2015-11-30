@@ -41,6 +41,10 @@ understanding and overview of an incident.
 
         python manage.py migrate
 
+* Load initial data
+
+        python manage.py loaddata initial_data
+
 * In order to import a STIX document into Kraut Salad issue:
 
         python manage.py load_stix <path_to_stix_xml>
