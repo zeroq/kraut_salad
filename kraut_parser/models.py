@@ -11,6 +11,9 @@ class Namespace(models.Model):
     def __unicode__(self):
         return u"%s" % (self.namespace)
 
+    class Meta:
+        ordering = ['namespace']
+
 class Confidence(models.Model):
     value = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)

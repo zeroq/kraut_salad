@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^package/(?P<package_id>\d+)/graph/$', views.package_graph, name='package_graph'),
     url(r'^package/(?P<package_id>\d+)/delete/$', views.delete_package, name='delete_package'),
     url(r'^package/(?P<package_id>\d+)/update/header$', views.update_package_header, name='update_package_header'),
+    url(r'^package/(?P<package_id>\d+)/edit/$', views.edit_create_package, name='edit_create_package'),
+    #
     url(r'^threatactors/$', views.threatactors, name='threatactors'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/$', views.threatactor, name='threatactor'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/delete/$', views.delete_threatactor, name='delete_threatactor'),

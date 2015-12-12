@@ -13,6 +13,9 @@ from kraut_parser.models import AttackPattern, Namespace
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
+from kraut_intel.forms import PackageForm
+
+import datetime, uuid, argparse
 
 # Create your views here.
 
@@ -52,6 +55,55 @@ def delete_package(request, package_id="1"):
     messages.info(request, 'The intelligence package was deleted successfully!')
     return HttpResponseRedirect(reverse('intel:packages'))
 
+def edit_create_package(request, package_id=None):
+    """ create a new intel package or edit an existing one
+    """
+    context = {}
+    if request.method == 'POST':
+        form = PackageForm(request.POST)
+        if form.is_valid():
+            ### TODO: make modifications or create new package
+            if int(package_id) == 0:
+                messages.info(request, 'New Package Created!')
+            else:
+                messages.info(request, 'Package Updated! (%s)' % (package_id))
+            return HttpResponseRedirect(reverse('intel:packages'))
+        messages.error(request, 'Package not valid!')
+        return HttpResponseRedirect(reverse('intel:edit_create_package', kwargs={'package_id': package_id}))
+    else:
+        if int(package_id)>0:
+            try:
+                package = Package.objects.get(pk=int(package_id))
+            except Package.DoesNotExist:
+                messages.error(request, 'The requested package does not exist!')
+                return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+        else:
+            package = None
+        if package:
+            defaults = {
+                'name': package.name,
+                'produced_time': package.produced_time,
+                'version': package.version,
+                'source': package.source,
+                'description': package.description,
+                'package_id': package.package_id,
+                'short_description': package.short_description
+            }
+            defaults['namespace'] = [b.pk for b in package.namespace.all()]
+            form = PackageForm(defaults, instance=package)
+        else:
+            package_dict = {'name': 'Create New Intelligence Package'}
+            package = argparse.Namespace(**package_dict)
+            defaults = {
+                'produced_time': datetime.datetime.now(),
+                'package_id': 'nospace:package-%s' % (uuid.uuid4()),
+            }
+            form = PackageForm(defaults)
+        context['form'] = form
+        context['package_id'] = package_id
+        context['package'] = package
+    return render_to_response('kraut_intel/edit_create_package.html', context, context_instance=RequestContext(request))
+
 def update_package_header(request, package_id="1"):
     """ update header information of given package
     """
@@ -77,7 +129,6 @@ def update_package_header(request, package_id="1"):
             package.description = pg_descr
         package.save()
     return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
-
 
 def package(request, package_id="1"):
     """ details of a single intelligence package

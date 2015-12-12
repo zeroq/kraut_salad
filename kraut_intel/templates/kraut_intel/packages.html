@@ -87,8 +87,9 @@
                     "mRender": function (data, type, full) {
                         var view_url = "{% url 'intel:package' package_id=0 %}".replace(0, Number(data));
                         var delete_url = "{% url 'intel:delete_package' package_id=0 %}".replace(0, Number(data));
+                        var edit_url = "{% url 'intel:edit_create_package' package_id=0 %}".replace(0, Number(data));
                         return '<div class="btn-group1">' +
-                            '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit">' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit" href="'+edit_url+'">' +
                             '<i class="fa fa-edit"></i>' +
                             '</a> ' +
                             '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="'+view_url+'">' +
