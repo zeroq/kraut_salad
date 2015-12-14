@@ -146,7 +146,7 @@ path.link {
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ observable.name }} &nbsp;<a href="{% url 'export:cybox_observable' pk=observable_id %}" class="btn btn-warning btn-xs" role="button"><i class="fa fa-download fa-sm"></i> Export Cybox</a><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right"></i></h3>
+        <h3 class="panel-title">{{ observable.name }} &nbsp;<a href="{% url 'export:cybox_observable' pk=observable_id %}" class="btn btn-warning btn-xs" role="button"><i class="fa fa-download fa-sm"></i> Export Cybox</a><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -773,6 +773,10 @@ $(document).ready(function() {
       }
     }
   });
+});
+
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 </script>

@@ -14,6 +14,10 @@
   stroke-opacity: .6;
 }
 
+.addimage {
+  margin-right:10px;
+}
+
 </style>
 {% endblock %}
 
@@ -104,7 +108,7 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ package.name }}<i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right"></i></h3>
+        <h3 class="panel-title">{{ package.name }}<i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -167,7 +171,24 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">Intelligence Information</h3>
+        <h3 class="panel-title">Intelligence Information
+            <a href="#">
+            <img class="pull-right addimage" src="{% static 'images/Observable.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Observable" />
+            </a>
+            <a href="#">
+            <img class="pull-right addimage" src="{% static 'images/Indicator.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Indicator" />
+            </a>
+            <a href="#">
+            <img class="pull-right addimage" src="{% static 'images/TTP.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add TTP" />
+            </a>
+            <a href="#">
+            <img class="pull-right addimage" src="{% static 'images/Campaign.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Campaign" />
+            </a>
+            <a href="#">
+            <img class="pull-right addimage" src="{% static 'images/Threat Actor.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Threat Actor" />
+            </a>
+            <div class="pull-right addimage">Modification Options</div>
+        </h3>
     </div>
     <div class="panel-body">
 <div role="tabpanel">
