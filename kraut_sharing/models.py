@@ -13,7 +13,7 @@ class TAXII_Remote_Server(models.Model):
     path = models.CharField(max_length=255, help_text="""Path to service""")
     version = models.CharField(max_length=5, help_text="""TAXII version to use""", default="1.1")
     auth_type = models.IntegerField(default=0, help_text="""Authentication to use""")
-    last_discovery = models.DateTimeField(null=True)
+    last_discovery = models.DateTimeField(blank=True, null=True)
     # TODO: fields for authentication (foreign key)
 
     def __unicode__(self):

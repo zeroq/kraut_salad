@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib import messages
 
-from kraut_sharing.forms import DiscoveryForm, PollForm
+from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm
 
 # Create your views here.
 
@@ -20,6 +20,8 @@ def home(request):
 def manage_servers(request):
     """ manage taxii servers """
     context = {}
+    serverForm = AddServerForm()
+    context['form'] = serverForm
     return render_to_response('kraut_sharing/servers.html', context, context_instance=RequestContext(request))
 
 
