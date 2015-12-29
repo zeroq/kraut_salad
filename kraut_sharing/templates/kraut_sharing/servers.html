@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Taxii.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Hail a Taxii</h2>manage TAXII servers ...
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<br/>
+<table id="server_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+    <thead>
+        <th>Name</th>
+        <th>Host</th>
+        <th>Path</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+{% endblock%}
+
+{% block javascript %}
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready( function () {
+        var sTable = $('#server_table').DataTable({
+            processing: true,
+            serverSide: true,
+            oLanguage: { 
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>", 
+            },
+            order: [[ 1, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/taxii/servers/.json",
+                dataSrc: "results", type: "GET", dataType: "json"
+            },
+            columns: [
+                {'data': 'name', 'sName': 'name', 'aTargets': [ 1 ]},
+                {'data': 'host', 'sName': 'host', 'aTargets': [ 2 ]},
+                {'data': 'path', 'sName': 'path', 'aTargets': [ 3 ]},
+            ],
+        });
+    });
+</script>
+{% endblock %}

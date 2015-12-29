@@ -16,9 +16,10 @@ from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSe
 from kraut_api.serializers import PaginatedAddressObjectSerializer, PaginatedURIObjectSerializer
 from kraut_api.serializers import PaginatedTTPSerializer
 from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
+from kraut_api.serializers import PaginatedServersSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
-
+from kraut_sharing.models import TAXII_Remote_Server
 from kraut_sharing.forms import DiscoveryForm
 from kraut_sharing.feed import CollectionRequest
 
@@ -1850,6 +1851,47 @@ def incident_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################### SHARING #####################
+
+@api_view(['GET'])
+def taxii_server_list(request, format=None):
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            if 'length' in request.query_params: max_items = int(request.query_params['length'])
+            if 'start' in request.query_params: page = int(int(request.query_params['start'])/int(max_items))+1
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_by_column = 'creation_time'
+                order_direction = '-'
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'creation_time'
+            order_direction = '-'
+            search_value = None
+        queryset = TAXII_Remote_Server.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__icontains=search_value)|
+                Q(host__icontains=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            servers = paginator.page(page)
+        except:
+            servers = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedServersSerializer(servers, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def taxii_feed_information(request, format=None):

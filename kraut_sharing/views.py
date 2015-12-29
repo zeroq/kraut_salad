@@ -17,6 +17,11 @@ def home(request):
     context['form'] = form
     return render_to_response('kraut_sharing/index.html', context, context_instance=RequestContext(request))
 
+def manage_servers(request):
+    """ manage taxii servers """
+    context = {}
+    return render_to_response('kraut_sharing/servers.html', context, context_instance=RequestContext(request))
+
 
 def poll(request):
     """ poll feed information """
@@ -29,4 +34,5 @@ def poll(request):
         return render_to_response('kraut_sharing/poll.html', context, context_instance=RequestContext(request))
     form = PollForm(initial={'url': request.POST.get('url'), 'service': request.POST.get('service'), 'begin_time': begin_time.strftime('%Y-%m-%dT%H:%M:%S.%f%z')})
     context['form'] = form
+    messages.info(request, 'Polling intelligence ...')
     return render_to_response('kraut_sharing/poll.html', context, context_instance=RequestContext(request))

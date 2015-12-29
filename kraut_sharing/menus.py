@@ -4,14 +4,19 @@ from django.core.urlresolvers import reverse
 from menu import Menu, MenuItem
 
 sharing_children = (
+    MenuItem("Manage Servers",
+            reverse("sharing:servers"),
+            weight=10,
+            image="images/Taxii.svg"
+        ),
     MenuItem("Discover Taxii Feeds",
             reverse("sharing:home"),
-            weight=10,
+            weight=20,
             image="images/Taxii.svg"
         ),
     MenuItem("Poll Taxii Feed",
             reverse("sharing:poll"),
-            weight=20,
+            weight=30,
             image="images/Taxii.svg"
         ),
 )
