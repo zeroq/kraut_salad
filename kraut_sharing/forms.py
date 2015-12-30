@@ -31,9 +31,9 @@ class AddServerForm(ModelForm):
         widgets = {
             'name': widgets.TextInput(attrs={'id': 'post_server_name', 'class': 'form-control', 'placeholder': ''}),
             'host': widgets.TextInput(attrs={'id': 'post_server_host', 'class': 'form-control', 'placeholder': ''}),
-            'port': widgets.NumberInput(attrs={'id': 'post_server_port', 'class': 'form-control', 'placeholder': ''}),
+            'port': widgets.NumberInput(attrs={'id': 'post_server_port', 'class': 'form-control', 'placeholder': '', 'readonly': True, 'required': True}),
             'path': widgets.TextInput(attrs={'id': 'post_server_path', 'class': 'form-control', 'placeholder': ''}),
-            'version': widgets.TextInput(attrs={'id': 'post_server_version', 'class': 'form-control', 'placeholder': ''}),
-            'protocol': widgets.TextInput(attrs={'id': 'post_server_protocol', 'class': 'form-control', 'placeholder': ''}),
+            'version': widgets.TextInput(attrs={'id': 'post_server_version', 'class': 'form-control', 'placeholder': '', 'readonly': True, 'required': True}),
+            'protocol': widgets.TextInput(attrs={'id': 'post_server_protocol', 'class': 'form-control', 'placeholder': '', 'readonly': True, 'required': True}),
         }
 

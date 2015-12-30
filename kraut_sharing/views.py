@@ -2,11 +2,14 @@
 
 import datetime, pytz
 
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.contrib import messages
 
 from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm
+from kraut_sharing.models import TAXII_Remote_Server
 
 # Create your views here.
 
@@ -20,9 +23,21 @@ def home(request):
 def manage_servers(request):
     """ manage taxii servers """
     context = {}
-    serverForm = AddServerForm()
+    if not request.method == 'POST':
+        serverForm = AddServerForm()
+        context['form'] = serverForm
+        return render_to_response('kraut_sharing/servers.html', context, context_instance=RequestContext(request))
+    serverForm = AddServerForm(request.POST)
+    if serverForm.is_valid():
+        new_server = TAXII_Remote_Server.objects.get_or_create(**serverForm.cleaned_data)
+        messages.info(request, 'Successfully added new TAXII server!')
+    else:
+        if serverForm.errors:
+            for field in serverForm:
+                for error in field.errors:
+                    messages.error(request, '%s: %s' % (field.name, error))
     context['form'] = serverForm
-    return render_to_response('kraut_sharing/servers.html', context, context_instance=RequestContext(request))
+    return HttpResponseRedirect(reverse("sharing:servers"))
 
 
 def poll(request):
