@@ -57,11 +57,19 @@
                     'bSortable': false,
                     'aTargets': [ 5 ],
                     "mRender": function (data, type, full) {
+                        if (full.subscribed) {
                         return '<div class="btn-group1">' +
-                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="Refresh Collections" href="#">' +
-                            '<i class="fa fa-refresh"></i>' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="Unsubscribe" href="#">' +
+                            '<i class="fa fa-close"></i>' +
                             '</a> ' +
                             '</div>';
+                        } else {
+                        return '<div class="btn-group1">' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="Subscribe" href="#">' +
+                            '<i class="fa fa-check"></i>' +
+                            '</a> ' +
+                            '</div>';
+                        }
                     },
                     "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                         $("a", nTd).tooltip();
