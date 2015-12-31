@@ -49,7 +49,14 @@
             },
             columns: [
                 {'data': 'name', 'sName': 'name', 'aTargets': [ 1 ]},
-                {'data': 'subscribed', 'sName': 'host', 'aTargets': [ 2 ]},
+                {
+                    'data': 'subscribed', 
+                    'sName': 'host', 
+                    'aTargets': [ 2 ],
+                    "mRender": function (data, type, full) {
+                        return '<span class="label label-danger label-pill">'+data+'</span';
+                    }
+                },
                 {'data': 'poll_period', 'sName': 'path', 'aTargets': [ 3 ]},
                 {
                     "data": 'id',
