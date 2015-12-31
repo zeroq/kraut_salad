@@ -13,6 +13,7 @@ class TAXII_Remote_Collection(models.Model):
     server = models.ForeignKey("TAXII_Remote_Server")
     subscribed = models.BooleanField(default=False)
     collection_type = models.CharField(max_length=255, default="DATA-FEED")
+    poll_period = models.IntegerField(default=24, help_text="""poll period in hours (e.g. 24 = every 24 hours)""")
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -28,6 +29,7 @@ class TAXII_Remote_Server(models.Model):
     auth_type = models.IntegerField(default=0, help_text="""Authentication to use""")
     last_discovery = models.DateTimeField(blank=True, null=True)
     # TODO: fields for authentication (foreign key)
+    # TODO: proxy configuration
 
     def get_url(self):
         return "%s://%s:%i%s" % (self.protocol, self.host, self.port, self.path)

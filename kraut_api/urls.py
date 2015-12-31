@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^ttp/(?P<pk>[0-9]+)/attack_patterns/$', views.ttp_attack_patterns),
     url(r'^taxii/feed/information/$', views.taxii_feed_information),
     url(r'^taxii/servers/$', views.taxii_server_list),
+    url(r'^taxii/collections/$', views.taxii_collection_list),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

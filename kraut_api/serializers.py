@@ -6,7 +6,7 @@ from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatAct
 from kraut_parser.models import MalwareInstance, AttackPattern
 from kraut_intel.utils import get_icon_for_namespace
 from kraut_incident.models import Contact, Handler, Incident
-from kraut_sharing.models import TAXII_Remote_Server
+from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 
 import datetime
 
@@ -430,6 +430,18 @@ class PaginatedServersSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = ServersSerializer
+
+class CollectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TAXII_Remote_Collection
+        fields = ('id', 'name', 'creation_time', 'last_modified', 'subscribed', 'collection_type', 'poll_period')
+
+class PaginatedCollectionSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = CollectionSerializer
 
 ################### OBJECT #####################
 
