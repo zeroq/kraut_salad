@@ -23,7 +23,16 @@ class CollectionRequest:
         r = CollectionInformationRequest(generate_message_id())
         col_xml = r.to_xml(pretty_print=True)
 
-        http_resp = client.call_taxii_service2(self.url.netloc, self.url.path, VID_TAXII_XML_11, col_xml)
+        if ':' in self.url.netloc:
+            host = self.url.netloc.split(':')[0]
+            server_port = self.url.netloc.split(':')[1]
+        else:
+            host = self.url.netloc
+            server_port = None
+        if server_port:
+            http_resp = client.call_taxii_service2(host, self.url.path, VID_TAXII_XML_11, col_xml, port = server_port)
+        else:
+            http_resp = client.call_taxii_service2(host, self.url.path, VID_TAXII_XML_11, col_xml)
         taxii_message = t.get_message_from_http_response(http_resp, r.message_id)
         return taxii_message.to_dict()
 

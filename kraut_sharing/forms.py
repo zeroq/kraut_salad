@@ -8,7 +8,7 @@ from kraut_sharing.models import TAXII_Remote_Server
 forms.DateInput.input_type="datetime"
 
 class DiscoveryForm(forms.Form):
-    url = forms.URLField(label='Discovery URL', max_length='255', widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'discoveryURL', 'placeholder': 'http://hailataxii.com/taxii-discovery-service'}))
+    url = forms.URLField(label='Discovery URL', max_length='255', widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'discoveryURL', 'name': 'discoveryURL'}))
 
 
 class PollForm(forms.Form):

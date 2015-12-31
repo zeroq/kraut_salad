@@ -21,6 +21,15 @@
         <label for="discoveryURL">{{ form.url.label }}</label>
         {{ form.url }}
     </div>
+    <div class="form-group">
+        <label for="thelist">Or select stored server</label>
+        <select name="thelist" onChange="combo(this, 'discoveryURL')" onMouseOut="comboInit(this, 'discoveryURL')" class="form-control">
+            {% for server in servers %}
+            <option value="{{server.protocol}}://{{server.host}}:{{server.port}}{{server.path}}">{{ server.name }} ({{server.protocol}}://{{server.host}}:{{server.port}}{{server.path}})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <br/>
     <button type="submit" class="btn btn-primary">Discover</button>
 </form>
 <br/>
@@ -63,7 +72,6 @@ function list_feeds_post() {
             'csrfmiddlewaretoken': '{{csrf_token}}',
         },
         success : function(json) {
-            //$('#discoveryURL').val('');
             var dataTable = $('#feed_table').dataTable();
             dataTable.fnClearTable(this);
             dataTable.fnAddData(json.results);
@@ -131,6 +139,25 @@ $(document).ready( function () {
             ],
         });
     });
+
+
+function comboInit(thelist)
+{
+  theinput = document.getElementById('discoveryURL');  
+  var idx = thelist.selectedIndex;
+  var content = thelist.options[idx].value;
+  if(theinput.value == "")
+    theinput.value = content;   
+}
+
+function combo(thelist, theinput)
+{
+  theinput = document.getElementById('discoveryURL');  
+  var idx = thelist.selectedIndex;
+  //var content = thelist.options[idx].innerHTML;
+  var content = thelist.options[idx].value;
+  theinput.value = content; 
+}
 
 </script>
 {% endblock %}

@@ -18,6 +18,7 @@ def home(request):
     context = {}
     form = DiscoveryForm()
     context['form'] = form
+    context['servers'] = TAXII_Remote_Server.objects.all()
     return render_to_response('kraut_sharing/index.html', context, context_instance=RequestContext(request))
 
 def manage_servers(request):
