@@ -1901,7 +1901,6 @@ def taxii_feed_information(request, format=None):
     if discovery_form.is_valid():
         discovery_url = discovery_form.cleaned_data['url']
         script = CollectionRequest(discovery_url)
-        #script = CollectionRequest('http://hailataxii.com/taxii-discovery-service/')
         result = script.run()
         response = {'results': []}
         for item in  result['collection_informations']:

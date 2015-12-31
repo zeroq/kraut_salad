@@ -4,6 +4,19 @@ from django.db import models
 
 # Create your models here.
 
+class TAXII_Remote_Collection(models.Model):
+    creation_time = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=255, help_text="""name of the collection""", unique=True)
+    begin_timestamp = models.DateTimeField(blank=True, null=True)
+    end_timestamp = models.DateTimeField(blank=True, null=True)
+    server = models.ForeignKey("TAXII_Remote_Server")
+    subscribed = models.BooleanField(default=False)
+    collection_type = models.CharField(max_length=255, default="DATA-FEED")
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
 class TAXII_Remote_Server(models.Model):
     creation_time = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255, help_text="""Name/Identifier""")
@@ -16,5 +29,11 @@ class TAXII_Remote_Server(models.Model):
     last_discovery = models.DateTimeField(blank=True, null=True)
     # TODO: fields for authentication (foreign key)
 
+    def get_url(self):
+        return "%s://%s:%i%s" % (self.protocol, self.host, self.port, self.path)
+
     def __unicode__(self):
-        return "%s (%s://%s:%i%s)" % (self.name, self.protocol, self.host, self.port, self.path)
+        return u"%s (%s://%s:%i%s)" % (self.name, self.protocol, self.host, self.port, self.path)
+
+    class Meta:
+        unique_together = (("name", "host", "port", "protocol", "path"),)

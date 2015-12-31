@@ -10,6 +10,7 @@ from django.contrib import messages
 
 from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm
 from kraut_sharing.models import TAXII_Remote_Server
+from kraut_sharing.tasks import refresh_collection_task
 
 # Create your views here.
 
@@ -55,6 +56,12 @@ def delete_server(request, server_id):
     # TODO: check for associated collections and subscriptions
     server.delete()
     messages.info(request, 'The TAXII server was deleted successfully!')
+    return HttpResponseRedirect(reverse("sharing:servers"))
+
+def refresh_collection(request, server_id):
+    """ refresh list of collections for given server """
+    refresh_collection_task(server_id)
+    messages.info(request, 'Collection list updated successfully')
     return HttpResponseRedirect(reverse("sharing:servers"))
 
 def poll(request):

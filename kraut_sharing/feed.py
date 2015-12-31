@@ -38,9 +38,10 @@ class CollectionRequest:
 
 
 def main():
-    """Send a Feed Information Request to a Taxii 1.0 Service"""
+    """ Send a Feed Information Request to a Taxii 1.1 Server """
     script = CollectionRequest(url='http://hailataxii.com/taxii-discovery-service/')
-    script.run()
+    res = script.run()
+    print res
 
 if __name__ == "__main__":
     main()
