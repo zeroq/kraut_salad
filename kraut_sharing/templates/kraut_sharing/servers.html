@@ -112,7 +112,7 @@
         e.preventDefault();
         var title = $(this).attr('data-display');
         var location = $(this).attr('data-href');
-        bootbox.confirm('Are you sure?<br/>(Delete: '+title+')', function(confirmed) {
+        bootbox.confirm('Are you sure?<br/>(Delete: '+title+')<br/>This will also delete all associated collections.', function(confirmed) {
             if(confirmed)
             {
                 window.location.replace(location);

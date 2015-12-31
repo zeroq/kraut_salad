@@ -53,10 +53,23 @@ def delete_server(request, server_id):
     except TAXII_Remote_Server.DoesNotExist:
         messages.error(request, 'The requested TAXII server does not exist!')
         return HttpResponseRedirect(reverse("sharing:servers"))
-    # TODO: check for associated collections and subscriptions
+    # check for associated collections and delete them as well
+    try:
+        collections = TAXII_Remote_Collection.objects.filter(server=server)
+    except Exception as e:
+        print e
+        collections = []
+    for collection in collections:
+        collection.delete()
+    # finally delete server
     server.delete()
     messages.info(request, 'The TAXII server was deleted successfully!')
     return HttpResponseRedirect(reverse("sharing:servers"))
+
+def list_collections(request):
+    """ list all collections """
+    context = {}
+    return render_to_response('kraut_sharing/collections.html', context, context_instance=RequestContext(request))
 
 def refresh_collection(request, server_id):
     """ refresh list of collections for given server """

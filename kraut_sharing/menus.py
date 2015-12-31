@@ -9,6 +9,11 @@ sharing_children = (
             weight=10,
             image="images/Taxii.svg"
         ),
+    MenuItem("Manage Collections",
+            reverse("sharing:collections"),
+            weight=15,
+            image="images/Taxii.svg"
+        ),
     MenuItem("Discover Taxii Feeds",
             reverse("sharing:home"),
             weight=20,
