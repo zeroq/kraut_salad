@@ -9,13 +9,13 @@ from django.template import RequestContext
 from django.contrib import messages
 
 from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm
-from kraut_sharing.models import TAXII_Remote_Server
-from kraut_sharing.tasks import refresh_collection_task
+from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
+from kraut_sharing.tasks import refresh_collection_task, poll_collection
 
 # Create your views here.
 
 def home(request):
-    """ discovery feeds available at a TAXII server """
+    """ discovery collections available at a TAXII server """
     context = {}
     form = DiscoveryForm()
     context['form'] = form
@@ -77,8 +77,19 @@ def refresh_collection(request, server_id):
     messages.info(request, 'Collection list updated successfully')
     return HttpResponseRedirect(reverse("sharing:servers"))
 
+def poll_now(request, collection_id):
+    """ poll given collection """
+    try:
+        collection = TAXII_Remote_Collection.objects.get(id=collection_id)
+    except TAXII_Remote_Collection.DoesNotExist:
+        messages.error(request, "provided collection does not exist!")
+        return HttpResponseRedirect(reverse("sharing:collections"))
+    poll_collection.delay(collection)
+    messages.info(request, "polling information from: %s ..." % (collection.name))
+    return HttpResponseRedirect(reverse("sharing:collections"))
+
 def poll(request):
-    """ poll feed information """
+    """ poll collection information """
     context = {}
     # set begin time by default to 24 hours ago
     begin_time = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = 24)

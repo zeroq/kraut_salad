@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
+from django.conf import settings
 import dateutil
 import libtaxii as t
 import libtaxii.clients as tc
-from libtaxii.common import generate_message_id
-from libtaxii.messages_11 import CollectionInformationRequest, PollRequest
+from libtaxii.common import generate_message_id, gen_filename
+from libtaxii.messages_11 import CollectionInformationRequest, PollRequest, MSG_POLL_RESPONSE
 from libtaxii.constants import *
 from dateutil.tz import tzutc
-
 from urlparse import urlparse
+import os, datetime
 
 class CollectionRequest:
 
@@ -18,6 +19,7 @@ class CollectionRequest:
 
     def run(self):
         client = tc.HttpClient()
+        # TODO: handle authentication stuff
         #client.set_auth_type(tc.AUTH_NONE)
         client.set_use_https(False)
 
@@ -52,10 +54,34 @@ class CollectionPoll:
         self.taxii_version = taxii_version
 
     def handle_response(self, response):
-        """ default response handler. just prints the response """
-        print "Response:\n"
-        print response.to_xml(pretty_print=True)
-        # TODO: handle More=True in response
+        """ store response in import directory """
+        if response.message_type == MSG_POLL_RESPONSE:
+            if response.more:
+                # TODO: handle More=True in response
+                print "TODO: handle More=True!!!"
+            self.write_response_to_import(response, settings.MY_IMPORT_DIRECTORY)
+
+    def write_response_to_import(self, response, dest_dir):
+        """ write response to disc """
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+
+        for cb in response.content_blocks:
+            if cb.content_binding.binding_id == CB_STIX_XML_10: sformat = '_STIX10_'
+            elif cb.content_binding.binding_id == CB_STIX_XML_101: sformat = '_STIX101_'
+            elif cb.content_binding.binding_id == CB_STIX_XML_11: sformat = '_STIX11_'
+            elif cb.content_binding.binding_id == CB_STIX_XML_111: sformat = '_STIX111_'
+            else: sformat = ''
+            ext = '.xml'
+
+            date_string = 's' + datetime.datetime.now().isoformat()
+            if cb.timestamp_label: date_string = 't' + cb.timestamp_label.isoformat()
+
+            filename = gen_filename(response.collection_name, sformat, date_string, ext)
+            filename = os.path.join(dest_dir, filename)
+            with open(filename, 'w') as f:
+                f.write(cb.content)
+        return True
 
     def create_client(self):
         """ create client for connection """

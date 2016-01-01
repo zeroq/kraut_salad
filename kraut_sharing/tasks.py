@@ -1,11 +1,22 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from kraut_sharing.models import TAXII_Remote_Collection, TAXII_Remote_Server
-from kraut_sharing.feed import CollectionRequest
+from kraut_sharing.feed import CollectionRequest, CollectionPoll
 
 from celery import Celery
+import datetime, pytz
 
 app = Celery(broker='amqp://')
+
+
+@app.task(ignore_result=True)
+def poll_collection(collection):
+    server_url = collection.server.get_url()
+    begin_ts = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = 48)
+    script = CollectionPoll(url=server_url, collection_name=collection.name, begin_timestamp=begin_ts.strftime('%Y-%m-%dT%H:%M:%S.%f%z'))
+    script.run()
+    return True
+
 
 @app.task(ignore_result=True)
 def refresh_collection_task(server_id):
