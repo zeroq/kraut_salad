@@ -13,6 +13,8 @@ app = Celery(broker='amqp://')
 def poll_collection(collection):
     server_url = collection.server.get_url()
     begin_ts = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = 48)
+    collection.begin_timestamp = begin_ts
+    collection.save()
     script = CollectionPoll(url=server_url, collection_name=collection.name, begin_timestamp=begin_ts.strftime('%Y-%m-%dT%H:%M:%S.%f%z'))
     script.run()
     return True
