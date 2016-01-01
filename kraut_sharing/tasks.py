@@ -1,5 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
+from django.core.management import call_command
+
 from kraut_sharing.models import TAXII_Remote_Collection, TAXII_Remote_Server
 from kraut_sharing.feed import CollectionRequest, CollectionPoll
 
@@ -15,8 +17,12 @@ def poll_collection(collection):
     begin_ts = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = 48)
     collection.begin_timestamp = begin_ts
     collection.save()
+    # store information in import directory
     script = CollectionPoll(url=server_url, collection_name=collection.name, begin_timestamp=begin_ts.strftime('%Y-%m-%dT%H:%M:%S.%f%z'))
     script.run()
+    # run load_stix command on imported data
+    with open('/tmp/last_import_command', 'w') as f:
+        call_command('load_stix', 'imports/', stdout=f)
     return True
 
 
