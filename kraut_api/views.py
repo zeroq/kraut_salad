@@ -1365,7 +1365,8 @@ def observable_list(request, format=None):
             queryset = queryset.filter(
                 Q(name__istartswith=search_value)|
                 Q(observable_type__istartswith=search_value)|
-                Q(namespace__namespace__istartswith=search_value)
+                Q(namespace__namespace__istartswith=search_value)|
+                Q(observable_id__icontains=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:
@@ -1580,7 +1581,7 @@ def object_ip_list(request, format=None):
             order_direction = '-'
             search_value = None
         # construct queryset
-        queryset = Address_Object.objects.filter(Q(category='ipv4-addr')).order_by('-observables__last_modified')
+        queryset = Address_Object.objects.filter(Q(category='ipv4-addr')|Q(category='ipv4-net')).order_by('-observables__last_modified')
         if search_value:
             queryset = queryset.filter(
                 Q(address_value__icontains=search_value)|
