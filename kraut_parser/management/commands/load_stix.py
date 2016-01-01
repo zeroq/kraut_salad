@@ -1,8 +1,9 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
-import sys, json, re, pytz
+import sys, json, re, pytz, os, time, shutil
 from dateutil.parser import parse as date_parser
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 from stix.utils.parser import EntityParser
 # import database models
 from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidence, ThreatActor, TA_Alias, TA_Roles, TA_Types, Package, Package_Intent, Package_Reference, ObservableComposition
@@ -1168,12 +1169,32 @@ class Command(BaseCommand):
                 return []
         return result_list
 
+    def check_file_or_directory(self, arglist):
+        """check if arguemnt list contains directories and get files
+        returns: list of files
+        """
+        file_list = []
+        for item in arglist:
+            if os.path.isfile(item):
+                file_list.append(item)
+            if os.path.isdir(item):
+                for fn in os.listdir(item):
+                    file_list.append(os.path.join(item, fn))
+        return file_list
+
     def handle(self, *args, **options):
         """iterate over files in given xml path or direct file and extract stix information
         returns: nothing
         """
+        if not os.path.exists(settings.MY_BACKUP_DIRECTORY):
+            os.makedirs(settings.MY_BACKUP_DIRECTORY)
+        # create daily subdirectory
+        backup_dir = os.path.join(settings.MY_BACKUP_DIRECTORY, time.strftime('%Y-%m-%d'))
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
         parser = EntityParser()
-        for xml in args:
+        file_list = self.check_file_or_directory(args)
+        for xml in file_list:
             result_list = self.iterate_xml(xml, parser)
             #for stix_json_index in xrange(0, len(result_list)):
             for stix_json_index in xrange(len(result_list) - 1, -1, -1):
@@ -1436,6 +1457,11 @@ class Command(BaseCommand):
                                     continue
                 # free stix json
                 del result_list[stix_json_index]
+                # move file to backup location
+                try:
+                    shutil.move(xml, backup_dir)
+                except Exception as e:
+                    print("failed moving file to backup directory: %s" % (e))
         self.stdout.write('------')
         # print all missing object references
         for item in self.missing_references:
