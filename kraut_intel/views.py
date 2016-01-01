@@ -162,6 +162,8 @@ def package(request, package_id="1"):
             context['tab'] = 'campaigns'
         elif context['num_indicators'] > 0:
             context['tab'] = 'indicators'
+        elif context['num_ttps'] > 0:
+            context['tab'] = 'ttps'
         else:
             context['tab'] = 'observables'
         context['quick_pane'] = {}
