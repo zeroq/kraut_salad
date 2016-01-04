@@ -3,7 +3,7 @@
 from django import forms
 from django.forms import ModelForm, widgets
 
-from kraut_sharing.models import TAXII_Remote_Server
+from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 
 forms.DateInput.input_type="datetime"
 
@@ -37,3 +37,12 @@ class AddServerForm(ModelForm):
             'protocol': widgets.TextInput(attrs={'id': 'post_server_protocol', 'class': 'form-control', 'placeholder': '', 'readonly': True, 'required': True}),
         }
 
+class AddCollectionForm(ModelForm):
+    class Meta:
+        model = TAXII_Remote_Collection
+        fields = ['name', 'begin_timestamp', 'poll_period']
+        widgets = {
+            'name': widgets.TextInput(attrs={'id': 'post_collection_name', 'class': 'form-control', 'placeholder': ''}),
+            'begin_timestamp': widgets.DateTimeInput(attrs={'id': 'post_begin_time', 'class': 'form-control', 'placeholder': ''}),
+            'period': widgets.NumberInput(attrs={'id': 'post_poll_period', 'class': 'form-control', 'placeholder': ''}),
+        }

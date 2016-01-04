@@ -115,6 +115,7 @@ MENU_SELECT_PARENTS = True
 MY_NAMESPACE = {'http://pi-one.net': 'pi-one'}
 
 CELERY_DISABLE_RATE_LIMITS = True
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 
 MY_IMPORT_DIRECTORY = os.path.join(BASE_DIR, 'imports')
 MY_BACKUP_DIRECTORY = os.path.join(BASE_DIR, 'backups')
