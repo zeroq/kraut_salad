@@ -128,7 +128,7 @@
                 <th>Types</th>
             </thead>
             <tbody>
-            {% for name in mwi.malwareinstancetypes_set.all %}<tr><td>{{ name }}</td></tr>{% endfor %}
+            {% for mwi in mwi.malwareinstancetypes_set.all %}<tr><td>{{ mwi}}</td></tr>{% endfor %}
             </tbody>
         </table>
     </div>

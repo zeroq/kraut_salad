@@ -101,6 +101,9 @@ class MalwareInstanceTypes(models.Model):
     instance_ref = models.ForeignKey(MalwareInstance)
     _type = models.CharField(max_length=255)
 
+    def __unicode__(self):
+        return u"%s" % (self._type)
+
 class AttackPattern(models.Model):
     ttp_ref = models.ForeignKey(TTP)
     name = models.CharField(max_length=255)
