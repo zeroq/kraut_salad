@@ -14,7 +14,7 @@ django-simple-menu==1.0.9
 djangorestframework==3.0.4
 geoip2==2.1.0
 ghp-import==0.4.1
-gnureadline==6.3.3
+gnureadline>=6.3.3
 httplib2==0.9
 ipaddr==2.1.11
 ipython==3.1.0
