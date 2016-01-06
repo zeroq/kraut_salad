@@ -18,6 +18,8 @@ The API currently supports the following requests:
 * `GET /api/campaigns/<ID>/related`: List all related campaigns of a specific campaign
 * `GET /api/indicators`: List all indicators
 * `GET /api/indicators/<ID>`: List details of a specific indicator
+* `GET /api/indicators/<ID>/related/`: List all related indicators
+* `GET /api/indicators/<ID>/observables/`: List all embedded observables of an indicator
 * `GET /api/observables`: List all observables
 * `GET /api/observables/<ID>`: List details of a specific observable
 * `GET /api/observables/<ID>/related_objects`: List all related objects of a specific observable

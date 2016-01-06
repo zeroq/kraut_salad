@@ -8,7 +8,8 @@ The parsing component of Kraut Salad currently supports
 the cyber threat intelligence standards by Mitre called 
 [STIX](https://stix.mitre.org) and [CybOX](https://cybox.mitre.org).
 For future versions, we plan to extend the parser to 
-also read OpenIOC and other open source intelligence feeds.
+also read OpenIOC and other open source intelligence feeds
+in common formats, such as CSV.
 
 The basis of Kraut Salad is a PostgreSQL database that 
 holds tables for different kinds of threat intelligence
