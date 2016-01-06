@@ -1,3 +1,5 @@
+pip>=1.4
+setuptools>=0.8
 amqp==1.4.6
 anyjson==0.3.3
 argh==0.26.1
