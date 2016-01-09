@@ -44,5 +44,14 @@ class AddCollectionForm(ModelForm):
         widgets = {
             'name': widgets.TextInput(attrs={'id': 'post_collection_name', 'class': 'form-control', 'placeholder': ''}),
             'begin_timestamp': widgets.DateTimeInput(attrs={'id': 'post_begin_time', 'class': 'form-control', 'placeholder': ''}),
-            'period': widgets.NumberInput(attrs={'id': 'post_poll_period', 'class': 'form-control', 'placeholder': ''}),
+            'poll_period': widgets.NumberInput(attrs={'id': 'post_poll_period', 'class': 'form-control', 'placeholder': ''}),
+        }
+
+class EditCollectionForm(ModelForm):
+    class Meta:
+        model = TAXII_Remote_Collection
+        fields = ['name', 'poll_period']
+        widgets = {
+            'name': widgets.TextInput(attrs={'id': 'post_collection_name', 'class': 'form-control'}),
+            'poll_period': widgets.NumberInput(attrs={'id': 'post_poll_period', 'class': 'form-control'}),
         }

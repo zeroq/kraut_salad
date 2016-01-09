@@ -436,7 +436,7 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TAXII_Remote_Collection
-        fields = ('id', 'name', 'creation_time', 'last_modified', 'subscribed', 'collection_type', 'poll_period')
+        fields = ('id', 'name', 'creation_time', 'last_modified', 'subscribed', 'collection_type', 'poll_period', 'begin_timestamp')
 
     def get_last_modified(self, obj):
         #delta = datetime.datetime.now() - obj.last_modified.replace(tzinfo=None)

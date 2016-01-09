@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block sidebar %}
+{% spaceless %}
+<br/>
+<br/>
+<br/>
+{% endspaceless %}
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <div class="media">
@@ -12,6 +20,7 @@
     </div>
 </div>
 {% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% spaceless %}
 <br/>
 <table id="collection_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
     <thead>
@@ -31,6 +40,32 @@
         </tr>
     </tbody>
 </table>
+<div class="modal bs-example-modal-lg" id="editCollectionModal" tabindex="-1" role="dialog" aria-labelledby="editcollectionlabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="editcollectionlabel">Edit Collection</h4>
+            </div>
+            <form method="post" action="" id="post-collection">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }} {{ field }}
+                    </div>
+                    {% endfor %}
+                    <input type="hidden" name="oldid" id="post_collection_oldid" value="0">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endspaceless %}
 {% endblock%}
 
 {% block javascript %}
@@ -86,6 +121,10 @@
                             '<i class="fa fa-refresh"></i>' +
                             '</a> ';
                         return_text = return_text +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="Edit" onclick="showEdit(\''+full.name+'\', \''+full.poll_period+'\', \''+data+'\')">' +
+                            '<i class="fa fa-pencil-square-o"></i>' +
+                            '</a>';
+                        return_text = return_text +
                             '<a class="btn btn-small confirm" rel="tooltip" data-placement="right" data-original-title="Remove" data-href="'+delete_coll_url+'" data-display="'+full.name+'" href="#">' +
                             '<i class="fa fa-remove"></i>' +
                             '</a> ';
@@ -110,5 +149,11 @@
             }
         });
     });
+    function showEdit(name, period, id) {
+        $('#post_collection_name').val(name);
+        $('#post_poll_period').val(period);
+        $('#post_collection_oldid').val(id);
+        $('#editCollectionModal').modal('show');
+    }
 </script>
 {% endblock %}

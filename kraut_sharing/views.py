@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.contrib import messages
 
-from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm
+from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm, EditCollectionForm
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 from kraut_sharing.tasks import refresh_collection_task, poll_collection
 
@@ -69,6 +69,28 @@ def delete_server(request, server_id):
 def list_collections(request):
     """ list all collections """
     context = {}
+    if request.method == 'POST':
+        oldID = int(request.POST.get('oldid', 0))
+        if oldID > 0:
+            try:
+                collection = TAXII_Remote_Collection.objects.get(id=oldID)
+            except TAXII_Remote_Collection.DoesNotExist:
+                messages.error(request, "provided collection does not exist!")
+                return HttpResponseRedirect(reverse("sharing:collections"))
+            collectionForm = EditCollectionForm(request.POST, instance=collection)
+            if collectionForm.is_valid():
+                collectionForm.save()
+                messages.info(request, 'Successfully updated collection!')
+            else:
+                if collectionForm.errors:
+                    for field in collectionForm:
+                        for error in field.errors:
+                            messages.error(request, '%s: %s' % (field.name, error))
+        else:
+            messages.error(request, "wrong collection ID provided!")
+        return HttpResponseRedirect(reverse("sharing:collections"))
+    collectionForm = EditCollectionForm()
+    context['form'] = collectionForm
     return render_to_response('kraut_sharing/collections.html', context, context_instance=RequestContext(request))
 
 def refresh_collection(request, server_id):

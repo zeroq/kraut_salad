@@ -14,7 +14,7 @@ app = Celery(broker='amqp://')
 @app.task(ignore_result=True)
 def poll_collection(collection):
     server_url = collection.server.get_url()
-    begin_ts = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = 48)
+    begin_ts = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = collection.poll_period)
     collection.begin_timestamp = begin_ts
     collection.save()
     # store information in import directory
