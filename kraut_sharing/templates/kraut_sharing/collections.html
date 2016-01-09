@@ -67,6 +67,7 @@
                     'bSortable': false,
                     'aTargets': [ 5 ],
                     "mRender": function (data, type, full) {
+                        var delete_coll_url = "{% url 'sharing:delete_collection' collection_id=0 %}".replace(0, Number(data));
                         var poll_now_url = "{% url 'sharing:poll_now' collection_id=0 %}".replace(0, Number(data));
                         var return_text = '<div class="btn-group1">'
                         if (full.subscribed) {
@@ -84,6 +85,10 @@
                             '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="Poll Now" href="'+poll_now_url+'">' +
                             '<i class="fa fa-refresh"></i>' +
                             '</a> ';
+                        return_text = return_text +
+                            '<a class="btn btn-small confirm" rel="tooltip" data-placement="right" data-original-title="Remove" data-href="'+delete_coll_url+'" data-display="'+full.name+'" href="#">' +
+                            '<i class="fa fa-remove"></i>' +
+                            '</a> ';
                         return_text = return_text + '</div>';
                         return return_text;
                     },
@@ -92,6 +97,17 @@
                     }
                 }
             ],
+        });
+    });
+    $(document).on("click", ".confirm", function(e) {
+        e.preventDefault();
+        var title = $(this).attr('data-display');
+        var location = $(this).attr('data-href');
+        bootbox.confirm('Are you sure?<br/>(Delete: '+title+')', function(confirmed) {
+            if(confirmed)
+            {
+                window.location.replace(location);
+            }
         });
     });
 </script>

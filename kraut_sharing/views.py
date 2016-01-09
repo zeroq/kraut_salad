@@ -77,6 +77,19 @@ def refresh_collection(request, server_id):
     messages.info(request, 'Collection list updated successfully')
     return HttpResponseRedirect(reverse("sharing:servers"))
 
+def delete_collection(request, collection_id):
+    """ remove given collection from the database """
+    try:
+        collection = TAXII_Remote_Collection.objects.get(id=collection_id)
+    except TAXII_Remote_Collection.DoesNotExist:
+        messages.error(request, "provided collection does not exist!")
+        return HttpResponseRedirect(reverse("sharing:collections"))
+    # TODO: check for subscriptions or poll jobs (cron)
+    collname = collection.name
+    collection.delete()
+    messages.info(request, "collection %s successfully deleted." % (collname))
+    return HttpResponseRedirect(reverse("sharing:collections"))
+
 def poll_now(request, collection_id):
     """ poll given collection """
     try:
