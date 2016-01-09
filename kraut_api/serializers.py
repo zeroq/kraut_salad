@@ -432,9 +432,16 @@ class PaginatedServersSerializer(PaginationSerializer):
         object_serializer_class = ServersSerializer
 
 class CollectionSerializer(serializers.ModelSerializer):
+    last_modified = serializers.SerializerMethodField()
+
     class Meta:
         model = TAXII_Remote_Collection
         fields = ('id', 'name', 'creation_time', 'last_modified', 'subscribed', 'collection_type', 'poll_period')
+
+    def get_last_modified(self, obj):
+        #delta = datetime.datetime.now() - obj.last_modified.replace(tzinfo=None)
+        #return "%s days ago ..." % (delta.days)
+        return obj.last_modified.strftime("%Y-%m-%d")
 
 class PaginatedCollectionSerializer(PaginationSerializer):
     iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
