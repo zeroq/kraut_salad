@@ -51,7 +51,8 @@ INSTALLED_APPS = (
     'kraut_incident',
     'kraut_intel',
     'kraut_sharing',
-    'kraut_export'
+    'kraut_export',
+    'kraut_accounts'
 )
 
 MIDDLEWARE_CLASSES = (

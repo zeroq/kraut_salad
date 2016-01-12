@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from kraut_sharing.forms import DiscoveryForm, PollForm, AddServerForm, EditCollectionForm
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
@@ -14,6 +15,7 @@ from kraut_sharing.tasks import refresh_collection_task, poll_collection
 
 # Create your views here.
 
+@login_required
 def home(request):
     """ discovery collections available at a TAXII server """
     context = {}
@@ -22,6 +24,7 @@ def home(request):
     context['servers'] = TAXII_Remote_Server.objects.all()
     return render_to_response('kraut_sharing/index.html', context, context_instance=RequestContext(request))
 
+@login_required
 def manage_servers(request):
     """ manage taxii servers """
     context = {}
@@ -46,6 +49,7 @@ def manage_servers(request):
     context['form'] = serverForm
     return HttpResponseRedirect(reverse("sharing:servers"))
 
+@login_required
 def delete_server(request, server_id):
     """ delete TAXII server """
     try:
@@ -66,6 +70,7 @@ def delete_server(request, server_id):
     messages.info(request, 'The TAXII server was deleted successfully!')
     return HttpResponseRedirect(reverse("sharing:servers"))
 
+@login_required
 def list_collections(request):
     """ list all collections """
     context = {}
@@ -93,12 +98,14 @@ def list_collections(request):
     context['form'] = collectionForm
     return render_to_response('kraut_sharing/collections.html', context, context_instance=RequestContext(request))
 
+@login_required
 def refresh_collection(request, server_id):
     """ refresh list of collections for given server """
     refresh_collection_task(server_id)
     messages.info(request, 'Collection list updated successfully')
     return HttpResponseRedirect(reverse("sharing:servers"))
 
+@login_required
 def delete_collection(request, collection_id):
     """ remove given collection from the database """
     try:
@@ -112,6 +119,7 @@ def delete_collection(request, collection_id):
     messages.info(request, "collection %s successfully deleted." % (collname))
     return HttpResponseRedirect(reverse("sharing:collections"))
 
+@login_required
 def poll_now(request, collection_id):
     """ poll given collection """
     try:
@@ -123,6 +131,7 @@ def poll_now(request, collection_id):
     messages.info(request, "polling information from: %s ..." % (collection.name))
     return HttpResponseRedirect(reverse("sharing:collections"))
 
+@login_required
 def poll(request):
     """ poll collection information """
     context = {}

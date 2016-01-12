@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm
 from kraut_incident.models import Contact, Handler, Incident
@@ -14,14 +15,17 @@ from kraut_incident.utils import slicedict
 
 # Create your views here.
 
+@login_required
 def home(request):
     context = {}
     return render_to_response('kraut_incident/index.html', context, context_instance=RequestContext(request))
 
+@login_required
 def list_incidents(request):
     context = {}
     return render_to_response('kraut_incident/list.html', context, context_instance=RequestContext(request))
 
+@login_required
 def create_handler(request):
     """This function is called from within the incident creation dialog to instantly add a new incident handler
     """
@@ -37,6 +41,7 @@ def create_handler(request):
     else:
         return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}), content_type="application/json")
 
+@login_required
 def create_contact(request):
     """This function is called from within the incident creation dialog to instantly add a new contact
     """
@@ -52,6 +57,7 @@ def create_contact(request):
     else:
         return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}), content_type="application/json")
 
+@login_required
 def new_incident(request):
     context = {}
     if request.method == 'POST':

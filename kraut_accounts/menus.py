@@ -4,17 +4,16 @@ from django.core.urlresolvers import reverse
 from menu import Menu, MenuItem
 
 sharing_children = (
-    MenuItem("Manage Servers",
-            reverse("sharing:servers"),
+    MenuItem("Logout",
+            reverse("accounts:logout"),
             weight=10,
-            image="images/Taxii.svg"
+            image="images/Kraut.svg"
         ),
-    MenuItem("Manage Collections",
-            reverse("sharing:collections"),
-            weight=15,
-            image="images/Taxii.svg"
-        ),
-    ### Deprecated items - will be removed or changed in near future
+    #MenuItem("Manage Collections",
+    #        reverse("sharing:collections"),
+    #        weight=15,
+    #        image="images/Taxii.svg"
+    #    ),
     #MenuItem("Discover Taxii Feeds",
     #        reverse("sharing:home"),
     #        weight=20,
@@ -27,8 +26,8 @@ sharing_children = (
     #    ),
 )
 
-Menu.add_item("sharing", MenuItem("Sharing",
-    reverse("sharing:home"),
+Menu.add_item("accounts", MenuItem("Preferences",
+    reverse("accounts:login"),
     weight=10,
     children=sharing_children)
 )

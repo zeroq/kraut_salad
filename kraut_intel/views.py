@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.utils.html import strip_tags
+from django.contrib.auth.decorators import login_required
 
 from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias, TTP, MalwareInstance
 from kraut_parser.models import AttackPattern, Namespace
@@ -19,16 +20,19 @@ import datetime, uuid, argparse
 
 # Create your views here.
 
+@login_required
 def home(request):
     context = {}
     return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
 
+@login_required
 def packages(request):
     """ list all intelligence packages
     """
     context = {}
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
+@login_required
 def delete_package(request, package_id="1"):
     """ delete intelligence package with given ID
     """
@@ -55,6 +59,7 @@ def delete_package(request, package_id="1"):
     messages.info(request, 'The intelligence package was deleted successfully!')
     return HttpResponseRedirect(reverse('intel:packages'))
 
+@login_required
 def edit_create_package(request, package_id=None):
     """ create a new intel package or edit an existing one
     """
@@ -104,6 +109,7 @@ def edit_create_package(request, package_id=None):
         context['package'] = package
     return render_to_response('kraut_intel/edit_create_package.html', context, context_instance=RequestContext(request))
 
+@login_required
 def update_package_header(request, package_id="1"):
     """ update header information of given package
     """
@@ -130,6 +136,7 @@ def update_package_header(request, package_id="1"):
         package.save()
     return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
 
+@login_required
 def package(request, package_id="1"):
     """ details of a single intelligence package
     """
@@ -171,6 +178,7 @@ def package(request, package_id="1"):
             context['quick_pane'][obs_obj.observable_type] = True
     return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def package_graph(request, package_id="1"):
     """ show full tree graph for package
     """
@@ -183,10 +191,12 @@ def package_graph(request, package_id="1"):
     context['package'] = package
     return render_to_response('kraut_intel/package_full_tree.html', context, context_instance=RequestContext(request))
 
+@login_required
 def threatactors(request):
     context = {}
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
 
+@login_required
 def delete_threatactor(request, threat_actor_id="1"):
     try:
         ta = ThreatActor.objects.get(pk=int(threat_actor_id))
@@ -199,6 +209,7 @@ def delete_threatactor(request, threat_actor_id="1"):
     messages.info(request, 'The threat actor was deleted successfully!')
     return HttpResponseRedirect(reverse('intel:threatactors'))
 
+@login_required
 def threatactor(request, threat_actor_id="1"):
     context = {'ta_id': threat_actor_id, 'ta': None}
     try:
@@ -243,10 +254,12 @@ def threatactor(request, threat_actor_id="1"):
         context['num_ttps'] = ta[0].observed_ttps.count()
     return render_to_response('kraut_intel/threatactor_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def campaigns(request):
     context = {}
     return render_to_response('kraut_intel/campaigns.html', context, context_instance=RequestContext(request))
 
+@login_required
 def campaign(request, campaign_id="1"):
     context = {'campaign_id': campaign_id, 'campaign': None}
     try:
@@ -286,10 +299,12 @@ def campaign(request, campaign_id="1"):
             context['confidence_color'] = 'danger'
     return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def ttps(request):
     context = {}
     return render_to_response('kraut_intel/ttps.html', context, context_instance=RequestContext(request))
 
+@login_required
 def ttp(request, ttp_id="1"):
     context = {'ttp_id': ttp_id, 'ttp': None}
     try:
@@ -313,10 +328,12 @@ def ttp(request, ttp_id="1"):
             context['tab'] = 'attack_patterns'
     return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def indicators(request):
     context = {}
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
 
+@login_required
 def indicator(request, indicator_id="1"):
     """ details of a single indicator
     """
@@ -360,10 +377,12 @@ def indicator(request, indicator_id="1"):
             context['composition_id'] = None
     return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def observables(request):
     context = {}
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
 
+@login_required
 def update_observable_header(request, observable_id="1"):
     """ update observable header information
     """
@@ -387,6 +406,7 @@ def update_observable_header(request, observable_id="1"):
         observable.save()
     return HttpResponseRedirect(reverse("intel:observable", kwargs={'observable_id': observable_id}))
 
+@login_required
 def observable(request, observable_id="1"):
     """ details of a single observable
     """
@@ -442,6 +462,7 @@ def observable(request, observable_id="1"):
                 context['composition_id'] = composition.id
     return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def malware_instance(request, mwi_id="1"):
     """ details of a single malware instance
     """
@@ -456,6 +477,7 @@ def malware_instance(request, mwi_id="1"):
     context['description'] = ' '.join(strip_tags(mwi.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def attack_pattern(request, ap_id="1"):
     """ details of a single attack pattern
     """

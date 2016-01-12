@@ -1,6 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.http import HttpResponse, HttpResponseNotFound
+from django.contrib.auth.decorators import login_required
 
 from kraut_parser.models import Observable
 from kraut_parser.utils import get_object_for_observable
@@ -9,6 +10,7 @@ from kraut_export.utils import cybox_file, cybox_address, cybox_uri, cybox_http,
 
 # Create your views here.
 
+@login_required
 def cybox_observable(request, pk):
     try:
         observable = Observable.objects.get(pk=pk)

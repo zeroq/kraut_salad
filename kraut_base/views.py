@@ -2,11 +2,13 @@
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.contrib.auth.decorators import login_required
 
 from kraut_parser.models import Package, ThreatActor, Campaign, Indicator, Observable, TTP
 
 # Create your views here.
 
+@login_required
 def home(request):
     context = {'indicators': 0, 'observables': 0, 'campaigns': 0, 'threatactors': 0, 'packages': 0}
     context['packages'] = Package.objects.count()
