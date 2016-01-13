@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.contrib import messages
 
+from kraut_accounts.models import UserExtension
+
 # Create your views here.
 
 def accounts_login(request):
@@ -16,6 +18,8 @@ def accounts_login(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
+                if not hasattr(user, 'userextension'):
+                    UserExtension.objects.create(user=user)
                 login(request, user)
                 return HttpResponseRedirect(request.POST.get('next',reverse('home')))
             else:
