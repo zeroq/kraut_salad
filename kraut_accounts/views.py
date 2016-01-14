@@ -12,6 +12,8 @@ from kraut_accounts.models import UserExtension
 def accounts_login(request):
     """ log a user in """
     context = {}
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse("home"))
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
