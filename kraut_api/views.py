@@ -5,8 +5,10 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance
 from kraut_parser.models import Address_Object, URI_Object
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer
@@ -27,6 +29,8 @@ import json, csv
 
 ################### PACKAGE #####################
 
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_tree(request, pk):
     try:
         pack = Package.objects.get(pk=pk)
@@ -92,6 +96,8 @@ def package_tree(request, pk):
     response['links'] = links
     return JsonResponse(response)
 
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_quick(request, pk, otype, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -124,6 +130,8 @@ def package_quick(request, pk, otype, format=None):
     return JsonResponse(response)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -176,6 +184,8 @@ def package_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_detail(request, pk, format=None):
     try:
         pack = Package.objects.get(pk=pk)
@@ -187,6 +197,8 @@ def package_detail(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_detail_observables(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -239,6 +251,8 @@ def package_detail_observables(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_detail_indicators(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -292,6 +306,8 @@ def package_detail_indicators(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_detail_campaigns(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -345,6 +361,8 @@ def package_detail_campaigns(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_detail_ttps(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -397,6 +415,8 @@ def package_detail_ttps(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def package_detail_threatactors(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -453,6 +473,8 @@ def package_detail_threatactors(request, pk, format=None):
 ################### THREAT ACTOR #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def threatactor_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -505,6 +527,8 @@ def threatactor_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def threatactor_detail(request, pk, format=None):
     try:
         ta = ThreatActor.objects.get(pk=pk)
@@ -516,6 +540,8 @@ def threatactor_detail(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def threatactor_detail_campaigns(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -569,6 +595,8 @@ def threatactor_detail_campaigns(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def threatactor_detail_associated_threatactors(request, pk, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -582,6 +610,8 @@ def threatactor_detail_associated_threatactors(request, pk, format=None):
     return JsonResponse(response)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def threatactor_detail_related_packages(request, pk, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -609,6 +639,8 @@ def threatactor_detail_related_packages(request, pk, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def threatactor_detail_observed_ttps(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -664,6 +696,8 @@ def threatactor_detail_observed_ttps(request, pk, format=None):
 ################### TTPS #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def ttp_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -714,6 +748,8 @@ def ttp_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def ttp_related_ttps(request, pk, format=None):
     try:
         ttp = TTP.objects.get(pk=pk)
@@ -743,6 +779,8 @@ def ttp_related_ttps(request, pk, format=None):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def ttp_related_packages(request, pk, format=None):
     try:
         ttp = TTP.objects.get(pk=pk)
@@ -772,6 +810,8 @@ def ttp_related_packages(request, pk, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def ttp_malware_instances(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -824,6 +864,8 @@ def ttp_malware_instances(request, pk, format=None):
 ################### ATTACK PATTERN #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def ttp_attack_patterns(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -878,6 +920,8 @@ def ttp_attack_patterns(request, pk, format=None):
 ################### CAMPAIGN #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def campaign_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -928,6 +972,8 @@ def campaign_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def campaign_detail(request, pk, format=None):
     try:
         campaign = Campaign.objects.get(pk=pk)
@@ -939,6 +985,8 @@ def campaign_detail(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def campaign_detail_related_indicators(request, pk, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -952,6 +1000,8 @@ def campaign_detail_related_indicators(request, pk, format=None):
     return JsonResponse(response)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def campaign_detail_associated_campaigns(request, pk, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -965,6 +1015,8 @@ def campaign_detail_associated_campaigns(request, pk, format=None):
     return JsonResponse(response)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def campaign_detail_related_packages(request, pk, format=None):
     if not request.method == 'GET':
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -991,6 +1043,8 @@ def campaign_detail_related_packages(request, pk, format=None):
     return JsonResponse(response)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def campaign_detail_related_ttps(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1046,6 +1100,8 @@ def campaign_detail_related_ttps(request, pk, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def indicator_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1097,6 +1153,8 @@ def indicator_list(request, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def indicator_detail(request, pk, format=None):
     try:
         indicator = Indicator.objects.get(pk=pk)
@@ -1109,6 +1167,8 @@ def indicator_detail(request, pk, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def indicator_detail_related_indicators(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1161,6 +1221,8 @@ def indicator_detail_related_indicators(request, pk, format=None):
         return Response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def indicator_detail_observables(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1212,6 +1274,8 @@ def indicator_detail_observables(request, pk, format=None):
         return Response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def indicator_detail_compositions(request, pk, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1263,6 +1327,8 @@ def indicator_detail_compositions(request, pk, format=None):
         return Response(serializer.data)
 
 
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def create_composition_json(composition, created):
     result = {'name': composition.name, 'operator': composition.operator, 'compositions': [], 'observables': []}
     for obs in composition.observables.all():
@@ -1275,6 +1341,8 @@ def create_composition_json(composition, created):
     return result
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def composition_details(request, pk, format=None):
     try:
         composition = ObservableComposition.objects.get(pk=pk)
@@ -1292,6 +1360,8 @@ def composition_details(request, pk, format=None):
     #return HttpResponse(json.dumps(response, sort_keys=True, indent=4), content_type="application/json")
     return JsonResponse(response)
 
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def create_composition_json_d3(composition, created):
     result = {'name': composition.name+' -- Operator -- '+composition.operator, 'children': []}
     for obs in composition.observables.all():
@@ -1304,6 +1374,8 @@ def create_composition_json_d3(composition, created):
     return result
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def composition_details_d3(request, pk, format=None):
     try:
         composition = ObservableComposition.objects.get(pk=pk)
@@ -1326,6 +1398,8 @@ def composition_details_d3(request, pk, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def observable_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1380,6 +1454,8 @@ def observable_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def observable_detail(request, pk, format=None):
     try:
         observable = Observable.objects.get(pk=pk)
@@ -1391,6 +1467,8 @@ def observable_detail(request, pk, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def observable_related_objects(request, pk, format=None):
     try:
         observable = Observable.objects.get(pk=pk)
@@ -1421,6 +1499,8 @@ def observable_related_objects(request, pk, format=None):
         return JsonResponse(response)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def recurse_composition(item, test_list, done):
     for ind in item.indicator.all():
         ind_dict = {'id': ind.id, 'name': ind.name}
@@ -1438,6 +1518,8 @@ def recurse_composition(item, test_list, done):
     return test_list
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def observable_related_indicators(request, pk, format=None):
     try:
         observable = Observable.objects.get(pk=pk)
@@ -1463,6 +1545,8 @@ def observable_related_indicators(request, pk, format=None):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def observable_related_packages(request, pk, format=None):
     try:
         observable = Observable.objects.get(pk=pk)
@@ -1504,6 +1588,8 @@ def observable_related_packages(request, pk, format=None):
 ################### OBJECTS #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def object_get_observables(request, object_id, object_type):
     """Return a list of observables that contain the given object
     """
@@ -1525,6 +1611,8 @@ def object_get_observables(request, object_id, object_type):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def object_get_packages(request, object_id, object_type):
     """Return a list of intelligence packages that contain the given object
     """
@@ -1549,6 +1637,8 @@ def object_get_packages(request, object_id, object_type):
     return JsonResponse(response)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def object_ip_list(request, format=None):
     """Return a list of IP addresses
     """
@@ -1599,6 +1689,8 @@ def object_ip_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def object_hash_list(request, format=None):
     """Return a list of file hashes
     """
@@ -1649,6 +1741,8 @@ def object_hash_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def object_domain_list(request, format=None):
     """Return a list of domains
     """
@@ -1702,6 +1796,8 @@ def object_domain_list(request, format=None):
 ################### INCIDENT HANDLER #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def handler_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1753,6 +1849,8 @@ def handler_list(request, format=None):
 ################### INCIDENT CONTACTS #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def contact_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1803,6 +1901,8 @@ def contact_list(request, format=None):
 ################### INCIDENTS #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def incident_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1855,6 +1955,8 @@ def incident_list(request, format=None):
 ################### SHARING #####################
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def taxii_server_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1896,6 +1998,8 @@ def taxii_server_list(request, format=None):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def taxii_collection_list(request, format=None):
     if request.method == 'GET':
         max_items = 10
@@ -1937,6 +2041,8 @@ def taxii_collection_list(request, format=None):
 
 
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def taxii_feed_information(request, format=None):
     if not request.method == 'POST':
         return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
