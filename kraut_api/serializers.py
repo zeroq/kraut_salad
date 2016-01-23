@@ -41,7 +41,7 @@ class PackSerializer(serializers.ModelSerializer):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
     def get_last_modified(self, obj):
-        return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
+        return obj.last_modified.strftime("%Y-%m-%d %H:%M:%S")
 
     def get_short_name(self, obj):
         if len(obj.name)>55:
