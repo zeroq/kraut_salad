@@ -9,6 +9,8 @@ from django.template import RequestContext
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+from kraut_intel.utils import get_icon_for_namespace
+
 from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm
 from kraut_incident.models import Contact, Handler, Incident
 from kraut_incident.utils import slicedict
@@ -104,4 +106,10 @@ def new_incident(request):
     context['formset'] = incident_form
     context['contact_form'] = contact_form
     context['handler_form'] = handler_form
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_incident/new.html', context, context_instance=RequestContext(request))
