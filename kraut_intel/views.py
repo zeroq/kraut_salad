@@ -71,6 +71,9 @@ def edit_create_package(request, package_id=None):
             if int(package_id) == 0:
                 messages.info(request, 'New Package Created!')
             else:
+                p = Package.objects.get(id=package_id)
+                package = PackageForm(request.POST, instance=p)
+                package.save()
                 messages.info(request, 'Package Updated! (%s)' % (package_id))
             return HttpResponseRedirect(reverse('intel:packages'))
         messages.error(request, 'Package not valid!')
