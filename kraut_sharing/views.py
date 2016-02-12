@@ -127,8 +127,11 @@ def poll_now(request, collection_id):
     except TAXII_Remote_Collection.DoesNotExist:
         messages.error(request, "provided collection does not exist!")
         return HttpResponseRedirect(reverse("sharing:collections"))
-    poll_collection.delay(collection)
-    messages.info(request, "polling information from: %s ..." % (collection.name))
+    try:
+        poll_collection.delay(collection)
+        messages.info(request, "polling information from: %s ..." % (collection.name))
+    except Exception as e:
+        messages.error(request, "failed polling collection, check if celery is running")
     return HttpResponseRedirect(reverse("sharing:collections"))
 
 @login_required
