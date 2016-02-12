@@ -184,7 +184,7 @@
             <a href="#">
             <img class="pull-right addimage" src="{% static 'images/Campaign.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Campaign" />
             </a>
-            <a href="#">
+            <a href="#" data-toggle="modal" data-target="#addTAModal">
             <img class="pull-right addimage" src="{% static 'images/Threat Actor.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Threat Actor" />
             </a>
             <div class="pull-right addimage">Modification Options</div>
@@ -317,11 +317,41 @@
         </table>
     </div>
   </div>
-  {% endspaceless %}
 </div>
 </div>
+</div>
+<!-- Modal to add an existing threat actor to the package -->
+<div class="modal bs-example-modal-lg" id="addTAModal" tabindex="-1" role="dialog" aria-labelledby="addTALabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addTALabel">Add Threat Actor</h4>
+            </div>
+                <div class="modal-body">
+                    <table id="ta_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+        </div>
+    </div>
 </div>
 
+
+{% endspaceless %}
 {% endif %}
 {% endblock%}
 
@@ -528,6 +558,33 @@ $(document).ready( function () {
                     }
                 },
                 {'data': 'short_description', 'sName': 'short_description', 'aTargets': [ 2 ]},
+            ],
+        });
+    });
+
+$(document).ready( function () {
+        var pTable = $('#ta_table').DataTable({
+            processing: true,
+            serverSide: true,
+            oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
+            order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/threatactors/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:add_ta_to_package' package_id=0 ta_id=1 %}".replace(1, Number(full.id)).replace(0, Number({{package_id}}));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                }
             ],
         });
     });

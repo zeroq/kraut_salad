@@ -33,6 +33,24 @@ def packages(request):
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
 @login_required
+def add_ta_to_package(request, package_id=0, ta_id=0):
+    """ add an existing threat actor to an existing intelligence package
+    """
+    try:
+        package = Package.objects.get(pk=int(package_id))
+    except Package.DoesNotExist:
+        messages.error(request, 'The requested package does not exist!')
+        return HttpResponseRedirect(reverse('intel:packages'))
+    try:
+        ta = ThreatActor.objects.get(pk=int(ta_id))
+    except ThreatActor.DoesNotExist:
+        messages.error(request, 'The requested threat actor does not exist!')
+        return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
+    package.threat_actors.add(ta)
+    package.save()
+    return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
+
+@login_required
 def delete_package(request, package_id="1"):
     """ delete intelligence package with given ID
     """
