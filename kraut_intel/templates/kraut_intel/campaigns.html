@@ -37,6 +37,7 @@
 {% endblock%}
 
 {% block javascript %}
+<script src="{% static 'js/bootbox.min.js' %}"></script>
 <script type="text/javascript" language="javascript" class="init">
     $(document).ready( function () {
         var pTable = $('#ca_table').DataTable({
@@ -75,6 +76,7 @@
                     'aTargets': [ 5 ],
                     "mRender": function (data, type, full) {
                         var view_url = "{% url 'intel:campaign' campaign_id=0 %}".replace(0, Number(data));
+                        var delete_url = "{% url 'intel:delete_campaign' campaign_id=0 %}".replace(0, Number(data));
                         return '<div class="btn-group1">' +
                             '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit">' +
                             '<i class="fa fa-edit"></i>' +
@@ -82,7 +84,7 @@
                             '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="'+view_url+'">' +
                             '<i class="fa fa-eye"></i>' +
                             '</a>' +
-                            '<a class="btn btn-small" rel="tooltip" data-placement="bottom" data-original-title="Remove">' +
+                            '<a class="btn btn-small confirm" rel="tooltip" data-placement="bottom" data-original-title="Remove" data-href="'+delete_url+'" data-display="'+full.name+'" href="#">' +
                             '<i class="fa fa-remove"></i>' +
                             '</a>' +
                             '</div>';
@@ -92,6 +94,17 @@
                     }
                 }
             ],
+        });
+    });
+    $(document).on("click", ".confirm", function(e) {
+        e.preventDefault();
+        var title = $(this).attr('data-display');
+        var location = $(this).attr('data-href');
+        bootbox.confirm('Are you sure?<br/>(Delete: '+title+')', function(confirmed) {
+            if(confirmed)
+            {
+                window.location.replace(location);
+            }
         });
     });
 </script>

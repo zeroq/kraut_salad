@@ -54,6 +54,7 @@ def delete_package(request, package_id="1"):
     ### iterate over threat actors
     for ta in package.threat_actors.all():
         ta.delete()
+    ### TODO: delete TTPs
     # delete package
     package.delete()
     messages.info(request, 'The intelligence package was deleted successfully!')
@@ -301,6 +302,21 @@ def campaign(request, campaign_id="1"):
         else:
             context['confidence_color'] = 'danger'
     return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+
+@login_required
+def delete_campaign(request, campaign_id):
+    """ delete campaign object and all associated objects
+    """
+    try:
+        campaign = Campaign.objects.get(pk=int(campaign_id))
+    except Campaign.DoesNotExist:
+        messages.error(request, "The requested campaign does not exist!")
+        return render_to_response('kraut_intel/campaigns.html', {}, context_instance=RequestContext(request))
+    ### TODO: delete associated objects
+    # delete campaign
+    campaign.delete()
+    messages.info(request, 'The campaign was deleted successfully!')
+    return HttpResponseRedirect(reverse('intel:campaigns'))
 
 @login_required
 def ttps(request):
