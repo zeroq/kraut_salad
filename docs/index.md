@@ -50,6 +50,14 @@ understanding and overview of an incident.
 
         python manage.py load_stix <path_to_stix_xml>
 
+* Start the RabbitMQ server for celery
+
+        sudo rabbitmq-server -detached
+
+* Start Celery in a separate terminal (debugging) from within the kraut_salad home directory
+
+        celery -A kraut_base worker -l info
+
 * Finally start the local server and browse to localhost:8000
 
         python manage.py runserver
