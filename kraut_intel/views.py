@@ -33,20 +33,27 @@ def packages(request):
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
 @login_required
-def add_ta_to_package(request, package_id=0, ta_id=0):
-    """ add an existing threat actor to an existing intelligence package
+def add_item_to_package(request, package_id, item_id, item_name):
+    """ add an existing item to an existing intelligence package
     """
+    if not item_name in ['threatactor', 'campaign']:
+        messages.error(request, 'Unsupported item type given!')
+        return HttpResponseRedirect(reverse('intel:packages'))
     try:
         package = Package.objects.get(pk=int(package_id))
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
         return HttpResponseRedirect(reverse('intel:packages'))
     try:
-        ta = ThreatActor.objects.get(pk=int(ta_id))
-    except ThreatActor.DoesNotExist:
-        messages.error(request, 'The requested threat actor does not exist!')
+        if item_name == 'threatactor':
+            item = ThreatActor.objects.get(pk=int(item_id))
+            package.threat_actors.add(item)
+        elif item_name == 'campaign':
+            item = Campaign.objects.get(pk=int(item_id))
+            package.campaigns.add(item)
+    except:
+        messages.error(request, 'The requested item does not exist! (%s)' % (item_id))
         return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
-    package.threat_actors.add(ta)
     package.save()
     return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
 
