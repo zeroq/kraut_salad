@@ -172,13 +172,13 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Intelligence Information
-            <a href="#">
+            <a href="#" data-toggle="modal" data-target="#addOBModal">
             <img class="pull-right addimage" src="{% static 'images/Observable.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Observable" />
             </a>
-            <a href="#">
+            <a href="#" data-toggle="modal" data-target="#addINModal">
             <img class="pull-right addimage" src="{% static 'images/Indicator.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add Indicator" />
             </a>
-            <a href="#">
+            <a href="#" data-toggle="modal" data-target="#addTTPModal">
             <img class="pull-right addimage" src="{% static 'images/TTP.svg' %}" height="32" data-toggle="tooltip" data-placement="top" data-original-title="Add TTP" />
             </a>
             <a href="#" data-toggle="modal" data-target="#addCAModal">
@@ -378,7 +378,93 @@
         </div>
     </div>
 </div>
-
+<!-- Modal to add an existing ttp to the package -->
+<div class="modal bs-example-modal-lg" id="addTTPModal" tabindex="-1" role="dialog" aria-labelledby="addTTPLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addTTPLabel">Add Tools, Tactics, and Procedures</h4>
+            </div>
+                <div class="modal-body">
+                    <table id="ttp_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+        </div>
+    </div>
+</div>
+<!-- Modal to add an existing indicator to the package -->
+<div class="modal bs-example-modal-lg" id="addINModal" tabindex="-1" role="dialog" aria-labelledby="addINLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addINLabel">Add Indicator</h4>
+            </div>
+                <div class="modal-body">
+                    <table id="indicator_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+        </div>
+    </div>
+</div>
+<!-- Modal to add an existing observable to the package -->
+<div class="modal bs-example-modal-lg" id="addOBModal" tabindex="-1" role="dialog" aria-labelledby="addOBLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addOBLabel">Add Observable</h4>
+            </div>
+                <div class="modal-body">
+                    <table id="observable_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+        </div>
+    </div>
+</div>
 {% endspaceless %}
 {% endif %}
 {% endblock%}
@@ -544,6 +630,63 @@ $(document).ready( function () {
                 'aTargets': [ 1 ],
                 'mRender': function (data, type, full) {
                     var view_url = "{% url 'intel:add_item_to_package' package_id=0 item_id=1 item_name='campaign' %}".replace(1, Number(full.id)).replace(0, Number({{package_id}}));
+                    return '<a href="'+view_url+'">'+data+'</a>';
+                }
+            }
+        ],
+    });
+});
+$(document).ready( function () {
+    var pTable = $('#ttp_table').DataTable({
+        processing: true, serverSide: true, order: [[ 0, "desc" ]], oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
+        ajax: {
+            processing: true, url: "/api/ttps/.json", dataSrc: "results", type: "GET", dataType: "json"
+        },
+        columns: [
+            {
+                'data': 'name', 
+                'sName': 'name', 
+                'aTargets': [ 1 ],
+                'mRender': function (data, type, full) {
+                    var view_url = "{% url 'intel:add_item_to_package' package_id=0 item_id=1 item_name='ttp' %}".replace(1, Number(full.id)).replace(0, Number({{package_id}}));
+                    return '<a href="'+view_url+'">'+data+'</a>';
+                }
+            }
+        ],
+    });
+});
+$(document).ready( function () {
+    var pTable = $('#indicator_table').DataTable({
+        processing: true, serverSide: true, order: [[ 0, "desc" ]], oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
+        ajax: {
+            processing: true, url: "/api/indicators/.json", dataSrc: "results", type: "GET", dataType: "json"
+        },
+        columns: [
+            {
+                'data': 'name', 
+                'sName': 'name', 
+                'aTargets': [ 1 ],
+                'mRender': function (data, type, full) {
+                    var view_url = "{% url 'intel:add_item_to_package' package_id=0 item_id=1 item_name='indicator' %}".replace(1, Number(full.id)).replace(0, Number({{package_id}}));
+                    return '<a href="'+view_url+'">'+data+'</a>';
+                }
+            }
+        ],
+    });
+});
+$(document).ready( function () {
+    var pTable = $('#observable_table').DataTable({
+        processing: true, serverSide: true, order: [[ 0, "desc" ]], oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
+        ajax: {
+            processing: true, url: "/api/observables/.json", dataSrc: "results", type: "GET", dataType: "json"
+        },
+        columns: [
+            {
+                'data': 'name', 
+                'sName': 'name', 
+                'aTargets': [ 1 ],
+                'mRender': function (data, type, full) {
+                    var view_url = "{% url 'intel:add_item_to_package' package_id=0 item_id=1 item_name='observable' %}".replace(1, Number(full.id)).replace(0, Number({{package_id}}));
                     return '<a href="'+view_url+'">'+data+'</a>';
                 }
             }

@@ -51,6 +51,15 @@ def add_item_to_package(request, package_id, item_id, item_name):
         elif item_name == 'campaign':
             item = Campaign.objects.get(pk=int(item_id))
             package.campaigns.add(item)
+        elif item_name == 'ttp':
+            item = TTP.objects.get(pk=int(item_id))
+            package.ttps.add(item)
+        elif item_name == 'indicator':
+            item = Indicator.objects.get(pk=int(item_id))
+            package.indicators.add(item)
+        elif item_name == 'observable':
+            item = Observable.objects.get(pk=int(item_id))
+            package.observables.add(item)
     except:
         messages.error(request, 'The requested item does not exist! (%s)' % (item_id))
         return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
