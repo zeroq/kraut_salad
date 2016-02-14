@@ -36,7 +36,7 @@ def packages(request):
 def add_item_to_package(request, package_id, item_id, item_name):
     """ add an existing item to an existing intelligence package
     """
-    if not item_name in ['threatactor', 'campaign']:
+    if not item_name in ['threatactor', 'campaign','ttp','indicator','observable']:
         messages.error(request, 'Unsupported item type given!')
         return HttpResponseRedirect(reverse('intel:packages'))
     try:
@@ -75,19 +75,20 @@ def delete_package(request, package_id="1"):
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
         return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+    ### TODO: request checkmark to be set to delete attached items too
     ### iterate over observables/objects and delete
-    for ob in package.observables.all():
-        ### TODO: check for unneeded objects
-        ob.delete()
+    #for ob in package.observables.all():
+    #    ### TODO: check for unneeded objects
+    #    ob.delete()
     ### iterate over indicators
-    for ic in package.indicators.all():
-        ic.delete()
+    #for ic in package.indicators.all():
+    #    ic.delete()
     ### iterate over campaigns
-    for ca in package.campaigns.all():
-        ca.delete()
+    #for ca in package.campaigns.all():
+    #    ca.delete()
     ### iterate over threat actors
-    for ta in package.threat_actors.all():
-        ta.delete()
+    #for ta in package.threat_actors.all():
+    #    ta.delete()
     ### TODO: delete TTPs
     # delete package
     package.delete()
@@ -104,6 +105,8 @@ def edit_create_package(request, package_id=None):
         if form.is_valid():
             ### TODO: make modifications or create new package
             if int(package_id) == 0:
+                package = PackageForm(request.POST)
+                package.save()
                 messages.info(request, 'New Package Created!')
             else:
                 p = Package.objects.get(id=package_id)
