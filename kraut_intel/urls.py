@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^package/(?P<package_id>\d+)/update/header$', views.update_package_header, name='update_package_header'),
     url(r'^package/(?P<package_id>\d+)/edit/$', views.edit_create_package, name='edit_create_package'),
     url(r'^package/(?P<package_id>\d+)/add/(?P<item_id>\d+)/(?P<item_name>\w+)/$', views.add_item_to_package, name='add_item_to_package'),
+    url(r'^package/(?P<package_id>\d+)/add/comment$', views.comment_package, name='comment_package'),
     # threat actors
     url(r'^threatactors/$', views.threatactors, name='threatactors'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/$', views.threatactor, name='threatactor'),

@@ -14,7 +14,8 @@ from kraut_parser.models import AttackPattern, Namespace
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.forms import PackageForm
+from kraut_intel.forms import PackageForm, PackageCommentForm
+from kraut_intel.models import PackageComment
 
 import datetime, uuid, argparse
 
@@ -103,8 +104,9 @@ def edit_create_package(request, package_id=None):
     if request.method == 'POST':
         form = PackageForm(request.POST)
         if form.is_valid():
-            ### TODO: make modifications or create new package
+            ### make modifications or create new package
             if int(package_id) == 0:
+                ### TODO: check that a namespace is set, empty namespace creates error
                 package = PackageForm(request.POST)
                 package.save()
                 messages.info(request, 'New Package Created!')
@@ -151,6 +153,32 @@ def edit_create_package(request, package_id=None):
     return render_to_response('kraut_intel/edit_create_package.html', context, context_instance=RequestContext(request))
 
 @login_required
+def comment_package(request, package_id="1"):
+    """ add a comment to an intelligence package
+    """
+    if request.method == "POST":
+        form = PackageCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                package = Package.objects.get(pk=int(package_id))
+            except Package.DoesNotExist:
+                messages.error(request, 'The requested package does not exist!')
+                return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+            data = {
+                'text': form.cleaned_data['text'],
+                'author': request.user,
+                'package_reference': package
+            }
+            new_comment = PackageComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
+
+@login_required
 def update_package_header(request, package_id="1"):
     """ update header information of given package
     """
@@ -195,6 +223,12 @@ def package(request, package_id="1"):
     if len(package)<=0:
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
+        try:
+            comments = PackageComment.objects.filter(package_reference=package[0]).order_by('-creation_time')
+        except:
+            comments = None
+        context['comments'] = comments
+        context['commentform'] = PackageCommentForm()
         context['package'] = package[0]
         context['description'] = ' '.join(package[0].description.strip().split())
         context['namespaces'] = Namespace.objects.all()

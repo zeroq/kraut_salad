@@ -108,7 +108,7 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ package.name }}<i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
+        <h3 class="panel-title">{{ package.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -164,6 +164,21 @@
                 <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
             </ul>
             </form>
+    </nav>
+  </div>
+</div>
+<div id="commentsidebar" class="navsidebar navsidebar-right">
+  <div id="commentsidebar-wrapper" class="commentsidebar-wrapper">
+    <header class="navsidebar-header"><i class="fa fa-comment-o"></i>&nbsp;Kraut Commentor</header>
+    <nav class="navsidebar-menu">
+        <form action="{% url 'intel:comment_package' package_id=package_id %}" method="POST">
+        {% csrf_token %}
+            <ul>
+                <li><div class="form-group"><label for="packageAuthor">Author:</label><div>{{ request.user  }}</div></div></li>
+                <li><div class="form-group"><label for="packageComment">Enter Comment:</label>{{ commentform.text }}</div></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Comment</button></li>
+            </ul>
+        </form>
     </nav>
   </div>
 </div>
@@ -315,11 +330,34 @@
                     </tr>
             </tbody>
         </table>
+    </div> <!-- END OBSERVABLE -->
+  </div> <!-- END TAB CONTENT -->
+</div>
+</div>
+</div>
+
+{% if comments %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-comment-o"></i>&nbsp;Comments</h3>
     </div>
-  </div>
+    <div class="panel-body">
+       <table id="campaigns_table" class="table table-condensed" style="font-size: 0.9em;">
+            <tbody>
+                {% for comment in comments %}
+                    <tr>
+                        <td>Author:</td><td>{{ comment.author }}</td><td>Created:</td><td>{{ comment.creation_time }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><pre class="pre-scrollable wrapdiv">{{ comment.text }}</pre></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-</div>
-</div>
+{% endif %}
+
 <!-- Modal to add an existing threat actor to the package -->
 <div class="modal bs-example-modal-lg" id="addTAModal" tabindex="-1" role="dialog" aria-labelledby="addTALabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -465,6 +503,7 @@
         </div>
     </div>
 </div>
+
 {% endspaceless %}
 {% endif %}
 {% endblock%}
@@ -1032,6 +1071,21 @@ $(document).ready(function() {
       align: 'right',
       width: 560,
       closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
+});
+
+$(document).ready(function() {
+  $('#commentsidebar').simplerSidebar({
+    opener: '#toggle-commentsidebar',
+    sidebar: {
+      align: 'right',
+      width: 560,
+      closingLinks: '.close-commentsidebar',
       top: 60,
       animation: {
         duration: 10,
