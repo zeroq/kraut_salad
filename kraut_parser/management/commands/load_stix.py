@@ -63,6 +63,7 @@ class Command(BaseCommand):
             'composite_2_observable': {},
             'ttp_2_ttp': {},
             'campaign_2_ttp': {},
+            'indicator_2_ttp': {},
         }
 
     def __check_version(self, version):
@@ -646,6 +647,26 @@ class Command(BaseCommand):
                 indicator_object.indicator_types.add(indicator_type_object)
                 indicator_object.save()
                 indicator.pop('composite_indicator_expression')
+            # check for indicated ttps
+            if 'indicated_ttps' in indicator:
+                for ittp_dict in indicator['indicated_ttps']:
+                    if 'ttp' in ittp_dict:
+                        ittp = ittp_dict['ttp']
+                        # check for referenced ttp or inline ttp
+                        if 'idref' in ittp:
+                            ttp_idref = ittp['idref']
+                            if ttp_idref in self.id_mapping['ttps']:
+                                ttp_object = TTP.objects.get(id=self.id_mapping['ttps'][ttp_idref])
+                                indicator_object.ttps.add(ttp_object)
+                            else:
+                                try:
+                                    self.missing_references['indicator_2_ttp'][indicator_id].append(ttp_idref)
+                                except:
+                                    self.missing_references['indicator_2_ttp'][indicator_id] = [ttp_idref]
+                        else:
+                            pass
+                indicator_object.save()
+                indicator.pop('indicated_ttps')
             # add missed elements
             for element in indicator.keys():
                 if element not in self.common_elements:
@@ -1451,6 +1472,31 @@ class Command(BaseCommand):
                                         except KeyError as e:
                                             continue
                                     actor_object.save()
+                                    if len(self.missing_references[item][object_id])<=0:
+                                        del self.missing_references[item][object_id]
+                                except KeyError as e:
+                                    continue
+                        if item == 'indicator_2_ttp':
+                            for object_id in self.missing_references[item].keys():
+                                try:
+                                    indicator_db_id = self.id_mapping['indicators'][object_id]
+                                    indicator_object = Indicator.objects.get(id=indicator_db_id)
+                                    for ttp_idref in list(self.missing_references[item][object_id]):
+                                        try:
+                                            ttp_db_id = self.id_mapping['ttps'][ttp_idref]
+                                            ttp_object = TTP.objects.get(id=ttp_db_id)
+                                            indicator_object.ttps.add(ttp_object)
+                                            indicator_object.save()
+                                            self.missing_references[item][object_id].remove(ttp_idref)
+                                        except KeyError as e:
+                                            try:
+                                                ttp_object = TTP.objects.get(ttp_id=ttp_idref)
+                                                indicator_object.ttps.add(ttp_object)
+                                                self.missing_references[item][object_id].remove(ttp_idref)
+                                            except TTP.DoesNotExist:
+                                                # TODO: create dummy ttp ?
+                                                continue
+                                    indicator_object.save()
                                     if len(self.missing_references[item][object_id])<=0:
                                         del self.missing_references[item][object_id]
                                 except KeyError as e:

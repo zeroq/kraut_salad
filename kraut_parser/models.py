@@ -222,6 +222,7 @@ class Indicator(models.Model):
     confidence = models.ManyToManyField(Confidence, blank=True)
     related_indicators = models.ManyToManyField('self', blank=True)
     indicator_composition_operator = models.CharField(max_length=3, default="OR")
+    ttps = models.ManyToManyField('TTP', blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)

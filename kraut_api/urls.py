@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^indicators/$', views.indicator_list),
     url(r'^indicators/(?P<pk>[0-9]+)/$', views.indicator_detail),
     url(r'^indicators/(?P<pk>[0-9]+)/related/$', views.indicator_detail_related_indicators),
+    url(r'^indicators/(?P<pk>[0-9]+)/ttps/$', views.indicator_detail_ttps),
     url(r'^indicators/(?P<pk>[0-9]+)/observables/$', views.indicator_detail_observables),
     url(r'^indicators/(?P<pk>[0-9]+)/compositions/$', views.indicator_detail_compositions),
     url(r'^observables/$', views.observable_list),
