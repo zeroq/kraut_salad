@@ -170,7 +170,7 @@ def package_list(request, format=None):
         queryset = Package.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -237,7 +237,7 @@ def package_detail_observables(request, pk, format=None):
         queryset = pack.observables.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(observable_type__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -291,7 +291,7 @@ def package_detail_indicators(request, pk, format=None):
         queryset = pack.indicators.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(indicator_types__itype__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
@@ -346,7 +346,7 @@ def package_detail_campaigns(request, pk, format=None):
         queryset = pack.campaigns.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(status__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
@@ -401,7 +401,7 @@ def package_detail_ttps(request, pk, format=None):
         queryset = pack.ttps.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -455,7 +455,7 @@ def package_detail_threatactors(request, pk, format=None):
         queryset = pack.threat_actors.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -513,7 +513,7 @@ def threatactor_list(request, format=None):
         queryset = ThreatActor.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -580,7 +580,7 @@ def threatactor_detail_campaigns(request, pk, format=None):
         queryset = ta.campaigns.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(status__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
@@ -679,7 +679,7 @@ def threatactor_detail_observed_ttps(request, pk, format=None):
         queryset = ta.observed_ttps.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -732,7 +732,7 @@ def ttp_list(request, format=None):
         queryset = TTP.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)|
                 Q(namespace__namespace__istartswith=search_value)|
                 Q(ttp_id__icontains=search_value)
@@ -847,7 +847,7 @@ def ttp_malware_instances(request, pk, format=None):
         queryset = ttp.malwareinstance_set.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(subname__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -901,7 +901,7 @@ def ttp_attack_patterns(request, pk, format=None):
         queryset = ttp.attackpattern_set.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(description__istartswith=search_value)|
                 Q(capec_id__icontains=search_value)
             )
@@ -958,7 +958,7 @@ def campaign_list(request, format=None):
         queryset = Campaign.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -1083,7 +1083,7 @@ def campaign_detail_related_ttps(request, pk, format=None):
         queryset = campaign.related_ttps.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -1138,7 +1138,7 @@ def indicator_list(request, format=None):
         queryset = Indicator.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -1207,7 +1207,7 @@ def indicator_detail_related_indicators(request, pk, format=None):
         queryset = indicator.related_indicators.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(indicator_types__itype__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
@@ -1261,7 +1261,7 @@ def indicator_detail_observables(request, pk, format=None):
         queryset = indicator.observable_set.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(observable_type__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -1314,7 +1314,7 @@ def indicator_detail_compositions(request, pk, format=None):
         queryset = indicator.observablecomposition_set.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(operator__istartswith=search_value)
             )
         paginator = Paginator(queryset, max_items)
@@ -1438,7 +1438,7 @@ def observable_list(request, format=None):
         queryset = Observable.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
-                Q(name__istartswith=search_value)|
+                Q(name__icontains=search_value)|
                 Q(observable_type__istartswith=search_value)|
                 Q(namespace__namespace__istartswith=search_value)|
                 Q(observable_id__icontains=search_value)
