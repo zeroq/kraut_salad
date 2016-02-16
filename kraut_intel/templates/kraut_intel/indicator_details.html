@@ -152,6 +152,14 @@ path.link {
         </a>
     </li>
     {% endif %}
+    {% if num_ttps > 0 %}
+    <li role="presentation" {% if tab == 'ttps' %}class="active"{% endif %}>
+        <a href="#ttps" aria-controls="ttps" role="tab" data-toggle="tab">
+            <img src="{% static 'images/TTP.svg' %}" height="32" />&nbsp;&nbsp;TTPs
+            <span class="badge">{{ num_ttps }}</span>
+        </a>
+    </li>
+    {% endif %}
   </ul>
   <!-- Tab panes -->
   <div class="tab-content">
@@ -190,6 +198,21 @@ path.link {
     <div role="tabpanel" class="tab-pane {% if tab == 'compositions' %}active{% endif %}" id="compositions">
         <div id="tree-container" class="panel-body">
         </div>
+    </div>
+    <!-- TTPS -->
+    <div role="tabpanel" class="tab-pane {% if tab == 'ttps' %}active{% endif %}" id="ttps">
+        <br/>
+        <table id="ttps_table" class="table table-condensed" style="font-size: 0.9em;">
+            <thead>
+                <tr><th>Name</th><th>Short Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
   </div>
 </div>
@@ -230,6 +253,31 @@ $(document).ready( function () {
 </script>
 
 <script type="text/javascript" language="javascript" class="init">
+$(document).ready( function () {
+        var pTable = $('#ttps_table').DataTable({
+            processing: true, serverSide: true, order: [[ 0, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/indicators/{{ indicator_id }}/ttps/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'name', 
+                    'sName': 'name', 
+                    'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:ttp' ttp_id=0 %}".replace(0, Number(full.id));
+                        return '<a href="'+view_url+'">'+data+'</a>';
+                    }
+                },
+                {'data': 'short_description', 'sName': 'short_description', 'aTargets': [ 2 ]},
+            ],
+        });
+    });
+
 $(document).ready( function () {
         var pTable = $('#indicators_table').DataTable({
             processing: true,

@@ -433,7 +433,8 @@ def indicator(request, indicator_id="1"):
             Prefetch('indicator_types'),
             Prefetch('confidence'),
             Prefetch('related_indicators'),
-            Prefetch('observablecomposition_set')
+            Prefetch('observablecomposition_set'),
+            Prefetch('ttps')
         )
     except Indicator.DoesNotExist:
         messages.error(request, "The requested indicator does not exist!")
@@ -443,6 +444,7 @@ def indicator(request, indicator_id="1"):
     else:
         context['indicator'] = indicator[0]
         context['namespace_icon'] = get_icon_for_namespace(indicator[0].namespace)
+        context['num_ttps'] = indicator[0].ttps.count()
         context['num_indicators'] = indicator[0].related_indicators.count()
         context['num_observables'] = indicator[0].observable_set.count()
         context['num_observable_compositions'] = indicator[0].observablecomposition_set.count()
@@ -452,6 +454,8 @@ def indicator(request, indicator_id="1"):
             context['tab'] = 'observables'
         elif context['num_observable_compositions'] > 0:
             context['tab'] = 'compositions'
+        elif context['num_ttps'] > 0:
+            context['tab'] = 'ttps'
         context['confidence'] = indicator[0].confidence.last().value
         if context['confidence'] == 'Low':
             context['confidence_color'] = 'success'
