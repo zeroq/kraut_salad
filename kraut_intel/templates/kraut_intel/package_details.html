@@ -175,7 +175,7 @@
         {% csrf_token %}
             <ul>
                 <li><div class="form-group"><label for="packageAuthor">Author:</label><div>{{ request.user  }}</div></div></li>
-                <li><div class="form-group"><label for="packageComment">Enter Comment:</label>{{ commentform.text }}</div></li>
+                <li><div class="form-group"><label for="packageComment">Enter Comment:</label>{{ commentform.ctext }}</div></li>
                 <li><button type="submit" class="btn btn-primary close-navsidebar">Comment</button></li>
             </ul>
         </form>
@@ -349,7 +349,7 @@
                         <td>Author:</td><td>{{ comment.author }}</td><td>Created:</td><td>{{ comment.creation_time }}</td>
                     </tr>
                     <tr>
-                        <td colspan="4"><pre class="pre-scrollable wrapdiv">{{ comment.text }}</pre></td>
+                        <td colspan="4"><pre class="pre-scrollable wrapdiv">{{ comment.ctext }}</pre></td>
                     </tr>
                 {% endfor %}
             </tbody>

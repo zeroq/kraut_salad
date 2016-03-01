@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^taxii/feed/information/$', views.taxii_feed_information),
     url(r'^taxii/servers/$', views.taxii_server_list),
     url(r'^taxii/collections/$', views.taxii_collection_list),
+    url(r'^comments/packages/$', views.list_package_comments),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

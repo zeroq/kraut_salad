@@ -6,11 +6,11 @@ from kraut_intel.models import PackageComment
 class PackageCommentForm(ModelForm):
     class Meta:
         model = PackageComment
-        fields = ['text']
+        fields = ['ctext']
 
     def __init__(self, *args, **kwargs):
         super(PackageCommentForm, self).__init__(*args, **kwargs)
-        self.fields['text'].widget.attrs.update({'class' : 'form-control', 'id': 'packageComment'})
+        self.fields['ctext'].widget.attrs.update({'class' : 'form-control', 'id': 'packageComment'})
 
 
 class PackageForm(ModelForm):

@@ -15,7 +15,11 @@ class NamespaceIcon(models.Model):
         return u"%s (%s)" % (self.namespace, self.icon)
 
 class PackageComment(models.Model):
-    text = models.TextField()
+    ctext = models.TextField()
     author = models.ForeignKey(User)
     creation_time = models.DateTimeField(auto_now_add=True)
     package_reference = models.ForeignKey(Package)
+
+    #def __unicode__(self):
+    #    return u"%s" % (self.creation_time.strftime("%Y-%m-%d %H:%M:%S"))
+

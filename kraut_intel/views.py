@@ -165,7 +165,7 @@ def comment_package(request, package_id="1"):
                 messages.error(request, 'The requested package does not exist!')
                 return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
             data = {
-                'text': form.cleaned_data['text'],
+                'ctext': form.cleaned_data['ctext'],
                 'author': request.user,
                 'package_reference': package
             }
