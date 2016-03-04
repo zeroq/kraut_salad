@@ -1,4 +1,4 @@
-amqp==1.4.6
+amqp==1.4.9
 anyjson==0.3.3
 argh==0.26.1
 billiard==3.3.0.20
@@ -16,7 +16,7 @@ httplib2==0.9
 ipaddr==2.1.11
 ipython==3.1.0
 Jinja2==2.7.3
-kombu==3.0.26
+kombu==3.0.34
 libtaxii==1.1.106
 lxml==3.4.1
 Markdown==2.4.1
