@@ -6,6 +6,7 @@ from django.template import RequestContext
 from django.contrib import messages
 
 from kraut_accounts.models import UserExtension
+from kraut_parser.models import Namespace
 
 # Create your views here.
 
@@ -21,7 +22,12 @@ def accounts_login(request):
         if user is not None:
             if user.is_active:
                 if not hasattr(user, 'userextension'):
-                    UserExtension.objects.create(user=user)
+                    user_extension = UserExtension.objects.create(user=user)
+                    user_extension.save()
+                    new_namespace = Namespace(namespace='nospace:http://nospace.com', description='no particular namespace')
+                    new_namespace.save()
+                    user_extension.namespaces.add(new_namespace)
+                    user_extension.save()
                 login(request, user)
                 return HttpResponseRedirect(request.POST.get('next',reverse('home')))
             else:
