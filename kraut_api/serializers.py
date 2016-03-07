@@ -483,10 +483,16 @@ class PaginatedAddressObjectSerializer(PaginationSerializer):
 
 class URIObjectSerializer(serializers.ModelSerializer):
     observables = ObservableSerializer(many=True)
+    short_value = serializers.SerializerMethodField()
 
     class Meta:
         model = URI_Object
-        fields = ('id', 'uri_value', 'uri_type', 'observables')
+        fields = ('id', 'uri_value', 'uri_type', 'observables', 'short_value')
+
+    def get_short_value(self, obj):
+        if len(obj.uri_value)>70:
+            return "%s ..." % (obj.uri_value[:70])
+        return obj.uri_value
 
 class PaginatedURIObjectSerializer(PaginationSerializer):
     iTotalRecords = serializers.ReadOnlyField(source='paginator.count')

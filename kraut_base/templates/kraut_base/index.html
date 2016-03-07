@@ -304,7 +304,17 @@ $(document).ready( function () {
             dataType: "json"
         },
         columns: [
-            {'data': 'uri_value', 'sName': 'URI', 'aTargets': [ 1 ]},
+            {
+                'data': 'short_value',
+                'sName': 'URI', 
+                'aTargets': [ 1 ],
+                "mRender": function (data, type, full) {
+                    return '<div rel="tooltip" data-placement="top" data-original-title="'+full.uri_value+'">'+data+'</div>';
+                },
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $("div", nTd).tooltip();
+                },
+            },
             {'data': 'uri_type', 'sName': 'URI Type', 'aTargets': [ 2 ]},
             {
                 'data': 'id',
