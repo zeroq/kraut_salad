@@ -38,11 +38,15 @@ understanding and overview of an incident.
 
         pip install -r requirements.txt
 
-* Create Database
+* On failure of lxml following might help (debian):
+
+        sudo apt-get install python-dev libxml2-dev libxslt1-dev zlib1g-dev
+
+* Create Database:
 
         python manage.py migrate
 
-* Load initial data
+* Load initial data:
 
         python manage.py loaddata initial_data
 
@@ -50,11 +54,11 @@ understanding and overview of an incident.
 
         python manage.py load_stix <path_to_stix_xml>
 
-* Start the RabbitMQ server for celery
+* Start the RabbitMQ server for celery:
 
         sudo rabbitmq-server -detached
 
-* Start Celery in a separate terminal (debugging) from within the kraut_salad home directory
+* Start Celery in a separate terminal (debugging) from within the kraut_salad home directory:
 
         celery -A kraut_base worker -l info
 
