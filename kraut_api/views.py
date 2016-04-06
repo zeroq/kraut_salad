@@ -2154,10 +2154,10 @@ def list_package_comments(request, format=None):
             order_direction = '-'
             search_value = None
         queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        print search_value
         if search_value:
             queryset = queryset.filter(
-                Q(author__icontains=search_value)|
-                Q(text__icontains=search_value)
+                Q(ctext__icontains=search_value)
             )
         paginator = Paginator(queryset, max_items)
         try:

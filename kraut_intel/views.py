@@ -31,6 +31,12 @@ def packages(request):
     """ list all intelligence packages
     """
     context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
 
 @login_required
