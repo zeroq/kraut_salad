@@ -300,9 +300,14 @@ path.link {
         </a>
     </li>
     {% endif %}
+    {% if observable.observable_type == 'WindowsDriverObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#driverobj" aria-controls="driverobj" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Windows Driver Object
+        </a>
+    {% endif %}
     <!-- MISSING
         CodeObjectType
-        WindowsDriverObjectType
         EmailMessageObjectType
     -->
   </ul>
@@ -349,6 +354,20 @@ path.link {
             <tbody>
                 <tr><td><b>Address</b></td><td>{{ object.address_value }}</td></tr>
                 <tr><td><b>Category</b></td><td>{{ object.category }}</td></tr>
+                <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- DRIVER -->
+    {% if observable.observable_type == 'WindowsDriverObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="driverobj">
+        <br/>
+        {% for object in objects %}
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                <tr><td><b>Driver Name</b></td><td>{{ object.driver_name }}</td></tr>
                 <tr><td><b>Condition</b></td><td>{{ object.condition }}</td></tr>
             </tbody>
         </table>
