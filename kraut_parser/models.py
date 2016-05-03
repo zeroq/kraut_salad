@@ -518,3 +518,35 @@ class DNSQuery_Object(models.Model):
     successful = models.BooleanField(default=False)
     question = models.ForeignKey(DNSQuestion)
     observables = models.ManyToManyField(Observable)
+
+class ImportedFunction(models.Model):
+    function_name = models.CharField(max_length=255)
+    virtual_address = models.CharField(max_length=255, null=True, blank=True)
+
+class PEImports(models.Model):
+    file_name = models.CharField(max_length=255)
+    virtual_address = models.CharField(max_length=255, null=True, blank=True)
+    imported_functions = models.ManyToManyField(ImportedFunction)
+
+class ExportedFunction(models.Model):
+    function_name = models.CharField(max_length=255)
+    entry_point = models.CharField(max_length=255, null=True, blank=True)
+
+class PEExports(models.Model):
+    name = models.CharField(max_length=255)
+    exported_functions = models.ManyToManyField(ExportedFunction)
+
+class PESections(models.Model):
+    section_name = models.CharField(max_length=255)
+    entropy = models.FloatField(null=True, blank=True)
+    virtual_size = models.CharField(max_length=255, null=True, blank=True)
+    virtual_address = models.CharField(max_length=255, null=True, blank=True)
+    size_of_raw_data = models.CharField(max_length=255, null=True, blank=True)
+
+class WindowsExecutable_Object(models.Model):
+    pe_type = models.CharField(max_length=255, default="executable")
+    object_id = models.CharField(max_length=255)
+    imports = models.ManyToManyField(PEImports)
+    exports = models.ManyToManyField(PEExports)
+    sections = models.ManyToManyField(PESections)
+    observables = models.ManyToManyField(Observable)

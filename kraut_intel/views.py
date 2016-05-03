@@ -560,6 +560,8 @@ def observable(request, observable_id="1"):
             ### TODO: currently supports only single composition in observable
             for composition in observable[0].compositions.all():
                 context['composition_id'] = composition.id
+        elif observable[0].observable_type == 'WindowsExecutableFileObjectType':
+            context['active_tab'] = 'winexeobj'
     return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
 
 @login_required

@@ -1,6 +1,6 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
-import dateutil, pytz
+import dateutil, pytz, json
 
 from kraut_parser.models import URI_Object, Port_Object
 
@@ -399,7 +399,7 @@ def handle_http_session_object(http_obj):
 
 def handle_win_registry_object(re_obj):
     """extract all relevant information from a cybox windows registry object
-    @co_obj: cybox windows registry object in json format
+    @re_obj: cybox windows registry object in json format
     returns: a dictionaries containing windows registry object information
     """
     reg_list = []
@@ -444,4 +444,42 @@ def handle_win_registry_object(re_obj):
         reg_list.append(reg_dict)
     return reg_list
 
-
+def handle_windows_executable_object(ex_obj, ex_obj_id):
+    """extract all relevant information from a cybox windows executable object
+    @ex_obj: cybox windows executable object in json format
+    returns: a dictionary containing windows executable object information
+    """
+    #print json.dumps(ex_obj, indent=4, sort_keys=True)
+    executable_dict = {
+        'pe_type': 'executable',
+        'object_id': ex_obj_id,
+        'imports': [],
+        'exports': [],
+        'sections': []
+    }
+    if 'imports' in ex_obj:
+        for imp in ex_obj['imports']:
+            imports_dict = {'file_name': None, 'virtual_address': None, 'imported_functions': []}
+            imports_dict['file_name'] = imp.get('file_name', None)
+            for impfunction in imp['imported_functions']:
+                imports_dict['imported_functions'].append({'function_name': impfunction.get('function_name', 'None'), 'virtual_address': impfunction.get('virtual_address', None)})
+            executable_dict['imports'].append(imports_dict)
+    if 'exports' in ex_obj:
+        for emp in ex_obj['exports']:
+            exports_dict = {'name': None, 'exported_functions': []}
+            exports_dict['name'] = emp.get('name', None)
+            for empfunction in emp['exported_functions']:
+                exports_dict['exported_functions'].append({'function_name': empfunction.get('function_name', 'None'), 'entry_point': empfunction.get('entry_point', 'None')})
+            executable_dict['exports'].append(exports_dict)
+    if 'sections' in ex_obj:
+        for section in ex_obj['sections']:
+            sections_dict = {'section_name': 'None', 'entropy': None, 'virtual_size': None, 'virtual_address': None, 'size_of_raw_data': None}
+            if 'entropy' in section:
+                sections_dict['entropy'] = section['entropy'].get('value', 0.0)
+            if 'section_header' in section:
+                sections_dict['section_name'] = section['section_header'].get('name', 'None')
+                sections_dict['virtual_size'] = section['section_header'].get('virtual_size', None)
+                sections_dict['virtual_address'] = section['section_header'].get('virtual_address', None)
+                sections_dict['size_of_raw_data'] = section['section_header'].get('size_of_raw_data', None)
+            executable_dict['sections'].append(sections_dict)
+    return executable_dict

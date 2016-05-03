@@ -305,6 +305,29 @@ path.link {
         <a href="#driverobj" aria-controls="driverobj" role="tab" data-toggle="tab">
             <i class="fa fa-link"></i>&nbsp;&nbsp;Windows Driver Object
         </a>
+    </li>
+    {% endif %}
+    {% if observable.observable_type == 'WindowsExecutableFileObjectType' %}
+    <li role="presentation" {% if active_tab == 'winexeobj'%}class="active"{% endif %}>
+        <a href="#winexeobj" aria-controls="winexeobj" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Windows Executable Object
+        </a>
+    </li>
+    <li role="presentation" {% if active_tab == 'winexeobj_sec'%}class="active"{% endif %}>
+        <a href="#winexeobj_sec" aria-controls="winexeobj_sec" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Sections
+        </a>
+    </li>
+    <li role="presentation" {% if active_tab == 'winexeobj_imp'%}class="active"{% endif %}>
+        <a href="#winexeobj_imp" aria-controls="winexeobj_imp" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Imports
+        </a>
+    </li>
+    <li role="presentation" {% if active_tab == 'winexeobj_emp'%}class="active"{% endif %}>
+        <a href="#winexeobj_emp" aria-controls="winexeobj_emp" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Exports
+        </a>
+    </li>
     {% endif %}
     <!-- MISSING
         CodeObjectType
@@ -509,6 +532,66 @@ path.link {
         <div id="tree-container" class="panel-body">
         </div>
     </div>
+    <!-- WINDOWS EXECUTABLE OBJECT -->
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'winexeobj'%}active{% endif %}" id="winexeobj">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                <tr><td><b>PE Type</b></td><td>{{ object.pe_type }}</td></tr>
+                <tr><td><b>Object ID</b></td><td>{{ object.object_id }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'winexeobj_sec'%}active{% endif %}" id="winexeobj_sec">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                    {% for section in object.sections.all %}
+                    <tr><td><b>Section Name</b></td><td>{{ section.section_name }}</td></tr>
+                    <tr><td><b>Entropy</b></td><td>{{ section.entropy }}</td></tr>
+                    <tr><td><b>Virutal Size</b></td><td>{{ section.virtual_size }}</td></tr>
+                    <tr><td><b>Virutal Address</b></td><td>{{ section.virtual_address }}</td></tr>
+                    <tr><td><b>Raw Size</b></td><td>{{ section.size_of_raw_data }}</td></tr>
+                    <tr><td>&nbsp;</td><td></td></tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'winexeobj_imp'%}active{% endif %}" id="winexeobj_imp">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                    {% for imp in object.imports.all %}
+                        <tr><td><b>File Name</b></td><td>{{ imp.file_name }}</td><td></td><td></td></tr>
+                        {% for impf in imp.imported_functions.all %}
+                            <tr><td></td><td></td><td>{{ impf.function_name }}</td><td>{{ impf.virtual_address }}</td></tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'winexeobj_emp'%}active{% endif %}" id="winexeobj_emp">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                    {% for emp in object.exports.all %}
+                        <tr><td><b>Export Name</b></td><td>{{ emp.name }}</td><td></td><td></td></tr>
+                        {% for empf in emp.exported_functions.all %}
+                            <tr><td></td><td></td><td>{{ empf.function_name }}</td><td>{{ empf.entry_point }}</td></tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- END -->
   </div>
   {% endspaceless %}
 </div>

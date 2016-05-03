@@ -11,8 +11,10 @@ from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, F
 from kraut_parser.models import TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes, AttackPattern
 from kraut_parser.models import Campaign, RelationCampaignTTP
 from kraut_parser.models import Namespace
+from kraut_parser.models import WindowsExecutable_Object, PEImports, ImportedFunction, PEExports, ExportedFunction, PESections
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
+from kraut_parser.cybox_functions import handle_windows_executable_object
 
 class Command(BaseCommand):
     args = '<stix_xml>'
@@ -121,6 +123,8 @@ class Command(BaseCommand):
             db_object = HTTPSession_Object.objects.get(id=object_id)
         elif object_type == 'DNSQueryObjectType':
             db_object = DNSQuery_Object.objects.get(id=object_id)
+        elif object_type == 'WindowsExecutableFileObjectType':
+            db_object = WindowsExecutable_Object.objects.get(id=object_id)
         return db_object
 
     def determine_create_object(self, observable_object, object_type, object_data, object_id):
@@ -335,6 +339,46 @@ class Command(BaseCommand):
             else:
                 self.id_mapping['objects'][object_id] = [{'object_id': dns_query_object.id, 'object_type': object_type}]
             object_list.append(dns_query_object)
+        elif object_type == 'WindowsExecutableFileObjectType':
+            executable_dict = handle_windows_executable_object(object_data, object_id)
+            # get imports list
+            imports_dict_list = executable_dict.pop('imports')
+            # get exports list
+            exports_dict_list = executable_dict.pop('exports')
+            # get sections list
+            sections_dict_list = executable_dict.pop('sections')
+            # create windows executable object
+            win_exec_obj, win_exec_obj_created = WindowsExecutable_Object.objects.get_or_create(**executable_dict)
+            # add imports
+            for imp in imports_dict_list:
+                pe_import_obj, pe_import_created = PEImports.objects.get_or_create(**{'file_name': imp['file_name'], 'virtual_address': imp['virtual_address']})
+                for imp_func in imp['imported_functions']:
+                    imp_func_obj, imp_func_created = ImportedFunction.objects.get_or_create(**{'function_name': imp_func['function_name'], 'virtual_address': imp_func['virtual_address']})
+                    pe_import_obj.imported_functions.add(imp_func_obj)
+                pe_import_obj.save()
+                win_exec_obj.imports.add(pe_import_obj)
+            # add exports
+            for emp in exports_dict_list:
+                pe_export_obj, pe_export_created = PEExports.objects.get_or_create(**{'name': emp['name']})
+                for emp_func in emp['exported_functions']:
+                    emp_func_obj, emp_func_created = ExportedFunction.objects.get_or_create(**{'function_name': emp_func['function_name'], 'entry_point': emp_func['entry_point']})
+                    pe_export_obj.exported_functions.add(emp_func_obj)
+                pe_export_obj.save()
+                win_exec_obj.exports.add(pe_export_obj)
+            # add sections
+            for sec in sections_dict_list:
+                sec_obj, sec_created = PESections.objects.get_or_create(**{'section_name': sec.get('section_name', 'None'), 'entropy': sec.get('entropy', 0.0), 'virtual_size': sec.get('virtual_size', 'None'), 'virtual_address': sec.get('virtual_address', 'None'), 'size_of_raw_data': sec.get('size_of_raw_data', 'None')})
+                win_exec_obj.sections.add(sec_obj)
+            # add observable
+            win_exec_obj.observables.add(observable_object)
+            win_exec_obj.save()
+            # create object ID mapping
+            if object_id in self.id_mapping['objects']:
+                self.id_mapping['objects'][object_id].append({'object_id': win_exec_obj.id, 'object_type': object_type})
+            else:
+                self.id_mapping['objects'][object_id] = [{'object_id': win_exec_obj.id, 'object_type': object_type}]
+            object_list.append(win_exec_obj)
+            ### TODO: finish handling object type (imports, sections, exports)
         else:
             self.missed_objects[object_type] = True
         return object_list
@@ -1503,11 +1547,12 @@ class Command(BaseCommand):
                                     continue
                 # free stix json
                 del result_list[stix_json_index]
-                # move file to backup location
-                try:
-                    shutil.move(xml, backup_dir)
-                except Exception as e:
-                    print("failed moving file to backup directory: %s" % (e))
+                if settings.ENABLE_BACKUP_STIX:
+                    # move file to backup location
+                    try:
+                        shutil.move(xml, backup_dir)
+                    except Exception as e:
+                        print("failed moving file to backup directory: %s" % (e))
         self.stdout.write('------')
         # print all missing object references
         for item in self.missing_references:

@@ -2,6 +2,7 @@
 
 from django.db.models import Q
 from kraut_parser.models import File_Object, HTTPSession_Object, URI_Object, Related_Object, Address_Object, Mutex_Object, Code_Object, EmailMessage_Object, Win_Registry_Object, DNSQuery_Object, Driver_Object, Link_Object
+from kraut_parser.models import WindowsExecutable_Object
 
 def get_object_for_observable(observable_type, observable_object=None, object_id=None, no_hash=True):
     """ Return the list of objects belonging to a given observable or the object for a given id.
@@ -54,6 +55,9 @@ def get_object_for_observable(observable_type, observable_object=None, object_id
             return_list.append(obj)
     elif observable_type == 'LinkObjectType':
         for obj in Link_Object.objects.filter(q_filter):
+            return_list.append(obj)
+    elif observable_type == 'WindowsExecutableFileObjectType':
+        for obj in WindowsExecutable_Object.objects.filter(q_filter):
             return_list.append(obj)
 
     return return_list
