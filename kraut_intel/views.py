@@ -452,7 +452,7 @@ def delete_indicator(request, indicator_id):
         indicator = Indicator.objects.get(pk=int(indicator_id))
     except Indicator.DoesNotExist:
         messages.error(request, 'The requested indicator does not exist!')
-        return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
+        return render_to_response('kraut_intel/indicators.html', {}, context_instance=RequestContext(request))
     ### TODO: delete associated object, if flag is set
     # delete indicator
     indicator.delete()
@@ -511,6 +511,21 @@ def indicator(request, indicator_id="1"):
 def observables(request):
     context = {}
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
+
+@login_required
+def delete_observable(request, observable_id):
+    """ delete given observable
+    """
+    try:
+        obs = Observable.objects.get(pk=int(observable_id))
+    except Observable.DoesNotExist:
+        messages.info(request, 'The observable was deleted successfully!')
+        return render_to_response('kraut_intel/observables.html', {}, context_instance=RequestContext(request))
+    ### TODO: delete associated objects
+    # delete observable
+    obs.delete()
+    messages.info(request, 'The observable was deleted successfully!')
+    return HttpResponseRedirect(reverse("intel:observables"))
 
 @login_required
 def update_observable_header(request, observable_id="1"):
