@@ -425,6 +425,21 @@ def ttp(request, ttp_id="1"):
     return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
 
 @login_required
+def delete_ttp(request, ttp_id):
+    """ delete ttp object and all associated objects
+    """
+    try:
+        ttp = TTP.objects.get(pk=int(ttp_id))
+    except TTP.DoesNotExist:
+        messages.error(request, 'The requested TTP does not exist!')
+        return render_to_response('kraut_intel/ttps.html', {}, context_instance=RequestContext(request))
+    ### TODO: delete associated objects, if special flag is set
+    # delete ttp
+    ttp.delete()
+    messages.info(request, 'The TTP was deleted successfully!')
+    return HttpResponseRedirect(reverse('intel:ttps'))
+
+@login_required
 def indicators(request):
     context = {}
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
