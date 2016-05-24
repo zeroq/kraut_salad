@@ -445,6 +445,21 @@ def indicators(request):
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
 
 @login_required
+def delete_indicator(request, indicator_id):
+    """ delete indicator
+    """
+    try:
+        indicator = Indicator.objects.get(pk=int(indicator_id))
+    except Indicator.DoesNotExist:
+        messages.error(request, 'The requested indicator does not exist!')
+        return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
+    ### TODO: delete associated object, if flag is set
+    # delete indicator
+    indicator.delete()
+    messages.info(request, 'The indicator was deleted successfully!')
+    return HttpResponseRedirect(reverse('intel:indicators'))
+
+@login_required
 def indicator(request, indicator_id="1"):
     """ details of a single indicator
     """

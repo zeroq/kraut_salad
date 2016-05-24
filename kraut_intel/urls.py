@@ -27,6 +27,7 @@ urlpatterns = [
     # indicators
     url(r'^indicators/$', views.indicators, name='indicators'),
     url(r'^indicator/(?P<indicator_id>\d+)/$', views.indicator, name='indicator'),
+    url(r'^indicator/(?P<indicator_id>\d+)/delete/$', views.delete_indicator, name='delete_indicator'),
     # observables
     url(r'^observables/$', views.observables, name='observables'),
     url(r'^observable/(?P<observable_id>\d+)/$', views.observable, name='observable'),
