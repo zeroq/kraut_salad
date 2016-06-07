@@ -3,7 +3,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from kraut_parser.models import Package
+from kraut_parser.models import Package, ThreatActor
 
 # Create your models here.
 
@@ -20,6 +20,10 @@ class PackageComment(models.Model):
     creation_time = models.DateTimeField(auto_now_add=True)
     package_reference = models.ForeignKey(Package)
 
-    #def __unicode__(self):
-    #    return u"%s" % (self.creation_time.strftime("%Y-%m-%d %H:%M:%S"))
+
+class ThreatActorComment(models.Model):
+    ctext = models.TextField()
+    author = models.ForeignKey(User)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    actor_reference = models.ForeignKey(ThreatActor)
 

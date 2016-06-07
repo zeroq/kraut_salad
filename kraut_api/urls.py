@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^taxii/servers/$', views.taxii_server_list),
     url(r'^taxii/collections/$', views.taxii_collection_list),
     url(r'^comments/packages/$', views.list_package_comments),
+    url(r'^comments/threatactors/$', views.list_actor_comments),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

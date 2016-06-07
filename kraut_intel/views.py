@@ -14,8 +14,8 @@ from kraut_parser.models import AttackPattern, Namespace
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.forms import PackageForm, PackageCommentForm
-from kraut_intel.models import PackageComment
+from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm
+from kraut_intel.models import PackageComment, ThreatActorComment
 
 import datetime, uuid, argparse
 
@@ -275,7 +275,40 @@ def package_graph(request, package_id="1"):
 @login_required
 def threatactors(request):
     context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
+
+@login_required
+def comment_actor(request, threat_actor_id="1"):
+    """ add a comment to a threat actor
+    """
+    if request.method == "POST":
+        form = ActorCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                actor = ThreatActor.objects.get(pk=int(threat_actor_id))
+            except ThreatActor.DoesNotExist:
+                messages.error(request, 'The requested threat actor does not exist!')
+                return HttpResponseRedirect(reverse('intel:threatactors'))
+            data = {
+                'ctext': form.cleaned_data['ctext'],
+                'author': request.user,
+                'actor_reference': actor
+            }
+            new_comment = ThreatActorComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("intel:threatactor", kwargs={'threat_actor_id': threat_actor_id}))
+
 
 @login_required
 def delete_threatactor(request, threat_actor_id="1"):
@@ -305,6 +338,12 @@ def threatactor(request, threat_actor_id="1"):
     if len(ta)<=0:
         messages.warning(request, "No threat actor with the given ID exists in the system.")
     else:
+        try:
+            comments = ThreatActorComment.objects.filter(actor_reference=ta[0]).order_by('-creation_time')
+        except:
+            comments = None
+        context['comments'] = comments
+        context['commentform'] = ActorCommentForm()
         context['ta'] = ta[0]
         try:
             ta_type_object = TA_Types.objects.get(actor=ta[0])

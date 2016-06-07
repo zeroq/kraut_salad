@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 
-from kraut_parser.models import Package
-from kraut_intel.models import PackageComment
+from kraut_parser.models import Package, ThreatActor
+from kraut_intel.models import PackageComment, ThreatActorComment
 
 class PackageCommentForm(ModelForm):
     class Meta:
@@ -28,3 +28,13 @@ class PackageForm(ModelForm):
         self.fields['description'].widget.attrs.update({'class' : 'form-control', 'id': 'description'})
         self.fields['short_description'].widget.attrs.update({'class' : 'form-control', 'id': 'shortDescription'})
         self.fields['package_id'].widget.attrs.update({'class' : 'form-control', 'id': 'packageID'})
+
+
+class ActorCommentForm(ModelForm):
+    class Meta:
+        model = ThreatActorComment
+        fields = ['ctext']
+
+    def __init__(self, *args, **kwargs):
+        super(ActorCommentForm, self).__init__(*args, **kwargs)
+        self.fields['ctext'].widget.attrs.update({'class' : 'form-control', 'id': 'packageComment'})
