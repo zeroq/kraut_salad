@@ -53,8 +53,7 @@ urlpatterns = [
     url(r'^taxii/feed/information/$', views.taxii_feed_information),
     url(r'^taxii/servers/$', views.taxii_server_list),
     url(r'^taxii/collections/$', views.taxii_collection_list),
-    url(r'^comments/packages/$', views.list_package_comments),
-    url(r'^comments/threatactors/$', views.list_actor_comments),
+    url(r'^comments/(?P<object_type>[a-zA-Z0-9]+)/$', views.list_comments),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

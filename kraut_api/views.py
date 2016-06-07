@@ -19,8 +19,8 @@ from kraut_api.serializers import PaginatedAddressObjectSerializer, PaginatedURI
 from kraut_api.serializers import PaginatedTTPSerializer
 from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
 from kraut_api.serializers import PaginatedServersSerializer, PaginatedCollectionSerializer
-from kraut_api.serializers import PaginatedPackageCommentSerializer, PackageCommentSerializer
-from kraut_api.serializers import PaginatedActorCommentSerializer, ActorCommentSerializer
+from kraut_api.serializers import PaginatedPackageCommentSerializer
+from kraut_api.serializers import PaginatedActorCommentSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
 from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment
@@ -2130,7 +2130,7 @@ def taxii_feed_information(request, format=None):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, ))
 @permission_classes((IsAuthenticated,))
-def list_package_comments(request, format=None):
+def list_comments(request, object_type, format=None):
     if request.method == 'GET':
         max_items = 10
         page = request.QUERY_PARAMS.get('page')
@@ -2154,51 +2154,12 @@ def list_package_comments(request, format=None):
             order_by_column = 'creation_time'
             order_direction = '-'
             search_value = None
-        queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
-        print search_value
-        if search_value:
-            queryset = queryset.filter(
-                Q(ctext__icontains=search_value)
-            )
-        paginator = Paginator(queryset, max_items)
-        try:
-            comments = paginator.page(page)
-        except:
-            comments = paginator.page(1)
-        serializer_context = {'request': request}
-        serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, ))
-@permission_classes((IsAuthenticated,))
-def list_actor_comments(request, format=None):
-    if request.method == 'GET':
-        max_items = 10
-        page = request.QUERY_PARAMS.get('page')
-        if request.query_params:
-            if 'length' in request.query_params: max_items = int(request.query_params['length'])
-            if 'start' in request.query_params: page = int(int(request.query_params['start'])/int(max_items))+1
-            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
-                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
-                if request.query_params['order[0][dir]'] == 'desc':
-                    order_direction = '-'
-                else:
-                    order_direction = ''
-            else:
-                order_by_column = 'creation_time'
-                order_direction = '-'
-            if 'search[value]' in request.query_params:
-                search_value = request.query_params['search[value]']
-            else:
-                search_value = None
+        if object_type == 'threatactors':
+            queryset = ThreatActorComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        elif object_type == 'packages':
+            queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         else:
-            order_by_column = 'creation_time'
-            order_direction = '-'
-            search_value = None
-        queryset = ThreatActorComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
-        print search_value
+            queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
             queryset = queryset.filter(
                 Q(ctext__icontains=search_value)
@@ -2209,6 +2170,11 @@ def list_actor_comments(request, format=None):
         except:
             comments = paginator.page(1)
         serializer_context = {'request': request}
-        serializer = PaginatedActorCommentSerializer(comments, context=serializer_context)
+        if object_type == 'threatactors':
+            serializer = PaginatedActorCommentSerializer(comments, context=serializer_context)
+        elif object_type == 'packages':
+            serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
+        else:
+            serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
