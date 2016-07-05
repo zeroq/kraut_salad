@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^threatactor/(?P<threat_actor_id>\d+)/$', views.threatactor, name='threatactor'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/delete/$', views.delete_threatactor, name='delete_threatactor'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/add/comment$', views.comment_actor, name='comment_actor'),
+    url(r'^threatactor/(?P<threat_actor_id>\d+)/edit/$', views.edit_create_threatactor, name='edit_create_threatactor'),
     # campaigns
     url(r'^campaigns/$', views.campaigns, name='campaigns'),
     url(r'^campaign/(?P<campaign_id>\d+)/$', views.campaign, name='campaign'),

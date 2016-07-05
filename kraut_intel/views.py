@@ -14,7 +14,7 @@ from kraut_parser.models import AttackPattern, Namespace
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm
+from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm
 from kraut_intel.models import PackageComment, ThreatActorComment
 
 import datetime, uuid, argparse
@@ -112,7 +112,6 @@ def edit_create_package(request, package_id=None):
         if form.is_valid():
             ### make modifications or create new package
             if int(package_id) == 0:
-                ### TODO: check that a namespace is set, empty namespace creates error
                 package = PackageForm(request.POST)
                 package.save()
                 messages.info(request, 'New Package Created!')
@@ -122,7 +121,8 @@ def edit_create_package(request, package_id=None):
                 package.save()
                 messages.info(request, 'Package Updated! (%s)' % (package_id))
             return HttpResponseRedirect(reverse('intel:packages'))
-        messages.error(request, 'Package not valid!')
+        for item in form.errors.as_data():
+            messages.error(request, 'Package not valid! %s: %s' % (item, form.errors[item].as_text()))
         return HttpResponseRedirect(reverse('intel:edit_create_package', kwargs={'package_id': package_id}))
     else:
         if int(package_id)>0:
@@ -272,6 +272,59 @@ def package_graph(request, package_id="1"):
     context['package'] = package
     return render_to_response('kraut_intel/package_full_tree.html', context, context_instance=RequestContext(request))
 
+
+@login_required
+def edit_create_threatactor(request, threat_actor_id):
+    """ create a new threat actor or edit an existing one
+    """
+    context = {}
+    if request.method == 'POST':
+        form = ActorForm(request.POST)
+        if form.is_valid():
+            if int(threat_actor_id) == 0:
+                actor = ActorForm(request.POST)
+                actor.save()
+                messages.info(request, 'New Threat Actor Created!')
+            else:
+                a = ThreatActor.objects.get(id=threat_actor_id)
+                actor = ActorForm(request.POST, instance=a)
+                actor.save()
+                messages.info(request, 'Threat Actor Updated! (%s)' % (threat_actor_id))
+            return HttpResponseRedirect(reverse('intel:threatactors'))
+        for item in form.errors.as_data():
+            messages.error(request, 'Package not valid! %s: %s' % (item, form.errors[item].as_text()))
+        return HttpResponseRedirect(reverse('intel:edit_create_threatactor', kwargs={'threat_actor_id': threat_actor_id}))
+    else:
+        if int(threat_actor_id)>0:
+            try:
+                actor = ThreatActor.objects.get(pk=int(threat_actor_id))
+            except ThreatActor.DoesNotExist:
+                messages.error(request, 'The requested threat actor does not exist!')
+                return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
+        else:
+            actor = None
+        if actor:
+            defaults = {
+                'name': actor.name,
+                'description': actor.description,
+                'short_description': actor.short_description,
+                'threat_actor_id': actor.threat_actor_id
+            }
+            defaults['namespace'] = [b.pk for b in actor.namespace.all()]
+            form = ActorForm(defaults, instance=actor)
+        else:
+            actor_dict = {'name': 'Create New Threat Actor'}
+            actor = argparse.Namespace(**actor_dict)
+            defaults = {
+                'threat_actor_id': 'nospace:threatactor-%s' % (uuid.uuid4())
+            }
+            form = ActorForm(defaults)
+        context['form'] = form
+        context['actor_id'] = threat_actor_id
+        context['actor'] = actor
+    return render_to_response('kraut_intel/edit_create_actor.html', context, context_instance=RequestContext(request))
+
+
 @login_required
 def threatactors(request):
     context = {}
@@ -322,6 +375,7 @@ def delete_threatactor(request, threat_actor_id="1"):
     ta.delete()
     messages.info(request, 'The threat actor was deleted successfully!')
     return HttpResponseRedirect(reverse('intel:threatactors'))
+
 
 @login_required
 def threatactor(request, threat_actor_id="1"):

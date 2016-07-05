@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load split_at %}
+{% block header %}
+{% endblock %}
+
+{% block sidebar %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespace_icon }}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            {% if actor.namespace %}
+            <h2 class="media-heading">{{ actor.namespace.last.namespace|split_at:":,0" }}</h2>Side Panel
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Threat Actor.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">{{ actor.name }}</h2>Threat Actor ID: {{ actor_id }}
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+{% spaceless %}
+<form method="post">
+    {% csrf_token %}
+    <table class="table table-condensed table-borderless">
+        <tbody>
+            <tr>
+                <td colspan="2">
+                    <div class="form-group">
+                        <label for="actorName">{{ form.name.label_tag }}</label>
+                        {{ form.name }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="form-group">
+                        <label for="shortDescription">{{ form.short_description.label_tag }}</label>
+                        {{ form.short_description }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <label for="source">{{ form.source.label_tag }}</label>
+                        {{ form.source }}
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <label for="packageID">{{ form.threat_actor_id.label_tag }}</label>
+                        {{ form.threat_actor_id }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <label for="nameSpace">{{ form.namespace.label_tag }}</label>
+                        {{ form.namespace }}
+                    </div>
+                </td>
+                <td>
+                    <div class="form-group">
+                        <label for="description">{{ form.description.label_tag }}</label>
+                        {{ form.description }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="right">
+                    <button type="submit" class="btn btn-primary">Update/Create Threat Actor</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+{% endspaceless %}
+{% endblock%}
+
+{% block javascript%}
+{% endblock%}

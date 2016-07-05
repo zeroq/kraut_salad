@@ -28,6 +28,7 @@ class PackageForm(ModelForm):
         self.fields['description'].widget.attrs.update({'class' : 'form-control', 'id': 'description'})
         self.fields['short_description'].widget.attrs.update({'class' : 'form-control', 'id': 'shortDescription'})
         self.fields['package_id'].widget.attrs.update({'class' : 'form-control', 'id': 'packageID'})
+        self.fields['namespace'].required = True
 
 
 class ActorCommentForm(ModelForm):
@@ -38,3 +39,18 @@ class ActorCommentForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ActorCommentForm, self).__init__(*args, **kwargs)
         self.fields['ctext'].widget.attrs.update({'class' : 'form-control', 'id': 'packageComment'})
+
+class ActorForm(ModelForm):
+    class Meta:
+        model = ThreatActor
+        fields = ['name', 'description', 'short_description', 'namespace', 'threat_actor_id', 'associated_threat_actors']
+
+    def __init__(self, *args, **kwargs):
+        super(ActorForm, self).__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'class' : 'form-control', 'id': 'packageName'})
+        self.fields['namespace'].widget.attrs.update({'class' : 'form-control', 'id': 'nameSpace'})
+        self.fields['description'].widget.attrs.update({'class' : 'form-control', 'id': 'description'})
+        self.fields['short_description'].widget.attrs.update({'class' : 'form-control', 'id': 'shortDescription'})
+        self.fields['threat_actor_id'].widget.attrs.update({'class' : 'form-control', 'id': 'packageID'})
+        self.fields['associated_threat_actors'].widget.attrs.update({'class' : 'form-control', 'id': 'nameSpace'})
+        self.fields['namespace'].required = True
