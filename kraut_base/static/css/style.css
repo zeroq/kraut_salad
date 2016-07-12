@@ -115,6 +115,6 @@ a.caret-after {
     cursor: help;
 }
 
-.fa-bars, .fa-pencil-square-o {
+.fa-bars, .fa-pencil-square-o, .fa-comment-o {
     cursor: pointer;
 }
