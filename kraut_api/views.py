@@ -1620,17 +1620,32 @@ def observable_related_packages(request, pk, format=None):
         except Package.DoesNotExist:
             pass
         ### check if object in other observables
-        objects = get_object_for_observable(observable_type=observable.observable_type, observable_object=observable)
-        for obj in objects:
-            for obs in obj.observables.all():
-                try:
-                    packages = Package.objects.filter(observables=obs)
-                except Package.DoesNotExist:
-                    continue
-                for package in packages:
-                    pack_dict = {'id': package.pk, 'name': package.name}
-                    if pack_dict not in final_list:
-                        final_list.append(pack_dict)
+        if observable.observable_type == 'CompositionContainer':
+            for comp in observable.compositions.all():
+                for obser in comp.observables.all():
+                    objects = get_object_for_observable(observable_type=obser.observable_type, observable_object=obser)
+                    for obj in objects:
+                        for obs in obj.observables.all():
+                            try:
+                                packages = Package.objects.filter(observables=obs)
+                            except Package.DoesNotExist:
+                                continue
+                        for package in packages:
+                            pack_dict = {'id': package.pk, 'name': package.name}
+                            if pack_dict not in final_list:
+                                final_list.append(pack_dict)
+        else:
+            objects = get_object_for_observable(observable_type=observable.observable_type, observable_object=observable)
+            for obj in objects:
+                for obs in obj.observables.all():
+                    try:
+                        packages = Package.objects.filter(observables=obs)
+                    except Package.DoesNotExist:
+                        continue
+                    for package in packages:
+                        pack_dict = {'id': package.pk, 'name': package.name}
+                        if pack_dict not in final_list:
+                            final_list.append(pack_dict)
         total_results = len(final_list)
         response = {
             'count': total_results,
