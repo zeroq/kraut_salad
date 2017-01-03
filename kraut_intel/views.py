@@ -563,7 +563,8 @@ def indicator(request, indicator_id="1"):
             Prefetch('confidence'),
             Prefetch('related_indicators'),
             Prefetch('observablecomposition_set'),
-            Prefetch('ttps')
+            Prefetch('ttps'),
+            Prefetch('kill_chain_phases')
         )
     except Indicator.DoesNotExist:
         messages.error(request, "The requested indicator does not exist!")
@@ -573,6 +574,7 @@ def indicator(request, indicator_id="1"):
     else:
         context['indicator'] = indicator[0]
         context['namespace_icon'] = get_icon_for_namespace(indicator[0].namespace)
+        context['num_killchain'] = indicator[0].kill_chain_phases.count()
         context['num_ttps'] = indicator[0].ttps.count()
         context['num_indicators'] = indicator[0].related_indicators.count()
         context['num_observables'] = indicator[0].observable_set.count()

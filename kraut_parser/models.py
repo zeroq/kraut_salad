@@ -204,6 +204,13 @@ class TA_Alias(models.Model):
     class Meta:
         unique_together = (("alias", "actor"),)
 
+class Indicator_Kill_Chain_Phase(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    ordinality = models.IntegerField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
 class Indicator_Type(models.Model):
     itype = models.CharField(max_length=255, unique=True)
 
@@ -223,6 +230,8 @@ class Indicator(models.Model):
     related_indicators = models.ManyToManyField('self', blank=True)
     indicator_composition_operator = models.CharField(max_length=3, default="OR")
     ttps = models.ManyToManyField('TTP', blank=True)
+    produced_time = models.DateTimeField(null=True, blank=True)
+    kill_chain_phases = models.ManyToManyField(Indicator_Kill_Chain_Phase, blank=True)
 
     def __unicode__(self):
         return u"%s" % (self.name)

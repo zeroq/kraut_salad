@@ -10,7 +10,7 @@ from kraut_parser.models import Observable, Indicator, Indicator_Type, Confidenc
 from kraut_parser.models import Related_Object, File_Object, File_Meta_Object, File_Custom_Properties, URI_Object, Address_Object, Mutex_Object, Code_Object, Driver_Object, Link_Object, Win_Registry_Object, EmailMessage_Object, EmailMessage_from, EmailMessage_recipient, HTTPSession_Object, HTTPClientRequest, DNSQuery_Object, DNSQuestion
 from kraut_parser.models import TTP, RelatedTTP, MalwareInstance, MalwareInstanceNames, MalwareInstanceTypes, AttackPattern
 from kraut_parser.models import Campaign, RelationCampaignTTP
-from kraut_parser.models import Namespace
+from kraut_parser.models import Namespace, Indicator_Kill_Chain_Phase
 from kraut_parser.models import WindowsExecutable_Object, PEImports, ImportedFunction, PEExports, ExportedFunction, PESections
 # import helper functions
 from kraut_parser.cybox_functions import handle_file_object, handle_uri_object, handle_address_object, handle_mutex_object, handle_code_object, handle_driver_object, handle_link_object, handle_win_registry_object, handle_email_object, handle_http_session_object, handle_dns_query_object
@@ -631,6 +631,19 @@ class Command(BaseCommand):
                 indicator_object.save()
                 # remove from indicator object since it is done
                 indicator.pop('indicator_types')
+            # create indicator kill chain phase
+            if 'kill_chain_phases' in indicator:
+                if 'kill_chain_phases' in indicator['kill_chain_phases']:
+                    for phase in indicator['kill_chain_phases']['kill_chain_phases']:
+                        phase_dict = {
+                            'name': phase.get('name', 'Not Set'),
+                            'ordinality': phase.get('ordinality', 0)
+                        }
+                        kcp_object, kcp_created = Indicator_Kill_Chain_Phase.objects.get_or_create(**phase_dict)
+                        indicator_object.kill_chain_phases.add(kcp_object)
+                    indicator_object.save()
+                    # remove from indicator json
+                    indicator.pop('kill_chain_phases')
             # create confidence object
             confidence_dict = {
                 'value': 'Low',
@@ -711,6 +724,14 @@ class Command(BaseCommand):
                             pass
                 indicator_object.save()
                 indicator.pop('indicated_ttps')
+            # Indicator Timestamp
+            if 'timestamp' in indicator:
+                indicator_object.produced_time = date_parser(indicator['timestamp']).replace(tzinfo=pytz.UTC)
+                indicator_object.save()
+                indicator.pop('timestamp')
+            # DEBUG print
+            #if len(indicator)>3:
+            #    print json.dumps(indicator, indent=4, sort_keys=True)
             # add missed elements
             for element in indicator.keys():
                 if element not in self.common_elements:
@@ -755,6 +776,11 @@ class Command(BaseCommand):
         first_entry = True
         if not 'ttps' in stix_json['ttps']:
             self.stdout.write('[FAIL]')
+            # add missed elements
+            for element in stix_json['ttps'].keys():
+                if element not in self.common_elements:
+                    self.missed_elements['ttps'][element] = True
+            #print json.dumps(stix_json['ttps'], indent=4, sort_keys=True)
             return package_object
         # iterate over ttp elements
         for ttp in stix_json['ttps']['ttps']:
@@ -1276,6 +1302,12 @@ class Command(BaseCommand):
                 package_object = self.perform_stix_header_extraction(stix_json)
                 if 'stix_header' in stix_json:
                     stix_json.pop('stix_header')
+                if package_object.produced_time and 'timestamp' in stix_json:
+                    stix_json.pop('timestamp')
+                elif not package_object.produced_time and 'timestamp' in stix_json:
+                    package_object.produced_time = date_parser(stix_json['timestamp']).replace(tzinfo=pytz.UTC)
+                    package_object.save()
+                    stix_json.pop('timestamp')
                 # extract observables
                 if 'observables' in stix_json:
                     package_object = self.perform_observable_extraction(stix_json, package_object)

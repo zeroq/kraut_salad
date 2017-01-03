@@ -53,6 +53,7 @@ path.link {
         <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
             <thead>
                 <tr><th>Name</th></tr>
+            </thead>
             <tbody>
                 {% for package in indicator.package_set.all %}
                     <tr><td><a href="{% url 'intel:package' package_id=package.id %}">{{ package.name }}</a></td></tr>
@@ -69,6 +70,22 @@ path.link {
         <pre class="pre-scrollable wrapdiv">{{ indicator.description }}</pre>
     </div>
 </div>
+{% if num_killchain > 0 %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Kill Chain Phases</h3>
+    </div>
+    <div id="quick-container" class="panel-body">
+        <table class="table table-condensed table-borderless" style="font-size: 0.9em;">
+            <tbody>
+                {% for phase in indicator.kill_chain_phases.all %}
+                    <tr><td>{{ phase.name }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endif %}
 {% endspaceless %}
 {% endblock %}
@@ -115,6 +132,8 @@ path.link {
             <tr>
                 <td align="right"><b>Indicator ID</b></td>
                 <td>{{ indicator.indicator_id }}</td>
+                <td align="right"><b>Produced Time</b></td>
+                <td>{{ indicator.produced_time }}</td>
             </tr>
         </tbody>
     </table>
