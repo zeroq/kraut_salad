@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block sidebar %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespaceicon}}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading" data-toggle="tooltip" data-placement="left" data-original-title="My initial namespace">{{ usernamespace }}</h2>Side Panel
+        </div>
+    </div>
+</div>
+{% endspaceless%}
+{% endblock %}
+
+{% block content %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Kraut.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Kraut Account</h2>change current password ...
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Change Password</h3>
+    </div>
+    <div class="panel-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>{{ form.old_password.label }}</label>
+                {{ form.old_password }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.new_password1.label }}</label>
+                {{ form.new_password1 }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.new_password2.label }}</label>
+                {{ form.new_password2 }}
+            </div>
+            <input class="btn btn-primary" type="submit" value="Change" />
+        </form>
+    </div>
+</div>
+{% endspaceless%}
+{% endblock%}
