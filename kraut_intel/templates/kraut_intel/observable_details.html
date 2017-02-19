@@ -632,7 +632,7 @@ $(document).ready( function () {
                     'aTargets': [ 1 ],
                     'mRender': function (data, type, full) {
                         var view_url = "{% url 'intel:package' package_id=0 %}".replace(0, Number(full.id));
-                        return '<a href="'+view_url+'">'+data+'</a>';
+                        return '<a href="'+view_url+'">'+data+' ('+full.id+')</a>';
                     }
                 }
             ],

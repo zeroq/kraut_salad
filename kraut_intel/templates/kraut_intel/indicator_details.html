@@ -106,7 +106,7 @@ path.link {
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ indicator.name }}</h3>
+        <h3 class="panel-title">{{ indicator.name }} <i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <div class="panel-body">
     <table class="table table-condensed table-borderless">
@@ -139,6 +139,39 @@ path.link {
     </table>
     </div>
 </div>
+<!-- Side-Bar Edit Meta -->
+<div id="navsidebar" class="navsidebar navsidebar-right">
+  <div id="navsidebar-wrapper" class="navsidebar-wrapper">
+    <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
+    <nav class="navsidebar-menu">
+    <form action="{% url 'intel:update_indicator_header' indicator_id=indicator_id %}" method="POST">
+        {% csrf_token %}
+            <ul>
+                <li>Title</li>
+                <li><input name="indicator_name" class="form-control" type="text" value="{{ indicator.name }}"></li>
+                <li>Confidence</li>
+                <li><input name="indicator_confidence" class="form-control" type="text" value="{{ confidence }}"></li>
+                <li>Namespace</li>
+                <li>
+                <select name="indicator_namespace" class="form-control">
+                    {% for ns in namespaces %}
+                        {% if ns.namespace == indicator.namespace.last.namespace %}
+                            <option selected>{{ ns }}</option>
+                        {% else %}
+                            <option>{{ ns }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
+                <li>Description</li>
+                <li><textarea name="indicator_description" class="form-control" rows="13">{{ indicator.description }}</textarea></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
+            </ul>
+        </form>
+    </nav>
+  </div>
+</div>
+<!-- ENDE -->
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Intelligence Information</h3>
@@ -478,6 +511,25 @@ function color(d) {
 
 $(function () {
     $('[data-toggle="popover"]').popover()
+});
+
+$(document).ready(function() {
+  $('#navsidebar').simplerSidebar({
+    opener: '#toggle-navsidebar',
+    sidebar: {
+      align: 'right', 
+      width: 560,
+      closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
+});
+
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
 });
 </script>
 {% endblock %}

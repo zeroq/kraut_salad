@@ -10,7 +10,7 @@ from django.utils.html import strip_tags
 from django.contrib.auth.decorators import login_required
 
 from kraut_parser.models import Package, Observable, Related_Object, Indicator, Campaign, ThreatActor, TA_Types, TA_Roles, TA_Alias, TTP, MalwareInstance
-from kraut_parser.models import AttackPattern, Namespace
+from kraut_parser.models import AttackPattern, Namespace, Confidence
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
@@ -538,6 +538,35 @@ def indicators(request):
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
 
 @login_required
+def update_indicator_header(request, indicator_id="1"):
+    """ update indicator header information
+    """
+    try:
+        indicator = Indicator.objects.get(pk=int(indicator_id))
+    except Indicator.DoesNotExist:
+        messages.error(request, 'The requested indicator does not exist!')
+        return render_to_response('kraut_intel/indicators.html', {}, context_instance=RequestContext(request))
+    if request.method == "POST":
+        ind_name = request.POST.get('indicator_name', None)
+        ind_namespace = request.POST.get('indicator_namespace', None)
+        ind_description = request.POST.get('indicator_description', None)
+        ind_confidence = request.POST.get('indicator_confidence', None)
+        if ind_name:
+            indicator.name = ind_name
+        if ind_confidence:
+            indc_obj, indc_created = Confidence.objects.get_or_create(value=ind_confidence)
+            indicator.confidence.clear()
+            indicator.confidence.add(indc_obj)
+        if ind_namespace:
+            ind_obj, ind_created = Namespace.objects.get_or_create(namespace=ind_namespace)
+            indicator.namespace.clear()
+            indicator.namespace.add(ind_obj)
+        if ind_description:
+            indicator.description = ind_description
+        indicator.save()
+    return HttpResponseRedirect(reverse("intel:indicator", kwargs={'indicator_id': indicator_id}))
+
+@login_required
 def delete_indicator(request, indicator_id):
     """ delete indicator
     """
@@ -574,6 +603,7 @@ def indicator(request, indicator_id="1"):
     else:
         context['indicator'] = indicator[0]
         context['namespace_icon'] = get_icon_for_namespace(indicator[0].namespace)
+        context['namespaces'] = Namespace.objects.all()
         context['num_killchain'] = indicator[0].kill_chain_phases.count()
         context['num_ttps'] = indicator[0].ttps.count()
         context['num_indicators'] = indicator[0].related_indicators.count()
