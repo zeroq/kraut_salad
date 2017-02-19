@@ -42,7 +42,9 @@ def package_tree(request, pk):
     response = {}
     nodes = []
     links = []
+    used = {}
     node = {'id': pack.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20}
+    used[pack.id] = True
     nodes.append(node)
     node_counter = 1
     found_threatactors = False
@@ -88,7 +90,21 @@ def package_tree(request, pk):
             link = {'source': 0, 'target': node_counter, 'value': 1}
             nodes.append(node)
             links.append(link)
-            node_counter += 1
+            if obs.package_set.count() > 0:
+                opk_counter = node_counter + 1
+                for opk in obs.package_set.all():
+                    try:
+                        v = used[opk.id]
+                    except:
+                        node = {'id': opk.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20}
+                        link = {'source': node_counter, 'target': opk_counter, 'value': 1}
+                        nodes.append(node)
+                        links.append(link)
+                        opk_counter += 1
+                        used[opk.id] = True
+                node_counter = opk_counter
+            else:
+                node_counter += 1
     for ttp in pack.ttps.all():
         node = {'id': ttp.name, 'group': 4, 'size': 10, 'type': 'ttp', 'score': 0.8}
         link = {'source': 0, 'target': node_counter, 'value': 1}
