@@ -915,8 +915,21 @@ var linkedByIndex = {};
     var dcy = ((h-10)/2-d.y*zoom.scale());
     zoom.translate([dcx,dcy]);
      g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+     });
+
+    node.on("click", function(d) {
+        var lnk_url = false;  
+        if(d.type == 'package') { lnk_url = "{% url 'intel:package' package_id=0 %}".replace(0, Number(d.dbid)); }
+        if(d.type == 'threatactor') { lnk_url = "{% url 'intel:threatactor' threat_actor_id=0 %}".replace(0, Number(d.dbid)); }
+        if(d.type == 'campaign') { lnk_url = "{% url 'intel:campaign' campaign_id=0 %}".replace(0, Number(d.dbid)); }
+        if(d.type == 'ttp') { lnk_url = "{% url 'intel:ttp' ttp_id=0 %}".replace(0, Number(d.dbid)); }
+        if(d.type == 'indicator') { lnk_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(d.dbid)); }
+        if(d.type == 'observable') { lnk_url = "{% url 'intel:observable' observable_id=0 %}".replace(0, Number(d.dbid)); }
+        if(lnk_url) { 
+          if(d3.event.shiftKey) { location.href = lnk_url; }
+        }
     });
-    
+
     var tocolor = "fill";
     var towhite = "stroke";
     if (outline) {

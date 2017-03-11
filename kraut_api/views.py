@@ -43,20 +43,20 @@ def package_tree(request, pk):
     nodes = []
     links = []
     used = {}
-    node = {'id': pack.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20}
+    node = {'id': pack.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20, 'dbid': pack.id}
     used[pack.id] = True
     nodes.append(node)
     node_counter = 1
     found_threatactors = False
     found_indicators = False
     for ta in pack.threat_actors.all():
-        node = {'id': ta.name, 'group': 2, 'size': 10, 'type': 'threatactor', 'score': 0.7}
+        node = {'id': ta.name, 'group': 2, 'size': 10, 'type': 'threatactor', 'score': 0.7, 'dbid': ta.id}
         link = {'source': 0, 'target': node_counter, 'value': 1}
         nodes.append(node)
         links.append(link)
         ca_counter = node_counter + 1
         for camp in ta.campaigns.all():
-            node = {'id': camp.name, 'group': 3, 'size': 10, 'type': 'campaigns', 'score': 0.5}
+            node = {'id': camp.name, 'group': 3, 'size': 10, 'type': 'campaigns', 'score': 0.5, 'dbid': camp.id}
             link = {'source': node_counter, 'target': ca_counter, 'value': 1}
             nodes.append(node)
             links.append(link)
@@ -65,19 +65,19 @@ def package_tree(request, pk):
         found_threatactors = True
     if not found_threatactors:
         for camp in pack.campaigns.all():
-            node = {'id': camp.name, 'group': 3, 'size': 10, 'type': 'campaigns', 'score': 0.5}
+            node = {'id': camp.name, 'group': 3, 'size': 10, 'type': 'campaigns', 'score': 0.5, 'dbid': camp.id}
             link = {'source': 0, 'target': node_counter, 'value': 1}
             nodes.append(node)
             links.append(link)
             node_counter += 1
     for ind in pack.indicators.all():
-        node = {'id': ind.name, 'group': 4, 'size': 10, 'type': 'indicator', 'score': 0.3}
+        node = {'id': ind.name, 'group': 4, 'size': 10, 'type': 'indicator', 'score': 0.3, 'dbid': ind.id}
         link = {'source': 0, 'target': node_counter, 'value': 1}
         nodes.append(node)
         links.append(link)
         obs_counter = node_counter + 1
         for obs in ind.observable_set.all():
-            node = {'id': obs.name, 'group': 5, 'size': 2, 'type': 'observable', 'score': 0.6}
+            node = {'id': obs.name, 'group': 5, 'size': 2, 'type': 'observable', 'score': 0.6, 'dbid': obs.id}
             link = {'source': node_counter, 'target': obs_counter, 'value': 1}
             nodes.append(node)
             links.append(link)
@@ -86,7 +86,7 @@ def package_tree(request, pk):
         found_indicators = True
     if not found_indicators:
         for obs in pack.observables.all():
-            node = {'id': obs.name, 'group': 4, 'size': 10, 'type': 'observable', 'score': 0.6}
+            node = {'id': obs.name, 'group': 4, 'size': 10, 'type': 'observable', 'score': 0.6, 'dbid': obs.id}
             link = {'source': 0, 'target': node_counter, 'value': 1}
             nodes.append(node)
             links.append(link)
@@ -96,7 +96,7 @@ def package_tree(request, pk):
                     try:
                         v = used[opk.id]
                     except:
-                        node = {'id': opk.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20}
+                        node = {'id': opk.name, 'group': 1, 'type': 'package', 'score': 1, 'size': 20, 'dbid': opk.id}
                         link = {'source': node_counter, 'target': opk_counter, 'value': 1}
                         nodes.append(node)
                         links.append(link)
