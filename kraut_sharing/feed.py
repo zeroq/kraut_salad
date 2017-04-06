@@ -117,15 +117,15 @@ class CollectionPoll:
         self.handle_response(r)
 
 
-def main():
-    """ Send a Feed Information Request to a Taxii 1.1 Server """
-    script = CollectionRequest(url='http://hailataxii.com/taxii-discovery-service/')
-    res = script.run()
-    print res
+#def main():
+#    """ Send a Feed Information Request to a Taxii 1.1 Server """
+#    script = CollectionRequest(url='http://hailataxii.com/taxii-discovery-service/')
+#    res = script.run()
+#    print res
 
-def main2():
-    script = CollectionPoll(url='http://hailataxii.com/taxii-discovery-service/', collection_name='guest.Abuse_ch', begin_timestamp='2015-12-20T13:13:48.751691+0000')
-    script.run()
+#def main2():
+#    script = CollectionPoll(url='http://hailataxii.com/taxii-discovery-service/', collection_name='guest.Abuse_ch', begin_timestamp='2015-12-20T13:13:48.751691+0000')
+#    script.run()
 
-if __name__ == "__main__":
-    main2()
+#if __name__ == "__main__":
+#    main2()

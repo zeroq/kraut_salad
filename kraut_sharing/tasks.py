@@ -7,6 +7,8 @@ from kraut_sharing.feed import CollectionRequest, CollectionPoll
 
 from celery import Celery
 import datetime, pytz
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 
 app = Celery(broker='amqp://')
 
@@ -15,6 +17,7 @@ app = Celery(broker='amqp://')
 def poll_collection(collection):
     server_url = collection.server.get_url()
     begin_ts = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours = collection.poll_period)
+    logger.info('Calculated starting TS: %s' % (begin_ts.strftime('%Y-%m-%dT%H:%M:%S.%f%z')))
     collection.begin_timestamp = begin_ts
     collection.save()
     # store information in import directory
