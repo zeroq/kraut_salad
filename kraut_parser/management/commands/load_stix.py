@@ -1167,6 +1167,10 @@ class Command(BaseCommand):
             produced_time = None
         if produced_time:
             produced_time = date_parser(produced_time).replace(tzinfo=pytz.UTC)
+        else:
+            ### try to get produced time from timestamp field
+            if 'timestamp' in stix_json:
+                produced_time = date_parser(stix_json['timestamp']).replace(tzinfo=pytz.UTC)
 
         package_id = stix_json['id']
         if title == 'No Title':
@@ -1179,8 +1183,10 @@ class Command(BaseCommand):
             'description': TAG_RE.sub('', description).strip(),
             'short_description': short_description,
             'source': source,
-            'produced_time': produced_time,
         }
+        if produced_time:
+            package_dict['produced_time'] = produced_time
+        #print(package_dict)
         # create package db object
         package_object, package_object_created = Package.objects.get_or_create(**package_dict)
         package_object.namespace.add(package_namespace_obj)
