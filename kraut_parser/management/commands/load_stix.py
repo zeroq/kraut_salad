@@ -1186,7 +1186,6 @@ class Command(BaseCommand):
         }
         if produced_time:
             package_dict['produced_time'] = produced_time
-        #print(package_dict)
         # create package db object
         package_object, package_object_created = Package.objects.get_or_create(**package_dict)
         package_object.namespace.add(package_namespace_obj)

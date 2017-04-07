@@ -223,7 +223,7 @@ class Indicator(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
-    indicator_id = models.CharField(max_length=255, unique=True)
+    indicator_id = models.CharField(max_length=255)
     namespace = models.ManyToManyField('Namespace', blank=True)
     indicator_types = models.ManyToManyField(Indicator_Type, blank=True)
     confidence = models.ManyToManyField(Confidence, blank=True)
