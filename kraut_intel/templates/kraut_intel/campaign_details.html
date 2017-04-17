@@ -99,7 +99,7 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ campaign.name }}</h3>
+        <h3 class="panel-title">{{ campaign.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -125,6 +125,23 @@
         <pre class="pre-scrollable wrapdiv">{{ campaign.description }}</pre>
     </div>
 </div>
+
+<div id="commentsidebar" class="navsidebar navsidebar-right">
+  <div id="commentsidebar-wrapper" class="commentsidebar-wrapper">
+    <header class="navsidebar-header"><i class="fa fa-comment-o"></i>&nbsp;Kraut Commentor</header>
+    <nav class="navsidebar-menu">
+        <form action="{% url 'intel:comment_campaign' campaign_id=campaign.id %}" method="POST">
+        {% csrf_token %}
+            <ul>
+                <li><div class="form-group"><label for="packageAuthor">Author:</label><div>{{ request.user  }}</div></div></li>
+                <li><div class="form-group"><label for="packageComment">Enter Comment:</label>{{ commentform.ctext }}</div></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Comment</button></li>
+            </ul>
+        </form>
+    </nav>
+  </div>
+</div>
+
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Intelligence Information</h3>
@@ -211,6 +228,27 @@
 </div>
 </div> <!-- panel-body -->
 </div> <!-- panel -->
+{% if comments %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-comment-o"></i>&nbsp;Comments</h3>
+    </div>
+    <div class="panel-body">
+       <table id="comment_table" class="table table-condensed" style="font-size: 0.9em;">
+            <tbody>
+                {% for comment in comments %}
+                    <tr>
+                        <td>Author:</td><td>{{ comment.author }}</td><td>Created:</td><td>{{ comment.creation_time }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><pre class="pre-scrollable wrapdiv">{{ comment.ctext }}</pre></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endspaceless %}
 {% endif %}
 {% endblock %}
@@ -358,6 +396,39 @@ $(document).ready( function () {
 
 $(function () {
     $('[data-toggle="popover"]').popover()
+});
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+
+$(document).ready(function() {
+  $('#navsidebar').simplerSidebar({
+    opener: '#toggle-navsidebar',
+    sidebar: {
+      align: 'right',
+      width: 560,
+      closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
+});
+
+$(document).ready(function() {
+  $('#commentsidebar').simplerSidebar({
+    opener: '#toggle-commentsidebar',
+    sidebar: {
+      align: 'right',
+      width: 560,
+      closingLinks: '.close-commentsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
 });
 </script>
 {% endblock%}

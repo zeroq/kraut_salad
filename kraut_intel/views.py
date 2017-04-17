@@ -14,8 +14,8 @@ from kraut_parser.models import AttackPattern, Namespace, Confidence
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm
-from kraut_intel.models import PackageComment, ThreatActorComment
+from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm, CampaignCommentForm
+from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment
 
 import datetime, uuid, argparse
 
@@ -25,6 +25,8 @@ import datetime, uuid, argparse
 def home(request):
     context = {}
     return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
+
+################### PACKAGE #####################
 
 @login_required
 def packages(request):
@@ -272,6 +274,7 @@ def package_graph(request, package_id="1"):
     context['package'] = package
     return render_to_response('kraut_intel/package_full_tree.html', context, context_instance=RequestContext(request))
 
+################### THREAT ACTOR #####################
 
 @login_required
 def edit_create_threatactor(request, threat_actor_id):
@@ -428,9 +431,17 @@ def threatactor(request, threat_actor_id="1"):
         context['num_ttps'] = ta[0].observed_ttps.count()
     return render_to_response('kraut_intel/threatactor_details.html', context, context_instance=RequestContext(request))
 
+################### CAMPAIGNS #####################
+
 @login_required
 def campaigns(request):
     context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/campaigns.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -449,6 +460,12 @@ def campaign(request, campaign_id="1"):
     if len(campaign)<=0:
         messages.warning(request, "No campaign with the given ID exists in the system.")
     else:
+        try:
+            comments = CampaignComment.objects.filter(campaign_reference=campaign[0]).order_by('-creation_time')
+        except:
+            comments = None
+        context['comments'] = comments
+        context['commentform'] = CampaignCommentForm()
         context['campaign'] = campaign[0]
         context['namespace_icon'] = get_icon_for_namespace(campaign[0].namespace)
         try:
@@ -472,6 +489,32 @@ def campaign(request, campaign_id="1"):
         else:
             context['confidence_color'] = 'danger'
     return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+
+@login_required
+def comment_campaign(request, campaign_id):
+    """add a comment to a campaign object
+    """
+    if request.method == "POST":
+        form = CampaignCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                campaign = Campaign.objects.get(pk=int(campaign_id))
+            except Campaign.DoesNotExist:
+                messages.error(request, 'The requested campaign does not exist!')
+                return render_to_response('kraut_intel/campaigns.html', {}, context_instance=RequestContext(request))
+            data = {
+                'ctext': form.cleaned_data['ctext'],
+                'author': request.user,
+                'campaign_reference': campaign
+            }
+            new_comment = CampaignComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("intel:campaign", kwargs={'campaign_id': campaign_id}))
 
 @login_required
 def delete_campaign(request, campaign_id):

@@ -5,7 +5,7 @@ from rest_framework.pagination import PaginationSerializer
 from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object, TTP, Address_Object, URI_Object
 from kraut_parser.models import MalwareInstance, AttackPattern
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment
+from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment
 from kraut_incident.models import Contact, Handler, Incident
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 
@@ -537,3 +537,21 @@ class PaginatedActorCommentSerializer(PaginationSerializer):
 
     class Meta:
         object_serializer_class = ActorCommentSerializer
+
+
+class CampaignCommentSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CampaignComment
+        fields = ('id', 'author', 'creation_time', 'campaign_reference', 'ctext')
+
+    def get_author(self, obj):
+        return obj.author.username
+
+class PaginatedCampaignCommentSerializer(PaginationSerializer):
+    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
+    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
+
+    class Meta:
+        object_serializer_class = CampaignCommentSerializer
