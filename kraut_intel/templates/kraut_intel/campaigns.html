@@ -83,8 +83,8 @@
                     'sName': 'Comment',
                     'aTargets': [ 1 ],
                     'mRender': function (data, type, full) {
-                        var view_url = "{% url 'intel:campaign' campaign_id=0 %}".replace(0, Number(full.package_reference));
-                        return '<table width="100%" class="" style="font-size: 0.9em;"><tr><td colspan="2">Comment:</td></tr><tr><td colspan="2"><b>'+data+'</b></td></tr><tr><td align="left">Campaign: <a href="'+view_url+'">'+full.package_reference+'</a></td><td align="right">Author: '+full.author+' Date: '+full.creation_time+'</td></tr></table>';
+                        var view_url = "{% url 'intel:campaign' campaign_id=0 %}".replace(0, Number(full.campaign_reference));
+                        return '<table width="100%" class="" style="font-size: 0.9em;"><tr><td colspan="2">Comment:</td></tr><tr><td colspan="2"><b>'+data+'</b></td></tr><tr><td align="left">Campaign: <a href="'+view_url+'">'+full.campaign_reference+'</a></td><td align="right">Author: '+full.author+' Date: '+full.creation_time+'</td></tr></table>';
                     },
                 }
             ],
