@@ -365,6 +365,51 @@ def comment_actor(request, threat_actor_id="1"):
                         messages.error(request, '%s: %s' % (field.name, error))
     return HttpResponseRedirect(reverse("intel:threatactor", kwargs={'threat_actor_id': threat_actor_id}))
 
+@login_required
+def update_ta_header(request, threat_actor_id="1"):
+    """ update header information of given threat actor
+    """
+    try:
+        actor = ThreatActor.objects.get(pk=int(threat_actor_id))
+    except ThreatActor.DoesNotExist:
+        messages.error(request, 'The requested threat actor does not exist!')
+        return HttpResponseRedirect(reverse('intel:threatactors'))
+    if request.method == "POST":
+        ta_name = request.POST.get('ta_name', None)
+        ta_types = request.POST.get('ta_types', None)
+        ta_roles = request.POST.get('ta_roles', None)
+        ta_ns = request.POST.get('ta_namespace', None)
+        ta_descr = request.POST.get('ta_description', None)
+        if ta_name:
+            actor.name = ta_name
+        if ta_types:
+            ### remove all old types for this TA
+            TA_Types.objects.filter(actor=actor).delete()
+            ttypes_list = ta_types.split(',')
+            for item in ttypes_list:
+                if item.strip() == 'Unknown':
+                    continue
+                ta_type_object, ta_type_created = TA_Types.objects.get_or_create(ta_type=item.strip(), actor=actor)
+        else:
+            TA_Types.objects.filter(actor=actor).delete()
+        if ta_roles:
+            ### remove all old roles for this TA
+            TA_Roles.objects.filter(actor=actor).delete()
+            troles_list = ta_roles.split(',')
+            for item in troles_list:
+                if item.strip() == 'Unknown':
+                    continue
+                ta_role_object, ta_role_created = TA_Roles.objects.get_or_create(role=item.strip(), actor=actor)
+        else:
+            TA_Roles.objects.filter(actor=actor).delete()
+        if ta_ns:
+            ns_obj, ns_created = Namespace.objects.get_or_create(namespace=ta_ns)
+            actor.namespace.clear()
+            actor.namespace.add(ns_obj)
+        if ta_descr:
+            actor.description = ta_descr
+        actor.save()
+    return HttpResponseRedirect(reverse("intel:threatactor", kwargs={'threat_actor_id': threat_actor_id}))
 
 @login_required
 def delete_threatactor(request, threat_actor_id="1"):
@@ -402,11 +447,19 @@ def threatactor(request, threat_actor_id="1"):
         context['comments'] = comments
         context['commentform'] = ActorCommentForm()
         context['ta'] = ta[0]
+        ### Get TA Types
         try:
-            ta_type_object = TA_Types.objects.get(actor=ta[0])
-            ta_type = ta_type_object.ta_type
+            ta_types = TA_Types.objects.filter(actor=ta[0])
+            #ta_type = ta_type_object.ta_type
         except TA_Types.DoesNotExist:
-            ta_type = "Unknown"
+            ta_types = [{'ta_type': "Unknown"}]
+        ta_types_string = ""
+        for item in ta_types:
+            ta_types_string += '%s, ' % (item.ta_type)
+        ta_types_string = ta_types_string.strip()[:-1]
+        if ta_types_string == "":
+            ta_types_string = "Unknown"
+        ### Get TA Roles
         try:
             ta_roles = TA_Roles.objects.filter(actor=ta[0])
         except TA_Roles.DoesNotExist:
@@ -417,13 +470,15 @@ def threatactor(request, threat_actor_id="1"):
         ta_roles_string = ta_roles_string.strip()[:-1]
         if ta_roles_string == "":
             ta_roles_string = "Unknown"
+        ### Get TA Alias Names
         try:
             ta_alias = TA_Alias.objects.filter(actor=ta[0])
         except TA_Alias.DoesNotExist:
             ta_alias = None
-        context['ta_type'] = ta_type
+        context['ta_types'] = ta_types_string
         context['ta_roles'] = ta_roles_string
         context['ta_alias'] = ta_alias
+        context['namespaces'] = Namespace.objects.all()
         context['namespace_icon'] = get_icon_for_namespace(ta[0].namespace)
         context['tab'] = 'campaigns'
         context['num_campaigns'] = ta[0].campaigns.count()

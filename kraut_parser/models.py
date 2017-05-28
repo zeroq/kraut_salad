@@ -177,7 +177,7 @@ class TA_Types(models.Model):
     actor = models.ForeignKey(ThreatActor)
 
     def __unicode__(self):
-        return u"%s" % (self.ta_type)
+        return u"%s -> %s" % (self.actor.name, self.ta_type)
 
     class Meta:
         unique_together = (("ta_type", "actor"),)
