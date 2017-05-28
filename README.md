@@ -49,7 +49,7 @@ The following items describe what is still planned but has no particular order:
 
 * add more CybOX objects (e.g. ProcessObject, HTTPSessionObject, ...)
 * add support for IOC format
-* create a webinterface to browse and modify threat intelligence data
+* create a webinterface to browse and modify threat intelligence data (work in progress ...)
 * create an interface to neo4js graph database
 * create a webinterface to track and handle incidents
 * associate threat intelligence data with assets detected during an incident
