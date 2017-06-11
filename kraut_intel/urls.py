@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^campaign/(?P<campaign_id>\d+)/$', views.campaign, name='campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/delete/$', views.delete_campaign, name='delete_campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/add/comment$', views.comment_campaign, name='comment_campaign'),
+    url(r'^campaign/(?P<campaign_id>\d+)/update/header$', views.update_campaign_header, name='update_campaign_header'),
     # ttps
     url(r'^ttps/$', views.ttps, name='ttps'),
     url(r'^ttp/(?P<ttp_id>\d+)/$', views.ttp, name='ttp'),

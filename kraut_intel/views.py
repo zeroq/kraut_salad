@@ -522,6 +522,8 @@ def campaign(request, campaign_id="1"):
         context['comments'] = comments
         context['commentform'] = CampaignCommentForm()
         context['campaign'] = campaign[0]
+        context['confidences'] = Confidence.objects.all()
+        context['namespaces'] = Namespace.objects.all()
         context['namespace_icon'] = get_icon_for_namespace(campaign[0].namespace)
         try:
             context['confidence'] = campaign[0].confidence.last().value
@@ -570,6 +572,42 @@ def comment_campaign(request, campaign_id):
                     for error in field.errors:
                         messages.error(request, '%s: %s' % (field.name, error))
     return HttpResponseRedirect(reverse("intel:campaign", kwargs={'campaign_id': campaign_id}))
+
+@login_required
+def update_campaign_header(request, campaign_id):
+    """ update header information of given campaign (kraut editor)
+    """
+    try:
+        campaign = Campaign.objects.get(pk=int(campaign_id))
+    except Campaign.DoesNotExist:
+        messages.error(request, "The requested campaign does not exist!")
+        return render_to_response('kraut_intel/campaigns.html', {}, context_instance=RequestContext(request))
+    if request.method == "POST":
+        campaign_name = request.POST.get('campaign_name', None)
+        campaign_status = request.POST.get('campaign_status', None)
+        campaign_confidence = request.POST.get('campaign_confidence', None)
+        campaign_ns = request.POST.get('campaign_namespace', None)
+        campaign_descr = request.POST.get('campaign_description', None)
+        if campaign_name:
+            campaign.name = campaign_name
+        if campaign_status:
+            campaign.status = campaign_status
+        if campaign_confidence:
+            try:
+                cobj = Confidence.objects.get(value=campaign_confidence)
+                campaign.confidence.clear()
+                campaign.confidence.add(cobj)
+            except Exception as e:
+                messages.error(request, "Failed updating confidence: %s" % (e))
+        if campaign_ns:
+            ns_obj, ns_created = Namespace.objects.get_or_create(namespace=campaign_ns)
+            campaign.namespace.clear()
+            campaign.namespace.add(ns_obj)
+        if campaign_descr:
+            campaign.description = campaign_descr
+        campaign.save()
+    return HttpResponseRedirect(reverse("intel:campaign", kwargs={'campaign_id': campaign_id}))
+
 
 @login_required
 def delete_campaign(request, campaign_id):

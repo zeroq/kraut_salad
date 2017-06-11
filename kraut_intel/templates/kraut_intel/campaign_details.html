@@ -99,7 +99,7 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ campaign.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i></h3>
+        <h3 class="panel-title">{{ campaign.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -125,6 +125,51 @@
         <pre class="pre-scrollable wrapdiv">{{ campaign.description }}</pre>
     </div>
 </div>
+
+<div id="navsidebar" class="navsidebar navsidebar-right">
+  <div id="navsidebar-wrapper" class="navsidebar-wrapper">
+    <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
+    <nav class="navsidebar-menu">
+        <form action="{% url 'intel:update_campaign_header' campaign_id=campaign_id %}" method="POST">
+        {% csrf_token %}
+            <ul>
+                <li>Title</li>
+                <li><input name="campaign_name" class="form-control" type="text" value="{{ campaign.name }}"></li>
+                <li>Status</li>
+                <li><input name="campaign_status" class="form-control" type="text" value="{{ campaign.status }}"></li>
+                <li>Confidence</li>
+                <li>
+                <select class="form-control" name="campaign_confidence">
+                    {% for co in confidences %}
+                        {% if co.value == confidence %}
+                            <option selected>{{ co.value }}</option>
+                        {% else %}
+                            <option>{{ co.value }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
+                <li>Namespace<br/><small>(clears all other namespaces set)</small></li>
+                <li>
+                <select class="form-control" name="campaign_namespace">
+                    {% for ns in namespaces %}
+                        {% if ns.namespace == campaign.namespace.last.namespace %}
+                            <option selected>{{ ns }}</option>
+                        {% else %}
+                            <option>{{ ns }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
+                <li>Description</li>
+                <li><textarea class="form-control" name="campaign_description" rows="13">{{ campaign.description }}</textarea></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
+            </ul>
+            </form>
+    </nav>
+  </div>
+</div>
+
 
 <div id="commentsidebar" class="navsidebar navsidebar-right">
   <div id="commentsidebar-wrapper" class="commentsidebar-wrapper">
