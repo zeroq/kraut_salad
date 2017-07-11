@@ -25,6 +25,13 @@ def home(request):
     return render_to_response('kraut_sharing/index.html', context, context_instance=RequestContext(request))
 
 @login_required
+def manage_osint_feeds(request):
+    """ manage OSINT feeds """
+    context = {}
+    return render_to_response('kraut_sharing/osintfeeds.html', context, context_instance=RequestContext(request))
+
+
+@login_required
 def manage_servers(request):
     """ manage taxii servers """
     context = {}

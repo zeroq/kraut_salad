@@ -4,6 +4,17 @@ from django.db import models
 
 # Create your models here.
 
+class OSINT_Feed(models.Model):
+    creation_time = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255, help_text="""Name/Identifier""")
+    url = models.CharField(max_length=2014, help_text="""URL for feed""")
+    last_pull = models.DateTimeField(blank=True, null=True)
+    namespace = models.CharField(max_length=255, default='nospace')
+    source = models.CharField(max_length=255, default='unknown')
+
+    def __unicode__(self):
+        return u"%s" % (self.name)
+
 class TAXII_Remote_Collection(models.Model):
     creation_time = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)

@@ -238,7 +238,10 @@ def package(request, package_id="1"):
         context['comments'] = comments
         context['commentform'] = PackageCommentForm()
         context['package'] = package[0]
-        context['description'] = ' '.join(package[0].description.strip().split())
+        if package[0].description:
+            context['description'] = ' '.join(package[0].description.strip().split())
+        else:
+            context['description'] = ''
         context['namespaces'] = Namespace.objects.all()
         context['namespace_icon'] = get_icon_for_namespace(package[0].namespace.last().namespace)
         context['num_threat_actors'] = package[0].threat_actors.count()

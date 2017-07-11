@@ -4,12 +4,12 @@ from django.core.urlresolvers import reverse
 from menu import Menu, MenuItem
 
 sharing_children = (
-    MenuItem("Manage Servers",
+    MenuItem("Manage TAXII Servers",
             reverse("sharing:servers"),
             weight=10,
             image="images/Taxii.svg"
         ),
-    MenuItem("Manage Collections",
+    MenuItem("Manage TAXII Collections",
             reverse("sharing:collections"),
             weight=15,
             image="images/Taxii.svg"
