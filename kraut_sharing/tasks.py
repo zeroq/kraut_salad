@@ -20,6 +20,7 @@ def poll_collection(collection):
     logger.info('Calculated starting TS: %s' % (begin_ts.strftime('%Y-%m-%dT%H:%M:%S.%f%z')))
     collection.begin_timestamp = begin_ts
     collection.save()
+    logger.info('Polling collection: %s' % (collection.name))
     # store information in import directory
     script = CollectionPoll(url=server_url, collection_name=collection.name, begin_timestamp=begin_ts.strftime('%Y-%m-%dT%H:%M:%S.%f%z'))
     script.run()

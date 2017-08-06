@@ -58,7 +58,7 @@ class CollectionPoll:
         if response.message_type == MSG_POLL_RESPONSE:
             if response.more:
                 # TODO: handle More=True in response
-                print "TODO: handle More=True!!!"
+                print("TODO: handle More=True!!!")
             self.write_response_to_import(response, settings.MY_IMPORT_DIRECTORY)
 
     def write_response_to_import(self, response, dest_dir):
