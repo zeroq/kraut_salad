@@ -1590,6 +1590,10 @@ class Command(BaseCommand):
                         shutil.move(xml, backup_dir)
                     except Exception as e:
                         print("failed moving file to backup directory: %s" % (e))
+                try:
+                    os.remove(xml)
+                except Exception as e:
+                    print("failed removing stix xml file: %s" % (e))
         self.stdout.write('------')
         # print all missing object references
         for item in self.missing_references:
