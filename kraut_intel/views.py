@@ -262,6 +262,9 @@ def package(request, package_id="1"):
         context['quick_pane'] = {}
         for obs_obj in package[0].observables.all():
             context['quick_pane'][obs_obj.observable_type] = True
+        for ind_obj in package[0].indicators.all():
+            for obs_obj in ind_obj.observable_set.all():
+                context['quick_pane'][obs_obj.observable_type] = True
     return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
 
 @login_required

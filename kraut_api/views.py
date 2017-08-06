@@ -138,6 +138,12 @@ def package_quick(request, pk, otype, format=None):
                 objects = get_object_for_observable(observable_type=obs.observable_type, observable_object=obs, no_hash=False)
                 for obj in objects:
                     writer.writerow(['%s' % (obj)])
+        for ind in pack.indicators.all():
+            for obs in ind.observable_set.all():
+                if obs.observable_type == otype:
+                    objects = get_object_for_observable(observable_type=obs.observable_type, observable_object=obs, no_hash=False)
+                    for obj in objects:
+                        writer.writerow(['%s' % (obj)])
         return response
     response = {'results': []}
     for obs in pack.observables.all():
@@ -147,6 +153,14 @@ def package_quick(request, pk, otype, format=None):
                 item = {'value': '%s' % (obj)}
                 if item not in response['results']:
                     response['results'].append(item)
+    for ind in pack.indicators.all():
+        for obs in ind.observable_set.all():
+            if obs.observable_type == otype:
+                objects = get_object_for_observable(observable_type=obs.observable_type, observable_object=obs, no_hash=False)
+                for obj in objects:
+                    item = {'value': '%s' % (obj)}
+                    if item not in response['results']:
+                        response['results'].append(item)
     return JsonResponse(response)
 
 @api_view(['GET'])
