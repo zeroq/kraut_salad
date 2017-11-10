@@ -158,6 +158,10 @@ def edit_create_package(request, package_id=None):
         context['form'] = form
         context['package_id'] = package_id
         context['package'] = package
+        try:
+            context['namespace_icon'] = get_icon_for_namespace(package.namespace.last().namespace)
+        except:
+            context['namespace_icon'] = get_icon_for_namespace('nospace')
     return render_to_response('kraut_intel/edit_create_package.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -331,6 +335,10 @@ def edit_create_threatactor(request, threat_actor_id):
         context['form'] = form
         context['actor_id'] = threat_actor_id
         context['actor'] = actor
+        try:
+            context['namespace_icon'] = get_icon_for_namespace(actor.namespace.last().namespace)
+        except:
+            context['namespace_icon'] = get_icon_for_namespace('nospace')
     return render_to_response('kraut_intel/edit_create_actor.html', context, context_instance=RequestContext(request))
 
 
