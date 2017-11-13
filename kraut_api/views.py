@@ -1678,6 +1678,13 @@ def observable_related_packages(request, pk, format=None):
                         pack_dict = {'id': package.pk, 'name': package.name}
                         if pack_dict not in final_list:
                             final_list.append(pack_dict)
+        # check if observable belongs to indicator that is embedded in a package
+        for indicator in observable.indicators.all():
+            for package in indicator.package_set.all():
+                pack_dict = {'id': package.pk, 'name': package.name}
+                if pack_dict not in final_list:
+                    final_list.append(pack_dict)
+        # display results
         total_results = len(final_list)
         response = {
             'count': total_results,
