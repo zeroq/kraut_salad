@@ -165,6 +165,23 @@ def edit_create_package(request, package_id=None):
     return render_to_response('kraut_intel/edit_create_package.html', context, context_instance=RequestContext(request))
 
 @login_required
+def delete_comment_package(request, package_id="1", comment_id="1"):
+    """ delete a comment associated with an intelligence package
+    """
+    try:
+        package = Package.objects.get(pk=int(package_id))
+    except Package.DoesNotExist:
+        messages.error(request, 'The requested package does not exist!')
+        return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+    try:
+        cobj = PackageComment.objects.get(pk=int(comment_id),package_reference=package,author=request.user)
+    except PackageComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+    cobj.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
+
+@login_required
 def comment_package(request, package_id="1"):
     """ add a comment to an intelligence package
     """
@@ -352,6 +369,23 @@ def threatactors(request):
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
+
+@login_required
+def delete_comment_actor(request, threat_actor_id="1", comment_id="1"):
+    """ delete a comment associated with a threat actor
+    """
+    try:
+        actor = ThreatActor.objects.get(pk=int(threat_actor_id))
+    except ThreatActor.DoesNotExist:
+        messages.error(request, 'The requested threat actor does not exist!')
+        return HttpResponseRedirect(reverse('intel:threatactors'))
+    try:
+        cobj = ThreatActorComment.objects.get(pk=int(comment_id),actor_reference=actor,author=request.user)
+    except ThreatActorComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+    cobj.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("intel:threatactor", kwargs={'threat_actor_id': threat_actor_id}))
 
 @login_required
 def comment_actor(request, threat_actor_id="1"):

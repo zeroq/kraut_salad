@@ -356,7 +356,13 @@
             <tbody>
                 {% for comment in comments %}
                     <tr>
-                        <td>Author:</td><td>{{ comment.author }}</td><td>Created:</td><td>{{ comment.creation_time }}</td>
+                        <td>Author:</td><td>{{ comment.author }}</td><td>Created:</td>
+                        <td>
+                            {{ comment.creation_time }}
+                            {% if comment.author == request.user %}
+                                <a href="{% url 'intel:delete_comment_package' package_id=package_id comment_id=comment.id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="delete comment" class="fa fa-remove pull-right"></i></a>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td colspan="4"><pre class="pre-scrollable wrapdiv">{{ comment.ctext }}</pre></td>

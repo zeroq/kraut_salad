@@ -12,13 +12,15 @@ urlpatterns = [
     url(r'^package/(?P<package_id>\d+)/edit/$', views.edit_create_package, name='edit_create_package'),
     url(r'^package/(?P<package_id>\d+)/add/(?P<item_id>\d+)/(?P<item_name>\w+)/$', views.add_item_to_package, name='add_item_to_package'),
     url(r'^package/(?P<package_id>\d+)/add/comment$', views.comment_package, name='comment_package'),
+    url(r'^package/(?P<package_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_package, name='delete_comment_package'),
     # threat actors
     url(r'^threatactors/$', views.threatactors, name='threatactors'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/$', views.threatactor, name='threatactor'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/delete/$', views.delete_threatactor, name='delete_threatactor'),
-    url(r'^threatactor/(?P<threat_actor_id>\d+)/add/comment$', views.comment_actor, name='comment_actor'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/edit/$', views.edit_create_threatactor, name='edit_create_threatactor'),
     url(r'^threatactor/(?P<threat_actor_id>\d+)/update/header$', views.update_ta_header, name='update_ta_header'),
+    url(r'^threatactor/(?P<threat_actor_id>\d+)/add/comment$', views.comment_actor, name='comment_actor'),
+    url(r'^threatactor/(?P<threat_actor_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_actor, name='delete_comment_actor'),
     # campaigns
     url(r'^campaigns/$', views.campaigns, name='campaigns'),
     url(r'^campaign/(?P<campaign_id>\d+)/$', views.campaign, name='campaign'),
