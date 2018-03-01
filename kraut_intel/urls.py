@@ -27,10 +27,13 @@ urlpatterns = [
     url(r'^campaign/(?P<campaign_id>\d+)/delete/$', views.delete_campaign, name='delete_campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/add/comment$', views.comment_campaign, name='comment_campaign'),
     url(r'^campaign/(?P<campaign_id>\d+)/update/header$', views.update_campaign_header, name='update_campaign_header'),
+    url(r'^campaign/(?P<campaign_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_campaign, name='delete_comment_campaign'),
     # ttps
     url(r'^ttps/$', views.ttps, name='ttps'),
     url(r'^ttp/(?P<ttp_id>\d+)/$', views.ttp, name='ttp'),
     url(r'^ttp/(?P<ttp_id>\d+)/delete/$', views.delete_ttp, name='delete_ttp'),
+    url(r'^ttp/(?P<ttp_id>\d+)/add/comment$', views.comment_ttp, name='comment_ttp'),
+    url(r'^ttp/(?P<ttp_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_ttp, name='delete_comment_ttp'),
     # indicators
     url(r'^indicators/$', views.indicators, name='indicators'),
     url(r'^indicator/(?P<indicator_id>\d+)/$', views.indicator, name='indicator'),

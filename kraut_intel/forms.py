@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 
 from kraut_parser.models import Package, ThreatActor
-from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment
+from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment, TTPComment
 
 ################### PACKAGE #####################
 
@@ -67,4 +67,15 @@ class CampaignCommentForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CampaignCommentForm, self).__init__(*args, **kwargs)
+        self.fields['ctext'].widget.attrs.update({'class' : 'form-control', 'id': 'packageComment'})
+
+################### TTP #####################
+
+class TTPCommentForm(ModelForm):
+    class Meta:
+        model = TTPComment
+        fields = ['ctext']
+
+    def __init__(self, *args, **kwargs):
+        super(TTPCommentForm, self).__init__(*args, **kwargs)
         self.fields['ctext'].widget.attrs.update({'class' : 'form-control', 'id': 'packageComment'})

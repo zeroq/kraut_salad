@@ -12,19 +12,17 @@ from rest_framework.authentication import SessionAuthentication
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance
 from kraut_parser.models import Address_Object, URI_Object
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer
-from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer
+from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PaginatedCampaignCommentSerializer, PaginatedActorCommentSerializer
 from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
 from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSerializer, PaginatedFileObjectSerializer, PaginatedIncidentSerializer
 from kraut_api.serializers import PaginatedAddressObjectSerializer, PaginatedURIObjectSerializer
-from kraut_api.serializers import PaginatedTTPSerializer
+from kraut_api.serializers import PaginatedTTPSerializer, PaginatedTTPCommentSerializer
 from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
 from kraut_api.serializers import PaginatedServersSerializer, PaginatedCollectionSerializer
 from kraut_api.serializers import PaginatedPackageCommentSerializer
-from kraut_api.serializers import PaginatedActorCommentSerializer
-from kraut_api.serializers import PaginatedCampaignCommentSerializer
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
-from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment
+from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment, TTPComment
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 from kraut_sharing.forms import DiscoveryForm
 from kraut_sharing.feed import CollectionRequest
@@ -2214,6 +2212,8 @@ def list_comments(request, object_type, format=None):
             queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         elif object_type == 'campaigns':
             queryset = CampaignComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        elif object_type == 'ttps':
+            queryset = TTPComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         else:
             queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
@@ -2232,6 +2232,8 @@ def list_comments(request, object_type, format=None):
             serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
         elif object_type == 'campaigns':
             serializer = PaginatedCampaignCommentSerializer(comments, context=serializer_context)
+        elif object_type == 'ttps':
+            serializer = PaginatedTTPCommentSerializer(comments, context=serializer_context)
         else:
             serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
         return Response(serializer.data)

@@ -14,8 +14,8 @@ from kraut_parser.models import AttackPattern, Namespace, Confidence
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm, CampaignCommentForm
-from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment
+from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm, CampaignCommentForm, TTPCommentForm
+from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment, TTPComment
 
 import datetime, uuid, argparse
 
@@ -596,6 +596,24 @@ def campaign(request, campaign_id="1"):
     return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
 
 @login_required
+def delete_comment_campaign(request, campaign_id="1", comment_id="1"):
+    """ delete a comment associated with a threat campaign
+    """
+    try:
+        campaign = Campaign.objects.get(pk=int(campaign_id))
+    except Campaign.DoesNotExist:
+        messages.error(request, 'The requested campaign does not exist!')
+        return HttpResponseRedirect(reverse('intel:campaigns'))
+    try:
+        cobj = CampaignComment.objects.get(pk=int(comment_id),campaign_reference=campaign,author=request.user)
+    except CampaignComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+    cobj.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("intel:campaign", kwargs={'campaign_id': campaign_id}))
+
+
+@login_required
 def comment_campaign(request, campaign_id):
     """add a comment to a campaign object
     """
@@ -675,7 +693,57 @@ def delete_campaign(request, campaign_id):
 @login_required
 def ttps(request):
     context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/ttps.html', context, context_instance=RequestContext(request))
+
+@login_required
+def delete_comment_ttp(request, ttp_id="1", comment_id="1"):
+    """ delete a comment associated with a ttp
+    """
+    try:
+        ttp = TTP.objects.get(pk=int(ttp_id))
+    except TTP.DoesNotExist:
+        messages.error(request, 'The requested ttp does not exist!')
+    	return HttpResponseRedirect(reverse('intel:ttps'))
+    try:
+        cobj = TTPComment.objects.get(pk=int(comment_id),ttp_reference=ttp,author=request.user)
+    except TTPComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+    cobj.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
+
+@login_required
+def comment_ttp(request, ttp_id="1"):
+    """ add a comment to a ttp
+    """
+    if request.method == "POST":
+        form = TTPCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                ttp = TTP.objects.get(pk=int(ttp_id))
+            except TTP.DoesNotExist:
+                messages.error(request, 'The requested ttp does not exist!')
+                return HttpResponseRedirect(reverse('intel:ttps'))
+            data = {
+                'ctext': form.cleaned_data['ctext'],
+                'author': request.user,
+                'ttp_reference': ttp
+            }
+            new_comment = TTPComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
+
 
 @login_required
 def ttp(request, ttp_id="1"):
@@ -690,6 +758,12 @@ def ttp(request, ttp_id="1"):
     if len(ttp)<=0:
         messages.error(request, 'No TTP with given ID exists in the system.')
     else:
+        try:
+            comments = TTPComment.objects.filter(ttp_reference=ttp[0]).order_by('-creation_time')
+        except:
+            comments = None
+        context['comments'] = comments
+        context['commentform'] = TTPCommentForm()
         context['ttp'] = ttp[0]
         context['namespace_icon'] = get_icon_for_namespace(ttp[0].namespace)
         context['num_rel_ttps'] = ttp[0].related_ttps.count()
