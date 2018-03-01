@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_single.html" %}
 {% load staticfiles %}
 {% block content %}
 {% spaceless %}
@@ -22,20 +22,10 @@
             <th>Last Modified</th>
             <th>Status</th>
             <th>Category</th>
+            <th>Severity</th>
             <th>Operations</th>
         </tr>
     </thead>
-    <tbody>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-    </tbody>
 </table>
 {% endspaceless %}
 {% endblock%}
@@ -81,11 +71,12 @@
                     },
                 },
                 {'data': 'category', 'sName': 'category', 'aTargets': [ 6 ]},
+                {'data': 'severity', 'sName': 'severity', 'aTargets': [ 7 ]},
                 {
                     "data": 'id',
                     'sName': 'operations',
                     'bSortable': false,
-                    'aTargets': [ 7 ],
+                    'aTargets': [ 8 ],
                     "mRender": function (data, type, full) {
                         return '<div class="btn-group1">' +
                             '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit">' +

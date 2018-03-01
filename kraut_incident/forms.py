@@ -31,11 +31,12 @@ class ContactForm(ModelForm):
 class IncidentForm(ModelForm):
     class Meta:
         model = Incident
-        fields = ['incident_number', 'title', 'description', 'status', 'category']
+        fields = ['incident_number', 'title', 'description', 'status', 'category', 'severity']
         widgets = {
             'incident_number': widgets.NumberInput(attrs={'class': 'form-control', 'readonly': True, 'required': True}),
             'title': widgets.TextInput(attrs={'class': 'form-control', 'placeholder': 'Provide a name for the incident or investigation', 'required': True}),
             'description': widgets.Textarea(attrs={'class': 'form-control', 'placeholder': 'What and when did it happened ...'}),
             'status': widgets.Select(attrs={'class': 'form-control'}),
             'category': widgets.Select(attrs={'class': 'form-control'}),
+            'severity': widgets.Select(attrs={'class': 'form-control'}),
         }

@@ -50,7 +50,7 @@ class Task(models.Model):
                 ('do', 'Done'),
                 ('ab', 'Aborted'),
             )
-    stauts = models.CharField(max_length=2, choices=status_choices, default='op')
+    status = models.CharField(max_length=2, choices=status_choices, default='op')
     responsible = models.ManyToManyField(Contact, blank=True)
 
 class Account(models.Model):
@@ -64,7 +64,7 @@ class Account(models.Model):
                 ('cl', 'Clean'),
                 ('co', 'Compromised'),
             )
-    stauts = models.CharField(max_length=2, choices=status_choices, default='cl')
+    status = models.CharField(max_length=2, choices=status_choices, default='cl')
 
     class Meta:
         unique_together = (("name", "domain"),)
@@ -149,6 +149,12 @@ class Incident(models.Model):
     tasks = models.ManyToManyField(Task, blank=True)
     incident_handler = models.ManyToManyField(Handler, blank=True, related_name="incident_handler")
     contacts = models.ManyToManyField(Contact, blank=True, related_name="contacts")
+    severity_choices = (
+                ('h', 'High'),
+                ('m', 'Medium'),
+                ('l', 'Low'),
+            )
+    severity = models.CharField(max_length=2, choices=severity_choices, default='m')
 
     def __unicode__(self):
         return u"%s" % (self.title)

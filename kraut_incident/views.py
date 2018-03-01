@@ -80,7 +80,8 @@ def new_incident(request):
                 title = incident_form.cleaned_data['title'],
                 description = incident_form.cleaned_data['description'],
                 status = incident_form.cleaned_data['status'],
-                category = incident_form.cleaned_data['category']
+                category = incident_form.cleaned_data['category'],
+                severity = incident_form.cleaned_data['severity']
             )
             new_incident.save()
             for key in handler_dict:

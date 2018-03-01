@@ -116,7 +116,15 @@
         "pk": 8,
         "fields": {
             "name": "Breach/APT",
-            "description": "Thei category includes major breaches of IT infrastructure as performed by APTs or state sponsored attacks."
+            "description": "This category includes major breaches of IT infrastructure as performed by APTs or state sponsored attacks."
+        }
+    },
+    {
+        "model": "kraut_incident.incident_category",
+        "pk": 9,
+        "fields": {
+            "name": "Phishing/Scam/Spam",
+            "description": "This category includes all incidents related to phishing, scam, or spam emails."
         }
     }
 ]
