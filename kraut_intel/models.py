@@ -3,7 +3,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from kraut_parser.models import Package, ThreatActor, Campaign, TTP
+from kraut_parser.models import Package, ThreatActor, Campaign, TTP, Indicator, Observable
 
 # Create your models here.
 
@@ -38,3 +38,15 @@ class TTPComment(models.Model):
     author = models.ForeignKey(User)
     creation_time = models.DateTimeField(auto_now_add=True)
     ttp_reference = models.ForeignKey(TTP)
+
+class IndicatorComment(models.Model):
+    ctext = models.TextField()
+    author = models.ForeignKey(User)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    indicator_reference = models.ForeignKey(Indicator)
+
+class ObservableComment(models.Model):
+    ctext = models.TextField()
+    author = models.ForeignKey(User)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    observable_reference = models.ForeignKey(Observable)

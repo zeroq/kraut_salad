@@ -11,18 +11,30 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance
 from kraut_parser.models import Address_Object, URI_Object
-from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, ObservableSerializer, PaginatedObservableSerializer
-from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, ThreatActorSerializer, PaginatedThreatActorSerializer, PaginatedCampaignCommentSerializer, PaginatedActorCommentSerializer
-from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer
+# Indicator
+from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, PaginatedIndicatorCommentSerializer
+# Observable
+from kraut_api.serializers import ObservableSerializer, PaginatedObservableSerializer, PaginatedObservableCommentSerializer
+# Campaign
+from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, PaginatedCampaignCommentSerializer
+# Threat Actor
+from kraut_api.serializers import ThreatActorSerializer, PaginatedThreatActorSerializer, PaginatedActorCommentSerializer
+# Package
+from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer, PaginatedPackageCommentSerializer
+# Incident
 from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSerializer, PaginatedFileObjectSerializer, PaginatedIncidentSerializer
+# Objects
 from kraut_api.serializers import PaginatedAddressObjectSerializer, PaginatedURIObjectSerializer
+# TTPs
 from kraut_api.serializers import PaginatedTTPSerializer, PaginatedTTPCommentSerializer
+# Malware Instance
 from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
+# Sharing Servers
 from kraut_api.serializers import PaginatedServersSerializer, PaginatedCollectionSerializer
-from kraut_api.serializers import PaginatedPackageCommentSerializer
+#
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
-from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment, TTPComment
+from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment, TTPComment, IndicatorComment, ObservableComment
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 from kraut_sharing.forms import DiscoveryForm
 from kraut_sharing.feed import CollectionRequest
@@ -2214,6 +2226,10 @@ def list_comments(request, object_type, format=None):
             queryset = CampaignComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         elif object_type == 'ttps':
             queryset = TTPComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        elif object_type == 'indicators':
+            queryset = IndicatorComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        elif object_type == 'observables':
+            queryset = ObservableComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         else:
             queryset = PackageComment.objects.all().order_by('%s%s' % (order_direction, order_by_column))
         if search_value:
@@ -2234,6 +2250,10 @@ def list_comments(request, object_type, format=None):
             serializer = PaginatedCampaignCommentSerializer(comments, context=serializer_context)
         elif object_type == 'ttps':
             serializer = PaginatedTTPCommentSerializer(comments, context=serializer_context)
+        elif object_type == 'indicators':
+            serializer = PaginatedIndicatorCommentSerializer(comments, context=serializer_context)
+        elif object_type == 'observables':
+            serializer = PaginatedObservableCommentSerializer(comments, context=serializer_context)
         else:
             serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
         return Response(serializer.data)

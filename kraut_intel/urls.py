@@ -39,11 +39,15 @@ urlpatterns = [
     url(r'^indicator/(?P<indicator_id>\d+)/$', views.indicator, name='indicator'),
     url(r'^indicator/(?P<indicator_id>\d+)/update/header$', views.update_indicator_header, name='update_indicator_header'),
     url(r'^indicator/(?P<indicator_id>\d+)/delete/$', views.delete_indicator, name='delete_indicator'),
+    url(r'^indicator/(?P<indicator_id>\d+)/add/comment$', views.comment_indicator, name='comment_indicator'),
+    url(r'^indicator/(?P<indicator_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_indicator, name='delete_comment_indicator'),
     # observables
     url(r'^observables/$', views.observables, name='observables'),
     url(r'^observable/(?P<observable_id>\d+)/$', views.observable, name='observable'),
     url(r'^observable/(?P<observable_id>\d+)/update/header$', views.update_observable_header, name='update_observable_header'),
     url(r'^observable/(?P<observable_id>\d+)/delete/$', views.delete_observable, name='delete_observable'),
+    url(r'^observable/(?P<observable_id>\d+)/add/comment$', views.comment_observable, name='comment_observable'),
+    url(r'^observable/(?P<observable_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_observable, name='delete_comment_observable'),
     # stuff
     url(r'^mwinstance/(?P<mwi_id>\d+)/$', views.malware_instance, name='malware_instance'),
     url(r'^attpattern/(?P<ap_id>\d+)/$', views.attack_pattern, name='attack_pattern'),

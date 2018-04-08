@@ -14,8 +14,8 @@ from kraut_parser.models import AttackPattern, Namespace, Confidence
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 
 from kraut_intel.utils import get_icon_for_namespace
-from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm, CampaignCommentForm, TTPCommentForm
-from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment, TTPComment
+from kraut_intel.forms import PackageForm, PackageCommentForm, ActorCommentForm, ActorForm, CampaignCommentForm, TTPCommentForm, IndicatorCommentForm, ObservableCommentForm
+from kraut_intel.models import PackageComment, ThreatActorComment, CampaignComment, TTPComment, IndicatorComment, ObservableComment
 
 import datetime, uuid, argparse
 
@@ -26,7 +26,9 @@ def home(request):
     context = {}
     return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
 
-################### PACKAGE #####################
+#################
+# PACKAGE VIEWS #
+#################
 
 @login_required
 def packages(request):
@@ -172,11 +174,12 @@ def delete_comment_package(request, package_id="1", comment_id="1"):
         package = Package.objects.get(pk=int(package_id))
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
-        return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+        return HttpResponseRedirect(reverse('intel:packages'))
     try:
         cobj = PackageComment.objects.get(pk=int(comment_id),package_reference=package,author=request.user)
     except PackageComment.DoesNotExist:
         messages.error(request, 'The requested comment does not exist!')
+        return HttpResponseRedirect(reverse('intel:packages'))
     cobj.delete()
     messages.info(request, 'Comment successfully deleted.')
     return HttpResponseRedirect(reverse("intel:package", kwargs={'package_id': package_id}))
@@ -301,7 +304,9 @@ def package_graph(request, package_id="1"):
     context['package'] = package
     return render_to_response('kraut_intel/package_full_tree.html', context, context_instance=RequestContext(request))
 
-################### THREAT ACTOR #####################
+######################
+# THREAT ACTOR VIEWS #
+######################
 
 @login_required
 def edit_create_threatactor(request, threat_actor_id):
@@ -383,6 +388,7 @@ def delete_comment_actor(request, threat_actor_id="1", comment_id="1"):
         cobj = ThreatActorComment.objects.get(pk=int(comment_id),actor_reference=actor,author=request.user)
     except ThreatActorComment.DoesNotExist:
         messages.error(request, 'The requested comment does not exist!')
+        return HttpResponseRedirect(reverse('intel:threatactors'))
     cobj.delete()
     messages.info(request, 'Comment successfully deleted.')
     return HttpResponseRedirect(reverse("intel:threatactor", kwargs={'threat_actor_id': threat_actor_id}))
@@ -534,7 +540,9 @@ def threatactor(request, threat_actor_id="1"):
         context['num_ttps'] = ta[0].observed_ttps.count()
     return render_to_response('kraut_intel/threatactor_details.html', context, context_instance=RequestContext(request))
 
-################### CAMPAIGNS #####################
+##################
+# CAMPAIGN VIEWS #
+##################
 
 @login_required
 def campaigns(request):
@@ -608,6 +616,7 @@ def delete_comment_campaign(request, campaign_id="1", comment_id="1"):
         cobj = CampaignComment.objects.get(pk=int(comment_id),campaign_reference=campaign,author=request.user)
     except CampaignComment.DoesNotExist:
         messages.error(request, 'The requested comment does not exist!')
+        return HttpResponseRedirect(reverse('intel:campaigns'))
     cobj.delete()
     messages.info(request, 'Comment successfully deleted.')
     return HttpResponseRedirect(reverse("intel:campaign", kwargs={'campaign_id': campaign_id}))
@@ -690,6 +699,10 @@ def delete_campaign(request, campaign_id):
     messages.info(request, 'The campaign was deleted successfully!')
     return HttpResponseRedirect(reverse('intel:campaigns'))
 
+###################
+#    TTP VIEWS    #
+###################
+
 @login_required
 def ttps(request):
     context = {}
@@ -714,6 +727,7 @@ def delete_comment_ttp(request, ttp_id="1", comment_id="1"):
         cobj = TTPComment.objects.get(pk=int(comment_id),ttp_reference=ttp,author=request.user)
     except TTPComment.DoesNotExist:
         messages.error(request, 'The requested comment does not exist!')
+    	return HttpResponseRedirect(reverse('intel:ttps'))
     cobj.delete()
     messages.info(request, 'Comment successfully deleted.')
     return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
@@ -743,7 +757,6 @@ def comment_ttp(request, ttp_id="1"):
                     for error in field.errors:
                         messages.error(request, '%s: %s' % (field.name, error))
     return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
-
 
 @login_required
 def ttp(request, ttp_id="1"):
@@ -790,10 +803,62 @@ def delete_ttp(request, ttp_id):
     messages.info(request, 'The TTP was deleted successfully!')
     return HttpResponseRedirect(reverse('intel:ttps'))
 
+###################
+# INDICATOR VIEWS #
+###################
+
 @login_required
 def indicators(request):
     context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
+
+@login_required
+def comment_indicator(request, indicator_id="1"):
+    """ add a comment to an indicator
+    """
+    if request.method == "POST":
+        form = IndicatorCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                indicator = Indicator.objects.get(pk=int(indicator_id))
+            except Indicator.DoesNotExist:
+                messages.error(request, 'The requested indicator does not exist!')
+                return HttpResponseRedirect(reverse('intel:indicators'))
+            data = {
+                'ctext': form.cleaned_data['ctext'],
+                'author': request.user,
+                'indicator_reference': indicator
+            }
+            new_comment = IndicatorComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("intel:indicator", kwargs={'indicator_id': indicator_id}))
+
+@login_required
+def delete_comment_indicator(request, indicator_id="1", comment_id="1"):
+    try:
+        indicator = Indicator.objects.get(pk=int(indicator_id))
+    except Indicator.DoesNotExist:
+        messages.error(request, 'The requested indicator does not exist!')
+        return HttpResponseRedirect(reverse('intel:indicators'))
+    try:
+        cobj = IndicatorComment.objects.get(pk=int(comment_id),indicator_reference=indicator,author=request.user)
+    except IndicatorComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+        return HttpResponseRedirect(reverse('intel:indicators'))
+    cobj.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("intel:indicator", kwargs={'indicator_id': indicator_id}))
 
 @login_required
 def update_indicator_header(request, indicator_id="1"):
@@ -859,6 +924,12 @@ def indicator(request, indicator_id="1"):
     if len(indicator)<=0:
         messages.warning(request, "No indicator with the given ID exists in the system.")
     else:
+        try:
+            comments = IndicatorComment.objects.filter(indicator_reference=indicator[0]).order_by('-creation_time')
+        except:
+            comments = None
+        context['comments'] = comments
+        context['commentform'] = IndicatorCommentForm()
         context['indicator'] = indicator[0]
         context['namespace_icon'] = get_icon_for_namespace(indicator[0].namespace)
         context['namespaces'] = Namespace.objects.all()
@@ -890,10 +961,66 @@ def indicator(request, indicator_id="1"):
             context['composition_id'] = None
     return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
 
+####################
+# OBSERVABLE VIEWS #
+####################
+
 @login_required
 def observables(request):
+    """ list all observables
+    """
     context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
     return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
+
+@login_required
+def comment_observable(request, observable_id="1"):
+    """ add a comment to an observable
+    """
+    if request.method == "POST":
+        form = ObservableCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                observable = Observable.objects.get(pk=int(observable_id))
+            except Observable.DoesNotExist:
+                messages.error(request, 'The requested observable does not exist!')
+                return HttpResponseRedirect(reverse('intel:observables'))
+            data = {
+                'ctext': form.cleaned_data['ctext'],
+                'author': request.user,
+                'observable_reference': observable
+            }
+            new_comment = ObservableComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("intel:observable", kwargs={'observable_id': observable_id}))
+
+@login_required
+def delete_comment_observable(request, observable_id="1", comment_id="1"):
+    """ delete a comment from an observable
+    """
+    try:
+        observable = Observable.objects.get(pk=int(observable_id))
+    except Observable.DoesNotExist:
+        messages.error(request, 'The requested observable does not exist!')
+        return HttpResponseRedirect(reverse('intel:observables'))
+    try:
+        cobj = ObservableComment.objects.get(pk=int(comment_id),observable_reference=observable,author=request.user)
+    except ObservableComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+        return HttpResponseRedirect(reverse('intel:observables'))
+    cobj.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("intel:observable", kwargs={'observable_id': observable_id}))
 
 @login_required
 def delete_observable(request, observable_id):
@@ -949,6 +1076,12 @@ def observable(request, observable_id="1"):
     if len(observable)<=0:
         messages.warning(request, "No observable with the given ID exists in the system.")
     else:
+        try:
+            comments = ObservableComment.objects.filter(observable_reference=observable[0]).order_by('-creation_time')
+        except:
+            comments = None
+        context['comments'] = comments
+        context['commentform'] = ObservableCommentForm()
         context['observable'] = observable[0]
         context['namespace_icon'] = get_icon_for_namespace(observable[0].namespace.last().namespace)
         context['namespaces'] = Namespace.objects.all()
@@ -992,6 +1125,10 @@ def observable(request, observable_id="1"):
             context['active_tab'] = 'winexeobj'
     return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
 
+##########################
+# MALWARE INSTANCE VIEWS #
+##########################
+
 @login_required
 def malware_instance(request, mwi_id="1"):
     """ details of a single malware instance
@@ -1007,6 +1144,10 @@ def malware_instance(request, mwi_id="1"):
     context['description'] = ' '.join(strip_tags(mwi.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
 
+########################
+# ATTACK PATTERN VIEWS #
+########################
+
 @login_required
 def attack_pattern(request, ap_id="1"):
     """ details of a single attack pattern
@@ -1021,3 +1162,4 @@ def attack_pattern(request, ap_id="1"):
     context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace.last().namespace)
     context['description'] = ' '.join(strip_tags(ap.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
+

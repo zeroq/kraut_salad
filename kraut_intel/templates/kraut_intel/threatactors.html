@@ -75,8 +75,8 @@
                 {
                     'data': 'ctext', 'sName': 'Comment', 'aTargets': [ 1 ],
                     'mRender': function (data, type, full) {
-                    var view_url = "{% url 'intel:threatactor' threat_actor_id=0 %}".replace(0, Number(full.actor_reference));
-                    return '<table width="100%" class="" style="font-size: 0.9em;"><tr><td colspan="2">Comment:</td></tr><tr><td colspan="2"><b>'+data+'</b></td></tr><tr><td align="left">Package: <a href="'+view_url+'">'+full.actor_reference+'</a></td><td align="right">Author: '+full.author+' Date: '+full.creation_time+'</td></tr></table>';
+                        var view_url = "{% url 'intel:threatactor' threat_actor_id=0 %}".replace(0, Number(full.actor_reference));
+                        return '<table width="100%" class="" style="font-size: 0.9em;"><tr><td colspan="2">Comment:</td></tr><tr><td colspan="2"><b>'+data+'</b></td></tr><tr><td align="left">Actor: <a href="'+view_url+'">'+full.actor_reference+'</a></td><td align="right">Author: '+full.author+' Date: '+full.creation_time+'</td></tr></table>';
                     },
                 }
             ],

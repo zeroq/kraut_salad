@@ -1,5 +1,31 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+
+{% block sidebar %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespaceicon}}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading" data-toggle="tooltip" data-placement="left" data-original-title="My initial namespace">{{ usernamespace }}</h2>Recent Comments
+        </div>
+    </div>
+</div>
+<table id="indicator_comments_table" class="table table-condensed" style="font-size: 0.9em;">
+    <thead>
+        <th>Comment</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+{% endspaceless %}
+{% endblock%}
+
 {% block content %}
 {% spaceless %}
 <div class="page-header">
@@ -40,6 +66,20 @@
 <script src="{% static 'js/bootbox.min.js' %}"></script>
 <script type="text/javascript" language="javascript" class="init">
     $(document).ready( function () {
+        var cTable = $('#indicator_comments_table').DataTable({
+            processing: true, serverSide: true, filter: true, bInfo: false, bLengthChange: false, ordering: false,
+            oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
+            ajax: { processing: true, url: "/api/comments/indicators/.json", dataSrc: "results", type: "GET", dataType: "json" },
+            columns: [
+                {
+                    'data': 'ctext', 'sName': 'Comment', 'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:indicator' indicator_id=0 %}".replace(0, Number(full.indicator_reference));
+                        return '<table width="100%" class="" style="font-size: 0.9em;"><tr><td colspan="2">Comment:</td></tr><tr><td colspan="2"><b>'+data+'</b></td></tr><tr><td align="left">Indicator: <a href="'+view_url+'">'+full.indicator_reference+'</a></td><td align="right">Author: '+full.author+' Date: '+full.creation_time+'</td></tr></table>';
+                    },
+                }
+            ],
+        });
         var pTable = $('#ind_table').DataTable({
             processing: true,
             serverSide: true,
