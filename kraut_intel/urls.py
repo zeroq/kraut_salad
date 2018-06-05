@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^ttp/(?P<ttp_id>\d+)/$', views.ttp, name='ttp'),
     url(r'^ttp/(?P<ttp_id>\d+)/delete/$', views.delete_ttp, name='delete_ttp'),
     url(r'^ttp/(?P<ttp_id>\d+)/add/comment$', views.comment_ttp, name='comment_ttp'),
+    url(r'^ttp/(?P<ttp_id>\d+)/update/header$', views.update_ttp_header, name='update_ttp_header'),
     url(r'^ttp/(?P<ttp_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_ttp, name='delete_comment_ttp'),
     # indicators
     url(r'^indicators/$', views.indicators, name='indicators'),

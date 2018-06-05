@@ -779,6 +779,7 @@ def ttp(request, ttp_id="1"):
         context['commentform'] = TTPCommentForm()
         context['ttp'] = ttp[0]
         context['namespace_icon'] = get_icon_for_namespace(ttp[0].namespace)
+        context['namespaces'] = Namespace.objects.all()
         context['num_rel_ttps'] = ttp[0].related_ttps.count()
         context['num_instances'] = MalwareInstance.objects.filter(ttp_ref=ttp[0]).count()
         context['num_patterns'] = AttackPattern.objects.filter(ttp_ref=ttp[0]).count()
@@ -787,6 +788,29 @@ def ttp(request, ttp_id="1"):
         else:
             context['tab'] = 'attack_patterns'
     return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
+
+def update_ttp_header(request, ttp_id):
+    """ update ttp header information
+    """
+    try:
+        ttp = TTP.objects.get(pk=int(ttp_id))
+    except TTP.DoesNotExist:
+        messages.error(request, 'The requested TTP does not exist!')
+        return render_to_response('kraut_intel/ttps.html', {}, context_instance=RequestContext(request))
+    if request.method == "POST":
+        ttp_name = request.POST.get('ttp_name', None)
+        ttp_namespace = request.POST.get('ttp_namespace', None)
+        ttp_description = request.POST.get('ttp_description', None)
+        if ttp_name:
+            ttp.name = ttp_name
+        if ttp_namespace:
+            ns_obj, ns_created = Namespace.objects.get_or_create(namespace=ttp_namespace)
+            ttp.namespace.clear()
+            ttp.namespace.add(ns_obj)
+        if ttp_description:
+            ttp.description = ttp_description
+        ttp.save()
+        return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
 
 @login_required
 def delete_ttp(request, ttp_id):

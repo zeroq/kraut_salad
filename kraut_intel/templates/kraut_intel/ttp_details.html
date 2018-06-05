@@ -83,7 +83,7 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ ttp.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i></h3>
+        <h3 class="panel-title">{{ ttp.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -105,6 +105,36 @@
     </table>
     <div class="panel-body">
         <pre class="pre-scrollable wrapdiv">{{ ttp.description }}</pre>
+    </div>
+</div>
+
+<div id="navsidebar" class="navsidebar navsidebar-right">
+    <div id="navsidebar-wrapper" class="navsidebar-wrapper">
+        <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
+            <nav class="navsidebar-menu">
+                <form action="{% url 'intel:update_ttp_header' ttp_id=ttp_id %}" method="POST">
+                {% csrf_token %}
+                <ul>
+                    <li>Title</li>
+                    <li><input name="ttp_name" class="form-control" type="text" value="{{ ttp.name }}"></li>
+                    <li>Namespace</li>
+                    <li>
+                        <select name="ttp_namespace" class="form-control">
+                            {% for ns in namespaces %}
+                                {% if ns.namespace == ttp.namespace.last.namespace %}
+                                    <option selected>{{ ns }}</option>
+                                {% else %}
+                                    <option>{{ ns }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </li>
+                    <li>Description</li>
+                    <li><textarea name="ttp_description" class="form-control" rows="13">{{ ttp.description }}</textarea></li>
+                    <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
+                </ul>
+                </form>
+            </nav>
     </div>
 </div>
 
@@ -360,6 +390,21 @@ $(document).ready( function () {
 
 $(function () {
     $('[data-toggle="popover"]').popover()
+});
+
+$(document).ready(function() {
+  $('#navsidebar').simplerSidebar({
+    opener: '#toggle-navsidebar',
+    sidebar: {
+      align: 'right', 
+      width: 560,
+      closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
 });
 
 $(document).ready(function(){
