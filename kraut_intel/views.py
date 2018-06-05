@@ -789,6 +789,7 @@ def ttp(request, ttp_id="1"):
             context['tab'] = 'attack_patterns'
     return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
 
+@login_required
 def update_ttp_header(request, ttp_id):
     """ update ttp header information
     """
@@ -810,7 +811,7 @@ def update_ttp_header(request, ttp_id):
         if ttp_description:
             ttp.description = ttp_description
         ttp.save()
-        return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
+    return HttpResponseRedirect(reverse("intel:ttp", kwargs={'ttp_id': ttp_id}))
 
 @login_required
 def delete_ttp(request, ttp_id):
@@ -1173,6 +1174,28 @@ def malware_instance(request, mwi_id="1"):
 ########################
 
 @login_required
+def update_attpattern_header(request, ap_id):
+    """ update attack pattern meta information
+    """
+    try:
+        ap = AttackPattern.objects.get(pk=int(ap_id))
+    except AttackPattern.DoesNotExist:
+        messages.error(request, 'The requested Malware Instance object does not exist')
+        return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
+    if request.method == "POST":
+        ap_name = request.POST.get('ap_name', None)
+        ap_description = request.POST.get('ap_description', None)
+        ap_capec_id = request.POST.get('ap_capec_id', None)
+        if ap_name:
+            ap.name = ap_name
+        if ap_description:
+            ap.description = ap_description
+        if ap_capec_id:
+            ap.capec_id = ap_capec_id
+        ap.save()
+    return HttpResponseRedirect(reverse("intel:attack_pattern", kwargs={'ap_id': ap_id}))
+
+@login_required
 def attack_pattern(request, ap_id="1"):
     """ details of a single attack pattern
     """
@@ -1181,9 +1204,10 @@ def attack_pattern(request, ap_id="1"):
         ap = AttackPattern.objects.get(pk=int(ap_id))
     except AttackPattern.DoesNotExist:
         messages.error(request, 'The requested Malware Instance object does not exist')
-        return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
+        return HttpResponseRedirect(reverse('intel:packages'))
     context['ap'] = ap
     context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace.last().namespace)
+    context['namespaces'] = Namespace.objects.all()
     context['description'] = ' '.join(strip_tags(ap.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
 

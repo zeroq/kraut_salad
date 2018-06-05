@@ -52,5 +52,6 @@ urlpatterns = [
     # stuff
     url(r'^mwinstance/(?P<mwi_id>\d+)/$', views.malware_instance, name='malware_instance'),
     url(r'^attpattern/(?P<ap_id>\d+)/$', views.attack_pattern, name='attack_pattern'),
+    url(r'^attpattern/(?P<ap_id>\d+)/update/header$', views.update_attpattern_header, name='update_attpattern_header'),
 ]
 

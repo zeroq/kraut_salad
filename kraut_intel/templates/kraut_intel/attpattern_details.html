@@ -79,7 +79,7 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ ap.name }}</h3>
+        <h3 class="panel-title">{{ ap.name }} &nbsp;<i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -102,6 +102,26 @@
     <div class="panel-body">
         <pre class="pre-scrollable wrapdiv">{{ description }}</pre>
     </div>
+</div>
+
+<div id="navsidebar" class="navsidebar navsidebar-right">
+  <div id="navsidebar-wrapper" class="navsidebar-wrapper">
+    <header class="navsidebar-header"><i class="fa fa-pencil-square-o"></i>&nbsp;Kraut Editor</header>
+    <nav class="navsidebar-menu">
+        <form action="{% url 'intel:update_attpattern_header' ap_id=ap_id %}" method="POST">
+        {% csrf_token %}
+            <ul>
+                <li>Title</li>
+                <li><input name="ap_name" class="form-control" type="text" value="{{ ap.name }}"></li>
+                <li>Capec ID</li>
+                <li><input name="ap_capec_id" class="form-control" type="text" value="{{ ap.capec_id }}"></li>
+                <li>Description</li>
+                <li><textarea name="ap_description" class="form-control" rows="13">{{ ap.description }}</textarea></li>
+                <li><button type="submit" class="btn btn-primary close-navsidebar">Submit</button></li>
+            </ul>
+        </form>
+    </nav>
+  </div>
 </div>
 
 {% endspaceless %}
@@ -145,5 +165,21 @@ $(document).ready( function () {
             ],
         });
 });
+
+$(document).ready(function() {
+  $('#navsidebar').simplerSidebar({
+    opener: '#toggle-navsidebar',
+    sidebar: {
+      align: 'right', 
+      width: 560,
+      closingLinks: '.close-navsidebar',
+      top: 60,
+      animation: {
+        duration: 10,
+      }
+    }
+  });
+});
+
 </script>
 {% endblock%}
