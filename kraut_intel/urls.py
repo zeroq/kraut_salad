@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^observable/(?P<observable_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_observable, name='delete_comment_observable'),
     # stuff
     url(r'^mwinstance/(?P<mwi_id>\d+)/$', views.malware_instance, name='malware_instance'),
+    url(r'^mwinstance/(?P<mwi_id>\d+)/update/header$', views.update_mwinstance_header, name='update_mwinstance_header'),
     url(r'^attpattern/(?P<ap_id>\d+)/$', views.attack_pattern, name='attack_pattern'),
     url(r'^attpattern/(?P<ap_id>\d+)/update/header$', views.update_attpattern_header, name='update_attpattern_header'),
 ]

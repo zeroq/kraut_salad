@@ -1163,11 +1163,30 @@ def malware_instance(request, mwi_id="1"):
         mwi = MalwareInstance.objects.get(pk=int(mwi_id))
     except MalwareInstance.DoesNotExist:
         messages.error(request, 'The requested Malware Instance object does not exist')
-        return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
+        return HttpResponseRedirect(reverse('intel:packages'))
     context['mwi'] = mwi
     context['namespace_icon'] = get_icon_for_namespace(mwi.ttp_ref.namespace.last().namespace)
     context['description'] = ' '.join(strip_tags(mwi.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
+
+def update_mwinstance_header(request, mwi_id):
+    """ update malware instance meta information
+    """
+    try:
+        mwi = MalwareInstance.objects.get(pk=int(mwi_id))
+    except MalwareInstance.DoesNotExist:
+        messages.error(request, 'The requested Malware Instance object does not exist')
+        return HttpResponseRedirect(reverse('intel:packages'))
+    if request.method == "POST":
+        mwi_name = request.POST.get('mwi_name', None)
+        mwi_description = request.POST.get('mwi_description', None)
+        if mwi_name:
+            mwi.name = mwi_name
+        if mwi_description:
+            mwi.description = mwi_description
+        mwi.save()
+    return HttpResponseRedirect(reverse("intel:malware_instance", kwargs={'mwi_id': mwi_id}))
+
 
 ########################
 # ATTACK PATTERN VIEWS #
@@ -1207,7 +1226,6 @@ def attack_pattern(request, ap_id="1"):
         return HttpResponseRedirect(reverse('intel:packages'))
     context['ap'] = ap
     context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace.last().namespace)
-    context['namespaces'] = Namespace.objects.all()
     context['description'] = ' '.join(strip_tags(ap.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
     return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
 
