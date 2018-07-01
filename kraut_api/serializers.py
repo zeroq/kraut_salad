@@ -136,13 +136,20 @@ class PaginatedTTPSerializer(PaginationSerializer):
 ################### MALWARE INSTANCE #####################
 
 class MalwareInstance(serializers.ModelSerializer):
+    short_name = serializers.SerializerMethodField()
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
     subname = serializers.SerializerMethodField()
+    mwitype = serializers.SerializerMethodField()
 
     class Meta:
         model = MalwareInstance
-        fields = ('id', 'name', 'description', 'short_description', 'creation_time', 'last_modified', 'subname')
+        fields = ('id', 'name', 'short_name', 'description', 'short_description', 'creation_time', 'last_modified', 'subname', 'mwitype')
+
+    def get_short_name(self, obj):
+        if len(obj.name)>55:
+            return "%s ..." % (obj.name[:55])
+        return obj.name
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -153,6 +160,12 @@ class MalwareInstance(serializers.ModelSerializer):
     def get_subname(self, obj):
         try:
             return obj.malwareinstancenames_set.first().name
+        except:
+            return "Unknown"
+
+    def get_mwitype(self, obj):
+        try:
+            return obj.malwareinstancetypes_set.first()._type
         except:
             return "Unknown"
 
@@ -169,11 +182,17 @@ class PaginatedMalwareInstanceSerializer(PaginationSerializer):
 ################### ATTACK PATTERN #####################
 
 class AttackPattern(serializers.ModelSerializer):
+    short_name = serializers.SerializerMethodField()
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
 
     class Meta:
         model = AttackPattern
+
+    def get_short_name(self, obj):
+        if len(obj.name)>55:
+            return "%s ..." % (obj.name[:55])
+        return obj.name
 
     def get_creation_time(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")

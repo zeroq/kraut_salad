@@ -28,6 +28,14 @@ intel_children = (
             reverse("intel:observables"),
             image="images/Observable.svg",
             weight=60),
+    MenuItem("Malware Instances",
+            reverse("intel:malware_instances"),
+            image="images/Kraut.svg",
+            weight=70),
+    MenuItem("Attack Patterns",
+            reverse("intel:attack_patterns"),
+            image="images/Kraut.svg",
+            weight=80),
 )
 
 Menu.add_item("intel", MenuItem("Intelligence",

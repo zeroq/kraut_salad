@@ -49,10 +49,15 @@ urlpatterns = [
     url(r'^observable/(?P<observable_id>\d+)/delete/$', views.delete_observable, name='delete_observable'),
     url(r'^observable/(?P<observable_id>\d+)/add/comment$', views.comment_observable, name='comment_observable'),
     url(r'^observable/(?P<observable_id>\d+)/del/comment/(?P<comment_id>\d+)/$', views.delete_comment_observable, name='delete_comment_observable'),
-    # stuff
+    # malware instance
+    url(r'^mwinstances/$', views.malware_instances, name='malware_instances'),
     url(r'^mwinstance/(?P<mwi_id>\d+)/$', views.malware_instance, name='malware_instance'),
+    url(r'^mwinstance/(?P<mwi_id>\d+)/delete/$', views.delete_malware_instance, name='delete_malware_instance'),
     url(r'^mwinstance/(?P<mwi_id>\d+)/update/header$', views.update_mwinstance_header, name='update_mwinstance_header'),
+    # attack pattern
+    url(r'^attpatterns/$', views.attack_patterns, name='attack_patterns'),
     url(r'^attpattern/(?P<ap_id>\d+)/$', views.attack_pattern, name='attack_pattern'),
+    url(r'^mwinstance/(?P<ap_id>\d+)/delete/$', views.delete_attack_pattern, name='delete_attack_pattern'),
     url(r'^attpattern/(?P<ap_id>\d+)/update/header$', views.update_attpattern_header, name='update_attpattern_header'),
 ]
 

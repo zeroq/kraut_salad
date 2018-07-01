@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
-from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance
+from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance, AttackPattern
 from kraut_parser.models import Address_Object, URI_Object
 # Indicator
 from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, PaginatedIndicatorCommentSerializer
@@ -852,6 +852,58 @@ def ttp_related_packages(request, pk, format=None):
 
 ################### MALWARE INSTANCES #####################
 
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
+def malware_instances_list(request, format=None):
+    """ api function to list all malware instances
+    """
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if order_by_column == 'short_name':
+                    order_by_column = 'name'
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_direction = '-'
+                order_by_column = 'name'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = MalwareInstance.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__icontains=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            mwinstances = paginator.page(page)
+        except:
+            mwinstances = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedMalwareInstanceSerializer(mwinstances, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, ))
@@ -906,6 +958,60 @@ def ttp_malware_instances(request, pk, format=None):
 
 
 ################### ATTACK PATTERN #####################
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
+def attack_patterns_list(request, format=None):
+    """ api function to list all attack paterns
+    """
+    if request.method == 'GET':
+        max_items = 10
+        page = request.QUERY_PARAMS.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if order_by_column == 'short_name':
+                    order_by_column = 'name'
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_direction = '-'
+                order_by_column = 'name'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = AttackPattern.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__icontains=search_value)
+            )
+        paginator = Paginator(queryset, max_items)
+        try:
+            atp = paginator.page(page)
+        except:
+            atp = paginator.page(1)
+        serializer_context = {'request': request}
+        serializer = PaginatedAttackPatternSerializer(atp, context=serializer_context)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, ))

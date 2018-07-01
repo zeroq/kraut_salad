@@ -16,6 +16,10 @@ urlpatterns = [
     url(r'^observables/(?P<pk>[0-9]+)/related_objects/$', views.observable_related_objects),
     url(r'^observables/(?P<pk>[0-9]+)/related_packages/$', views.observable_related_packages),
     url(r'^observables/(?P<pk>[0-9]+)/related_indicators/$', views.observable_related_indicators),
+    # malware instances
+    url(r'^malware_instances/$', views.malware_instances_list),
+    # attack pattern
+    url(r'^attack_patterns/$', views.attack_patterns_list),
     # campaign
     url(r'^campaigns/$', views.campaign_list),
     url(r'^campaigns/(?P<pk>[0-9]+)/$', views.campaign_detail),

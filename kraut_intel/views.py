@@ -1155,6 +1155,32 @@ def observable(request, observable_id="1"):
 ##########################
 
 @login_required
+def malware_instances(request):
+    """ list all malware instance items
+    """
+    context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
+    return render_to_response('kraut_intel/mwinstances.html', context, context_instance=RequestContext(request))
+
+@login_required
+def delete_malware_instance(request, mwi_id):
+    """ delete a malware instance object
+    """
+    try:
+        mwi = MalwareInstance.objects.get(pk=int(mwi_id))
+    except MalwareInstance.DoesNotExist:
+        messages.error(request, 'The requested Malware Instance object does not exist')
+        return HttpResponseRedirect(reverse('intel:malware_instances'))
+    mwi.delete()
+    messages.info(request, 'The malware instance was deleted successfully!')
+    return HttpResponseRedirect(reverse('intel:malware_instances'))
+
+@login_required
 def malware_instance(request, mwi_id="1"):
     """ details of a single malware instance
     """
@@ -1191,6 +1217,31 @@ def update_mwinstance_header(request, mwi_id):
 ########################
 # ATTACK PATTERN VIEWS #
 ########################
+
+@login_required
+def attack_patterns(request):
+    """ list all attack pattern items
+    """
+    context = {}
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
+    return render_to_response('kraut_intel/attack_patterns.html', context, context_instance=RequestContext(request))
+
+def delete_attack_pattern(request, ap_id):
+    """ delete attacker pattern
+    """
+    try:
+        ap = AttackPattern.objects.get(pk=int(ap_id))
+    except AttackPattern.DoesNotExist:
+        messages.error(request, 'The requested Malware Instance object does not exist')
+        return HttpResponseRedirect(reverse('intel:attack_patterns'))
+    ap.delete()
+    messages.info(request, 'The attack pattern was deleted successfully!')
+    return HttpResponseRedirect(reverse('intel:attack_patterns'))
 
 @login_required
 def update_attpattern_header(request, ap_id):

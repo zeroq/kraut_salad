@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block sidebar %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{{ namespaceicon}}" height="64" class="media-object">
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading" data-toggle="tooltip" data-placement="left" data-original-title="My initial namespace">{{ usernamespace }}</h2>Recent Comments
+        </div>
+    </div>
+</div>
+<table id="mwinstance_comments_table" class="table table-condensed" style="font-size: 0.9em;">
+    <thead>
+        <th>Comment</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+{% endspaceless %}
+{% endblock %}
+
+{% block content %}
+{% spaceless %}
+<div class="page-header">
+    <div class="media">
+        <div class="media-left">
+            <img src="{% static 'images/Kraut.svg' %}" height="64" class="media-object" />
+        </div>
+        <div class="media-body">
+            <h2 class="media-heading">Malware Instances</h2>browse recently submitted malware instance information ...
+        </div>
+    </div>
+</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+<table id="malware_instances_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Creation Time</th>
+            <th>Last Modified</th>
+            <th>Type</th>
+            <th>Operations</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+{% endspaceless %}
+{% endblock%}
+
+{% block javascript %}
+<script src="{% static 'js/bootbox.min.js' %}"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready( function () {
+        var cTable = $('#mwinstance_comments_table_TODO').DataTable({
+            processing: true, serverSide: true, filter: true, bInfo: false, bLengthChange: false, ordering: false,
+            oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
+            ajax: { processing: true, url: "/api/comments/mwinstances/.json", dataSrc: "results", type: "GET", dataType: "json" },
+            columns: [
+                {
+                    'data': 'ctext', 'sName': 'Comment', 'aTargets': [ 1 ],
+                    'mRender': function (data, type, full) {
+                        var view_url = "{% url 'intel:malware_instance' mwi_id=0 %}".replace(0, Number(full.mwi_reference));
+                        return '<table width="100%" class="" style="font-size: 0.9em;"><tr><td colspan="2">Comment:</td></tr><tr><td colspan="2"><b>'+data+'</b></td></tr><tr><td align="left">Malware Instance: <a href="'+view_url+'">'+full.mwi_reference+'</a></td><td align="right">Author: '+full.author+' Date: '+full.creation_time+'</td></tr></table>';
+                    },
+                }
+            ],
+        });
+        var oTable = $('#malware_instances_table').DataTable({
+            processing: true,
+            serverSide: true,
+            oLanguage: {
+                sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+            },
+            order: [[ 1, "desc" ]],
+            ajax: {
+                processing: true,
+                url: "/api/malware_instances/.json",
+                dataSrc: "results",
+                type: "GET",
+                dataType: "json"
+            },
+            columns: [
+                {
+                    'data': 'short_name',
+                    'sName': 'short_name',
+                    'aTargets': [ 1 ],
+                    "mRender": function (data, type, full) {
+                        return '<div rel="tooltip" data-placement="top" data-original-title="'+full.name+'">'+data+'</div>';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("div", nTd).tooltip();
+                    }
+                },
+                {'data': 'creation_time', 'sName': 'creation_time', 'aTargets': [ 2 ]},
+                {'data': 'last_modified', 'sName': 'last_modified', 'aTargets': [ 3 ]},
+                {'data': 'mwitype', 'sName': 'mwitype', 'aTargets': [ 4 ]},
+                {
+                    "data": 'id',
+                    'sName': 'operations',
+                    'bSortable': false, 
+                    'aTargets': [ 6 ],
+                    "mRender": function (data, type, full) {
+                        var view_url = "{% url 'intel:malware_instance' mwi_id=0 %}".replace(0, Number(data));
+                        var delete_url = "{% url 'intel:delete_malware_instance' mwi_id=0 %}".replace(0, Number(data));
+                        return '<div class="btn-group1">' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="left" data-original-title="Edit">' +
+                            '<i class="fa fa-edit"></i>' +
+                            '</a> ' +
+                            '<a class="btn btn-small" rel="tooltip" data-placement="top" data-original-title="View" href="'+view_url+'">' +
+                            '<i class="fa fa-eye"></i>' +
+                            '</a>' +
+                            '<a class="btn btn-small confirm" rel="tooltip" data-placement="bottom" data-original-title="Remove" data-href="'+delete_url+'" data-display="'+full.name+'" href="#">' +
+                            '<i class="fa fa-remove"></i>' +
+                            '</a>' +
+                            '</div>';
+                    },
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $("a", nTd).tooltip();
+                    }
+                }
+            ],
+        });
+    } );
+    $(document).on("click", ".confirm", function(e) {
+        e.preventDefault();
+        var title = $(this).attr('data-display');
+        var location = $(this).attr('data-href');
+        bootbox.confirm('Are you sure?<br/>(Delete: '+title+')', function(confirmed) {
+            if(confirmed)
+            {
+                window.location.replace(location);
+            }
+        });
+    });
+</script>
+{% endblock %}
