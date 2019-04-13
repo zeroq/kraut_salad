@@ -27,7 +27,7 @@ omnijson==0.1.2
 pathtools==0.1.2
 python-dateutil==1.5
 pytz==2014.10
-PyYAML==3.11
+PyYAML==5.1
 requests>=2.20.0
 six==1.9.0
 stix==1.1.1.3
