@@ -389,7 +389,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/campaigns/{{ campaign_id }}/related_ttps/.json",
+                url: "/api/campaigns/{{ campaign_id }}/related_ttps/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"

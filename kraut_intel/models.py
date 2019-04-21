@@ -16,37 +16,37 @@ class NamespaceIcon(models.Model):
 
 class PackageComment(models.Model):
     ctext = models.TextField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
-    package_reference = models.ForeignKey(Package)
+    package_reference = models.ForeignKey(Package, on_delete=models.CASCADE)
 
 
 class ThreatActorComment(models.Model):
     ctext = models.TextField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
-    actor_reference = models.ForeignKey(ThreatActor)
+    actor_reference = models.ForeignKey(ThreatActor, on_delete=models.CASCADE)
 
 class CampaignComment(models.Model):
     ctext = models.TextField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
-    campaign_reference = models.ForeignKey(Campaign)
+    campaign_reference = models.ForeignKey(Campaign, on_delete=models.CASCADE)
 
 class TTPComment(models.Model):
     ctext = models.TextField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
-    ttp_reference = models.ForeignKey(TTP)
+    ttp_reference = models.ForeignKey(TTP, on_delete=models.CASCADE)
 
 class IndicatorComment(models.Model):
     ctext = models.TextField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
-    indicator_reference = models.ForeignKey(Indicator)
+    indicator_reference = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 
 class ObservableComment(models.Model):
     ctext = models.TextField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
-    observable_reference = models.ForeignKey(Observable)
+    observable_reference = models.ForeignKey(Observable, on_delete=models.CASCADE)

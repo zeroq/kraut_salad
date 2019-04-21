@@ -3,7 +3,7 @@
 <ul class="nav navbar-nav">
     {% for item in menu %}
         {% if item.separator %}<li>------------</li>{% endif %}
-        {% if item.url in request.path and request.path != '/' and item.url != '/' or item.url = request.path %}
+        {% if item.url in request.path and request.path != '/' and item.url != '/' or item.url == request.path %}
             <li class="active">
             {% if item.children|length > 0 %}
             <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="fa {{ item.icon }}"></i>&nbsp;{{ item.title }}

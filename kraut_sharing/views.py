@@ -2,9 +2,9 @@
 
 import datetime, pytz
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template import RequestContext
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -22,13 +22,13 @@ def home(request):
     form = DiscoveryForm()
     context['form'] = form
     context['servers'] = TAXII_Remote_Server.objects.all()
-    return render_to_response('kraut_sharing/index.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_sharing/index.html', context)
 
 @login_required
 def manage_osint_feeds(request):
     """ manage OSINT feeds """
     context = {}
-    return render_to_response('kraut_sharing/osintfeeds.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_sharing/osintfeeds.html', context)
 
 
 @login_required
@@ -38,7 +38,7 @@ def manage_servers(request):
     if not request.method == 'POST':
         serverForm = AddServerForm()
         context['form'] = serverForm
-        return render_to_response('kraut_sharing/servers.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_sharing/servers.html', context)
     serverForm = AddServerForm(request.POST)
     if serverForm.is_valid():
         oldID = int(request.POST.get('oldid', 0))
@@ -103,7 +103,7 @@ def list_collections(request):
         return HttpResponseRedirect(reverse("sharing:collections"))
     collectionForm = EditCollectionForm()
     context['form'] = collectionForm
-    return render_to_response('kraut_sharing/collections.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_sharing/collections.html', context)
 
 @login_required
 def refresh_collection(request, server_id):
@@ -150,8 +150,8 @@ def poll(request):
     if not request.method == 'POST':
         form = PollForm(initial={'begin_time': begin_time.strftime('%Y-%m-%dT%H:%M:%S.%f%z')})
         context['form'] = form
-        return render_to_response('kraut_sharing/poll.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_sharing/poll.html', context)
     form = PollForm(initial={'url': request.POST.get('url'), 'service': request.POST.get('service'), 'begin_time': begin_time.strftime('%Y-%m-%dT%H:%M:%S.%f%z')})
     context['form'] = form
     messages.info(request, 'Polling intelligence ...')
-    return render_to_response('kraut_sharing/poll.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_sharing/poll.html', context)

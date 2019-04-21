@@ -3,8 +3,8 @@
 import json
 
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
+from django.urls import reverse
+from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,12 +20,12 @@ from kraut_incident.utils import slicedict
 @login_required
 def home(request):
     context = {}
-    return render_to_response('kraut_incident/index.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_incident/index.html', context)
 
 @login_required
 def list_incidents(request):
     context = {}
-    return render_to_response('kraut_incident/list.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_incident/list.html', context)
 
 @login_required
 def create_handler(request):
@@ -113,4 +113,4 @@ def new_incident(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_incident/new.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_incident/new.html', context)

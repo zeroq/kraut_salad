@@ -106,7 +106,10 @@
 {% spaceless %}
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ ta.name }}<i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i><i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i></h3>
+        <h3 class="panel-title">{{ ta.name }}
+            <i id="toggle-commentsidebar" class="fa fa-comment-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="add comment"></i>
+            <i id="toggle-navsidebar" class="fa fa-pencil-square-o pull-right" data-toggle="tooltip" data-placement="top" data-original-title="edit meta-information"></i>
+        </h3>
     </div>
     <table class="table table-condensed table-borderless">
         <tbody>
@@ -290,7 +293,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/threatactors/{{ ta_id }}/campaigns/.json",
+                url: "/api/threatactors/{{ ta_id }}/campaigns/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"
@@ -324,7 +327,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/threatactors/{{ ta_id }}/observed_ttps/.json",
+                url: "/api/threatactors/{{ ta_id }}/observed_ttps/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"

@@ -1,8 +1,8 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template import RequestContext
 from django.contrib import messages
 
@@ -46,7 +46,7 @@ def accounts_change_password(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_accounts/changepw.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_accounts/changepw.html', context)
 
 
 def accounts_login(request):
@@ -75,7 +75,7 @@ def accounts_login(request):
         else:
             messages.error(request, 'Logon failed!')
         return HttpResponseRedirect(reverse("accounts:login"))
-    return render_to_response('kraut_accounts/login.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_accounts/login.html', context)
 
 
 def accounts_logout(request):

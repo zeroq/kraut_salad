@@ -1,6 +1,6 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.templatetags.static import static
@@ -26,4 +26,4 @@ def home(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_base/index.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_base/index.html', context)

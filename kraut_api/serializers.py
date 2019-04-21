@@ -1,7 +1,6 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from rest_framework import serializers
-from rest_framework.pagination import PaginationSerializer
 from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatActor, Campaign, Confidence, Package, ObservableComposition, File_Object, TTP, Address_Object, URI_Object
 from kraut_parser.models import MalwareInstance, AttackPattern
 from kraut_intel.utils import get_icon_for_namespace
@@ -49,14 +48,6 @@ class PackSerializer(serializers.ModelSerializer):
             return "%s ..." % (obj.name[:55])
         return obj.name
 
-# Paginated Packages
-class PaginatedPackageSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = PackSerializer
-
 ################### THREAT ACTOR #####################
 
 # Threat Actor Details
@@ -90,15 +81,6 @@ class TASerializer(serializers.ModelSerializer):
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
-
-# Threat Actor Paginated
-class PaginatedThreatActorSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = TASerializer
-
 ################### TTPS #####################
 
 # TTP List
@@ -124,18 +106,9 @@ class TTPSerializer(serializers.ModelSerializer):
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
-# Paginated TTPs
-class PaginatedTTPSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = TTPSerializer
-
-
 ################### MALWARE INSTANCE #####################
 
-class MalwareInstance(serializers.ModelSerializer):
+class MalwareInstanceSerializer(serializers.ModelSerializer):
     short_name = serializers.SerializerMethodField()
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
@@ -169,25 +142,16 @@ class MalwareInstance(serializers.ModelSerializer):
         except:
             return "Unknown"
 
-# Paginated Malware Instances
-class PaginatedMalwareInstanceSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = MalwareInstance
-
-
-
 ################### ATTACK PATTERN #####################
 
-class AttackPattern(serializers.ModelSerializer):
+class AttackPatternSerializer(serializers.ModelSerializer):
     short_name = serializers.SerializerMethodField()
     creation_time = serializers.SerializerMethodField()
     last_modified = serializers.SerializerMethodField()
 
     class Meta:
         model = AttackPattern
+        fields = ('id', 'name', 'short_name', 'description', 'short_description', 'creation_time', 'last_modified', 'capec_id')
 
     def get_short_name(self, obj):
         if len(obj.name)>55:
@@ -199,15 +163,6 @@ class AttackPattern(serializers.ModelSerializer):
 
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
-
-
-class PaginatedAttackPatternSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = AttackPattern
-
 
 ################### CAMPAIGN #####################
 
@@ -249,15 +204,6 @@ class CampSerializer(serializers.ModelSerializer):
         except:
             return "Unknown"
 
-# Paginated Campaigns
-class PaginatedCampaignSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = CampSerializer
-
-
 ################### INDICATOR #####################
 
 # Indicator Details
@@ -291,14 +237,6 @@ class IndSerializer(serializers.ModelSerializer):
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
-# Paginated Indicators
-class PaginatedIndicatorSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = IndSerializer
-
 # Indicator List
 class Ind2Serializer(serializers.ModelSerializer):
     indicator_types = serializers.SerializerMethodField()
@@ -317,27 +255,12 @@ class Ind2Serializer(serializers.ModelSerializer):
     def get_confidence(self, obj):
         return obj.confidence.first().value
 
-# Paginated Indicators
-class PaginatedIndicator2Serializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = Ind2Serializer
-
 ################### OBSERVABLE COMPOSITION #####################
 
 class ObservableCompositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ObservableComposition
         fields = ('id', 'name', 'operator')
-
-class PaginatedCompositionSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = ObservableCompositionSerializer
 
 ################### OBSERVABLE #####################
 
@@ -378,14 +301,6 @@ class ObsSerializer(serializers.ModelSerializer):
     def get_last_modified(self, obj):
         return obj.creation_time.strftime("%Y-%m-%d %H:%M:%S")
 
-# Paginated Observables
-class PaginatedObservableSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = ObsSerializer
-
 ################### INCIDENT HANDLER #####################
 
 # Handler List
@@ -394,30 +309,13 @@ class HandlerSerializer(serializers.ModelSerializer):
         model = Handler
         fields = ('id', 'firstname', 'lastname')
 
-# Paginated Contacts
-class PaginatedHandlerSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = HandlerSerializer
-
 ################### INCIDENT CONTACTS #####################
-
 
 # Contact List
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ('id', 'firstname', 'lastname')
-
-# Paginated Contacts
-class PaginatedContactSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = ContactSerializer
 
 ################### INCIDENT #####################
 
@@ -430,13 +328,6 @@ class IncidentSerializer(serializers.ModelSerializer):
         model = Incident
         fields = ('id', 'incident_number', 'title', 'creation_time', 'last_modified', 'status', 'category', 'severity')
 
-class PaginatedIncidentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = IncidentSerializer
-
 ################### SHARING #####################
 
 class ServersSerializer(serializers.ModelSerializer):
@@ -444,13 +335,6 @@ class ServersSerializer(serializers.ModelSerializer):
     class Meta:
         model = TAXII_Remote_Server
         fields = ('id', 'name', 'host', 'path')
-
-class PaginatedServersSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = ServersSerializer
 
 class CollectionSerializer(serializers.ModelSerializer):
     last_modified = serializers.SerializerMethodField()
@@ -464,13 +348,6 @@ class CollectionSerializer(serializers.ModelSerializer):
         #return "%s days ago ..." % (delta.days)
         return obj.last_modified.strftime("%Y-%m-%d")
 
-class PaginatedCollectionSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = CollectionSerializer
-
 ################### OBJECT #####################
 
 class FileObjectSerializer(serializers.ModelSerializer):
@@ -480,26 +357,12 @@ class FileObjectSerializer(serializers.ModelSerializer):
         model = File_Object
         fields = ('id', 'md5_hash', 'sha256_hash', 'observables')
 
-class PaginatedFileObjectSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = FileObjectSerializer
-
 class AddressObjectSerializer(serializers.ModelSerializer):
     observables = ObservableSerializer(many=True)
 
     class Meta:
         model = Address_Object
         fields = ('id', 'address_value', 'category', 'observables')
-
-class PaginatedAddressObjectSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = AddressObjectSerializer
 
 class URIObjectSerializer(serializers.ModelSerializer):
     observables = ObservableSerializer(many=True)
@@ -514,13 +377,6 @@ class URIObjectSerializer(serializers.ModelSerializer):
             return "%s ..." % (obj.uri_value[:70])
         return obj.uri_value
 
-class PaginatedURIObjectSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = URIObjectSerializer
-
 ################### COMMENTS #####################
 
 class PackageCommentSerializer(serializers.ModelSerializer):
@@ -532,13 +388,6 @@ class PackageCommentSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         return obj.author.username
-
-class PaginatedPackageCommentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = PackageCommentSerializer
 
 ########################
 # Threat Actor Comment #
@@ -554,13 +403,6 @@ class ActorCommentSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         return obj.author.username
 
-class PaginatedActorCommentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = ActorCommentSerializer
-
 ####################
 # Campaign Comment #
 ####################
@@ -574,13 +416,6 @@ class CampaignCommentSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         return obj.author.username
-
-class PaginatedCampaignCommentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = CampaignCommentSerializer
 
 ###############
 # TTP Comment #
@@ -596,13 +431,6 @@ class TTPCommentSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         return obj.author.username
 
-class PaginatedTTPCommentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = TTPCommentSerializer
-
 #####################
 # Indicator Comment #
 #####################
@@ -617,13 +445,6 @@ class IndicatorCommentSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         return obj.author.username
 
-class PaginatedIndicatorCommentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = IndicatorCommentSerializer
-
 ######################
 # Observable Comment #
 ######################
@@ -637,11 +458,4 @@ class ObservableCommentSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         return obj.author.username
-
-class PaginatedObservableCommentSerializer(PaginationSerializer):
-    iTotalRecords = serializers.ReadOnlyField(source='paginator.count')
-    iTotalDisplayRecords = serializers.ReadOnlyField(source='paginator.count')
-
-    class Meta:
-        object_serializer_class = ObservableCommentSerializer
 

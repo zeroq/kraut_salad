@@ -328,7 +328,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/indicators/{{ indicator_id }}/observables/.json",
+                url: "/api/indicators/{{ indicator_id }}/observables/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"
@@ -355,7 +355,7 @@ $(document).ready( function () {
             processing: true, serverSide: true, order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/indicators/{{ indicator_id }}/ttps/.json",
+                url: "/api/indicators/{{ indicator_id }}/ttps/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"
@@ -382,7 +382,7 @@ $(document).ready( function () {
             order: [[ 0, "desc" ]],
             ajax: {
                 processing: true,
-                url: "/api/indicators/{{ indicator_id }}/related/.json",
+                url: "/api/indicators/{{ indicator_id }}/related/",
                 dataSrc: "results",
                 type: "GET",
                 dataType: "json"

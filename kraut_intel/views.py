@@ -3,8 +3,8 @@
 from django.http import HttpResponseRedirect
 from django.db.models import Prefetch, Q
 from django.contrib import messages
-from django.shortcuts import render_to_response
-from django.core.urlresolvers import reverse
+from django.shortcuts import render
+from django.urls import reverse
 from django.template import RequestContext
 from django.utils.html import strip_tags
 from django.contrib.auth.decorators import login_required
@@ -24,7 +24,7 @@ import datetime, uuid, argparse
 @login_required
 def home(request):
     context = {}
-    return render_to_response('kraut_intel/index.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/index.html', context)
 
 #################
 # PACKAGE VIEWS #
@@ -41,7 +41,7 @@ def packages(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/packages.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/packages.html', context)
 
 @login_required
 def add_item_to_package(request, package_id, item_id, item_name):
@@ -85,7 +85,7 @@ def delete_package(request, package_id="1"):
         package = Package.objects.get(pk=int(package_id))
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
-        return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/packages.html', {})
     ### TODO: request checkmark to be set to delete attached items too
     ### iterate over observables/objects and delete
     #for ob in package.observables.all():
@@ -134,7 +134,7 @@ def edit_create_package(request, package_id=None):
                 package = Package.objects.get(pk=int(package_id))
             except Package.DoesNotExist:
                 messages.error(request, 'The requested package does not exist!')
-                return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+                return render(request, 'kraut_intel/packages.html', {})
         else:
             package = None
         if package:
@@ -164,7 +164,7 @@ def edit_create_package(request, package_id=None):
             context['namespace_icon'] = get_icon_for_namespace(package.namespace.last().namespace)
         except:
             context['namespace_icon'] = get_icon_for_namespace('nospace')
-    return render_to_response('kraut_intel/edit_create_package.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/edit_create_package.html', context)
 
 @login_required
 def delete_comment_package(request, package_id="1", comment_id="1"):
@@ -195,7 +195,7 @@ def comment_package(request, package_id="1"):
                 package = Package.objects.get(pk=int(package_id))
             except Package.DoesNotExist:
                 messages.error(request, 'The requested package does not exist!')
-                return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+                return render(request, 'kraut_intel/packages.html', {})
             data = {
                 'ctext': form.cleaned_data['ctext'],
                 'author': request.user,
@@ -218,7 +218,7 @@ def update_package_header(request, package_id="1"):
         package = Package.objects.get(pk=int(package_id))
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
-        return render_to_response('kraut_intel/packages.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/packages.html', {})
     if request.method == "POST":
         pg_name = request.POST.get('package_name', None)
         pg_source = request.POST.get('package_source', None)
@@ -251,7 +251,7 @@ def package(request, package_id="1"):
         )
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
-        return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/package_details.html', context)
     if len(package)<=0:
         messages.warning(request, "No package with the given ID exists in the system.")
     else:
@@ -289,7 +289,7 @@ def package(request, package_id="1"):
         for ind_obj in package[0].indicators.all():
             for obs_obj in ind_obj.observable_set.all():
                 context['quick_pane'][obs_obj.observable_type] = True
-    return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/package_details.html', context)
 
 @login_required
 def package_graph(request, package_id="1"):
@@ -300,9 +300,9 @@ def package_graph(request, package_id="1"):
         package = Package.objects.get(pk=int(package_id))
     except Package.DoesNotExist:
         messages.error(request, 'The requested package does not exist!')
-        return render_to_response('kraut_intel/package_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/package_details.html', context)
     context['package'] = package
-    return render_to_response('kraut_intel/package_full_tree.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/package_full_tree.html', context)
 
 ######################
 # THREAT ACTOR VIEWS #
@@ -335,7 +335,7 @@ def edit_create_threatactor(request, threat_actor_id):
                 actor = ThreatActor.objects.get(pk=int(threat_actor_id))
             except ThreatActor.DoesNotExist:
                 messages.error(request, 'The requested threat actor does not exist!')
-                return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
+                return render(request, 'kraut_intel/threatactors.html', {})
         else:
             actor = None
         if actor:
@@ -361,7 +361,7 @@ def edit_create_threatactor(request, threat_actor_id):
             context['namespace_icon'] = get_icon_for_namespace(actor.namespace.last().namespace)
         except:
             context['namespace_icon'] = get_icon_for_namespace('nospace')
-    return render_to_response('kraut_intel/edit_create_actor.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/edit_create_actor.html', context)
 
 
 @login_required
@@ -373,7 +373,7 @@ def threatactors(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/threatactors.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/threatactors.html', context)
 
 @login_required
 def delete_comment_actor(request, threat_actor_id="1", comment_id="1"):
@@ -471,7 +471,7 @@ def delete_threatactor(request, threat_actor_id="1"):
         ta = ThreatActor.objects.get(pk=int(threat_actor_id))
     except ThreatAcotr.DoesNotExist:
         messages.error(request, 'The requested threat actor does not exist!')
-        return render_to_response('kraut_intel/threatactors.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/threatactors.html', context)
     ### TODO: check campaigns, ttps
     # delete threat actor
     ta.delete()
@@ -490,7 +490,7 @@ def threatactor(request, threat_actor_id="1"):
         )
     except ThreatActor.DoesNotExist:
         messages.error(request, 'The requested threat actor does not exist!')
-        return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/campaign_details.html', context)
     if len(ta)<=0:
         messages.warning(request, "No threat actor with the given ID exists in the system.")
     else:
@@ -538,7 +538,7 @@ def threatactor(request, threat_actor_id="1"):
         context['num_campaigns'] = ta[0].campaigns.count()
         context['num_assoc_ta'] = ta[0].associated_threat_actors.count()
         context['num_ttps'] = ta[0].observed_ttps.count()
-    return render_to_response('kraut_intel/threatactor_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/threatactor_details.html', context)
 
 ##################
 # CAMPAIGN VIEWS #
@@ -553,7 +553,7 @@ def campaigns(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/campaigns.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/campaigns.html', context)
 
 @login_required
 def campaign(request, campaign_id="1"):
@@ -567,7 +567,7 @@ def campaign(request, campaign_id="1"):
         )
     except Campaign.DoesNotExist:
         messages.error(request, 'The requested campaign does not exist!')
-        return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/campaign_details.html', context)
     if len(campaign)<=0:
         messages.warning(request, "No campaign with the given ID exists in the system.")
     else:
@@ -601,7 +601,7 @@ def campaign(request, campaign_id="1"):
             context['confidence_color'] = 'warning'
         else:
             context['confidence_color'] = 'danger'
-    return render_to_response('kraut_intel/campaign_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/campaign_details.html', context)
 
 @login_required
 def delete_comment_campaign(request, campaign_id="1", comment_id="1"):
@@ -633,7 +633,7 @@ def comment_campaign(request, campaign_id):
                 campaign = Campaign.objects.get(pk=int(campaign_id))
             except Campaign.DoesNotExist:
                 messages.error(request, 'The requested campaign does not exist!')
-                return render_to_response('kraut_intel/campaigns.html', {}, context_instance=RequestContext(request))
+                return render(request, 'kraut_intel/campaigns.html', {})
             data = {
                 'ctext': form.cleaned_data['ctext'],
                 'author': request.user,
@@ -656,7 +656,7 @@ def update_campaign_header(request, campaign_id):
         campaign = Campaign.objects.get(pk=int(campaign_id))
     except Campaign.DoesNotExist:
         messages.error(request, "The requested campaign does not exist!")
-        return render_to_response('kraut_intel/campaigns.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/campaigns.html', {})
     if request.method == "POST":
         campaign_name = request.POST.get('campaign_name', None)
         campaign_status = request.POST.get('campaign_status', None)
@@ -692,7 +692,7 @@ def delete_campaign(request, campaign_id):
         campaign = Campaign.objects.get(pk=int(campaign_id))
     except Campaign.DoesNotExist:
         messages.error(request, "The requested campaign does not exist!")
-        return render_to_response('kraut_intel/campaigns.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/campaigns.html', context)
     ### TODO: delete associated objects
     # delete campaign
     campaign.delete()
@@ -712,7 +712,7 @@ def ttps(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/ttps.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/ttps.html', context)
 
 @login_required
 def delete_comment_ttp(request, ttp_id="1", comment_id="1"):
@@ -767,7 +767,7 @@ def ttp(request, ttp_id="1"):
         )
     except TTP.DoesNotExist:
         messages.error(request, 'The requested TTP does not exist!')
-        return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/ttp_details.html', context)
     if len(ttp)<=0:
         messages.error(request, 'No TTP with given ID exists in the system.')
     else:
@@ -787,7 +787,7 @@ def ttp(request, ttp_id="1"):
             context['tab'] = 'malware_instances'
         else:
             context['tab'] = 'attack_patterns'
-    return render_to_response('kraut_intel/ttp_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/ttp_details.html', context)
 
 @login_required
 def update_ttp_header(request, ttp_id):
@@ -797,7 +797,7 @@ def update_ttp_header(request, ttp_id):
         ttp = TTP.objects.get(pk=int(ttp_id))
     except TTP.DoesNotExist:
         messages.error(request, 'The requested TTP does not exist!')
-        return render_to_response('kraut_intel/ttps.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/ttps.html', {})
     if request.method == "POST":
         ttp_name = request.POST.get('ttp_name', None)
         ttp_namespace = request.POST.get('ttp_namespace', None)
@@ -821,7 +821,7 @@ def delete_ttp(request, ttp_id):
         ttp = TTP.objects.get(pk=int(ttp_id))
     except TTP.DoesNotExist:
         messages.error(request, 'The requested TTP does not exist!')
-        return render_to_response('kraut_intel/ttps.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/ttps.html', {})
     ### TODO: delete associated objects, if special flag is set
     # delete ttp
     ttp.delete()
@@ -841,7 +841,7 @@ def indicators(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/indicators.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/indicators.html', context)
 
 @login_required
 def comment_indicator(request, indicator_id="1"):
@@ -893,7 +893,7 @@ def update_indicator_header(request, indicator_id="1"):
         indicator = Indicator.objects.get(pk=int(indicator_id))
     except Indicator.DoesNotExist:
         messages.error(request, 'The requested indicator does not exist!')
-        return render_to_response('kraut_intel/indicators.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/indicators.html', {})
     if request.method == "POST":
         ind_name = request.POST.get('indicator_name', None)
         ind_namespace = request.POST.get('indicator_namespace', None)
@@ -922,7 +922,7 @@ def delete_indicator(request, indicator_id):
         indicator = Indicator.objects.get(pk=int(indicator_id))
     except Indicator.DoesNotExist:
         messages.error(request, 'The requested indicator does not exist!')
-        return render_to_response('kraut_intel/indicators.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/indicators.html', {})
     ### TODO: delete associated object, if flag is set
     # delete indicator
     indicator.delete()
@@ -945,7 +945,7 @@ def indicator(request, indicator_id="1"):
         )
     except Indicator.DoesNotExist:
         messages.error(request, "The requested indicator does not exist!")
-        return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/indicator_details.html', context)
     if len(indicator)<=0:
         messages.warning(request, "No indicator with the given ID exists in the system.")
     else:
@@ -984,7 +984,7 @@ def indicator(request, indicator_id="1"):
                 context['composition_id'] = composition.id
         else:
             context['composition_id'] = None
-    return render_to_response('kraut_intel/indicator_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/indicator_details.html', context)
 
 ####################
 # OBSERVABLE VIEWS #
@@ -1001,7 +1001,7 @@ def observables(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/observables.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/observables.html', context)
 
 @login_required
 def comment_observable(request, observable_id="1"):
@@ -1055,7 +1055,7 @@ def delete_observable(request, observable_id):
         obs = Observable.objects.get(pk=int(observable_id))
     except Observable.DoesNotExist:
         messages.info(request, 'The observable was deleted successfully!')
-        return render_to_response('kraut_intel/observables.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/observables.html', {})
     ### TODO: delete associated objects
     # delete observable
     obs.delete()
@@ -1070,7 +1070,7 @@ def update_observable_header(request, observable_id="1"):
         observable = Observable.objects.get(pk=int(observable_id))
     except Observable.DoesNotExist:
         messages.error(request, 'The requested observable does not exist!')
-        return render_to_response('kraut_intel/observables.html', {}, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/observables.html', {})
     if request.method == "POST":
         ob_name = request.POST.get('observable_name', None)
         ob_namespace = request.POST.get('observable_namespace', None)
@@ -1097,7 +1097,7 @@ def observable(request, observable_id="1"):
         )
     except Observable.DoesNotExist:
         messages.error(request, 'The requested observable does not exist!')
-        return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/observable_details.html', context)
     if len(observable)<=0:
         messages.warning(request, "No observable with the given ID exists in the system.")
     else:
@@ -1148,7 +1148,7 @@ def observable(request, observable_id="1"):
                 context['composition_id'] = composition.id
         elif observable[0].observable_type == 'WindowsExecutableFileObjectType':
             context['active_tab'] = 'winexeobj'
-    return render_to_response('kraut_intel/observable_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/observable_details.html', context)
 
 ##########################
 # MALWARE INSTANCE VIEWS #
@@ -1165,7 +1165,7 @@ def malware_instances(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/mwinstances.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/mwinstances.html', context)
 
 @login_required
 def delete_malware_instance(request, mwi_id):
@@ -1193,7 +1193,7 @@ def malware_instance(request, mwi_id="1"):
     context['mwi'] = mwi
     context['namespace_icon'] = get_icon_for_namespace(mwi.ttp_ref.namespace.last().namespace)
     context['description'] = ' '.join(strip_tags(mwi.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
-    return render_to_response('kraut_intel/mwinstance_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/mwinstance_details.html', context)
 
 def update_mwinstance_header(request, mwi_id):
     """ update malware instance meta information
@@ -1229,7 +1229,7 @@ def attack_patterns(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render_to_response('kraut_intel/attack_patterns.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/attack_patterns.html', context)
 
 def delete_attack_pattern(request, ap_id):
     """ delete attacker pattern
@@ -1251,7 +1251,7 @@ def update_attpattern_header(request, ap_id):
         ap = AttackPattern.objects.get(pk=int(ap_id))
     except AttackPattern.DoesNotExist:
         messages.error(request, 'The requested Malware Instance object does not exist')
-        return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
+        return render(request, 'kraut_intel/attpattern_details.html', context)
     if request.method == "POST":
         ap_name = request.POST.get('ap_name', None)
         ap_description = request.POST.get('ap_description', None)
@@ -1278,5 +1278,5 @@ def attack_pattern(request, ap_id="1"):
     context['ap'] = ap
     context['namespace_icon'] = get_icon_for_namespace(ap.ttp_ref.namespace.last().namespace)
     context['description'] = ' '.join(strip_tags(ap.description).replace('\n', ' ').replace('\r', '').replace('\t', ' ').strip().split())
-    return render_to_response('kraut_intel/attpattern_details.html', context, context_instance=RequestContext(request))
+    return render(request, 'kraut_intel/attpattern_details.html', context)
 

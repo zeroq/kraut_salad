@@ -77,7 +77,7 @@
         var cTable = $('#packages_comments_table').DataTable({
             processing: true, serverSide: true, filter: true, bInfo: false, bLengthChange: false, ordering: false,
             oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
-            ajax: { processing: true, url: "/api/comments/packages/.json", dataSrc: "results", type: "GET", dataType: "json" },
+            ajax: { processing: true, url: "/api/comments/packages/", dataSrc: "results", type: "GET", dataType: "json" },
             columns: [
                 {
                     'data': 'ctext',
@@ -96,7 +96,7 @@
             processing: true, serverSide: true,
             oLanguage: { sProcessing: "<img src='{% static 'images/loading.gif' %}'>", },
             order: [[ 1, "desc" ]],
-            ajax: { processing: true, url: "/api/packages/.json", dataSrc: "results", type: "GET", dataType: "json" },
+            ajax: { processing: true, url: "/api/packages/", dataSrc: "results", type: "GET", dataType: "json" },
             columns: [
                 {
                     'data': 'short_name', 'sName': 'short_name', 'aTargets': [ 1 ],

@@ -21,7 +21,7 @@ class TAXII_Remote_Collection(models.Model):
     name = models.CharField(max_length=255, help_text="""name of the collection""", unique=True)
     begin_timestamp = models.DateTimeField(blank=True, null=True)
     end_timestamp = models.DateTimeField(blank=True, null=True)
-    server = models.ForeignKey("TAXII_Remote_Server")
+    server = models.ForeignKey("TAXII_Remote_Server", on_delete=models.CASCADE)
     subscribed = models.BooleanField(default=False)
     collection_type = models.CharField(max_length=255, default="DATA-FEED")
     poll_period = models.IntegerField(default=24, help_text="""poll period in hours (e.g. 24 = every 24 hours)""")

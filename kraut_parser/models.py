@@ -43,14 +43,14 @@ class Package(models.Model):
 
 class Package_Intent(models.Model):
     intent = models.CharField(max_length=255)
-    package = models.ForeignKey(Package)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return u"%s" % (self.intent)
 
 class Package_Reference(models.Model):
     reference = models.CharField(max_length=1024)
-    package = models.ForeignKey(Package)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return u"%s" % (self.reference)
@@ -75,12 +75,12 @@ class TTP(models.Model):
         return u"%s" % (self.name)
 
 class RelatedTTP(models.Model):
-    from_ttp = models.ForeignKey(TTP, related_name='from_ttp')
-    to_ttp = models.ForeignKey(TTP, related_name='to_ttp')
+    from_ttp = models.ForeignKey(TTP, related_name='from_ttp', on_delete=models.CASCADE)
+    to_ttp = models.ForeignKey(TTP, related_name='to_ttp', on_delete=models.CASCADE)
     relationship = models.CharField(max_length=255)
 
 class MalwareInstance(models.Model):
-    ttp_ref = models.ForeignKey(TTP)
+    ttp_ref = models.ForeignKey(TTP, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -91,21 +91,21 @@ class MalwareInstance(models.Model):
         return u"%s" % (self.name)
 
 class MalwareInstanceNames(models.Model):
-    instance_ref = models.ForeignKey(MalwareInstance)
+    instance_ref = models.ForeignKey(MalwareInstance, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
         return u"%s" % (self.name)
 
 class MalwareInstanceTypes(models.Model):
-    instance_ref = models.ForeignKey(MalwareInstance)
+    instance_ref = models.ForeignKey(MalwareInstance, on_delete=models.CASCADE)
     _type = models.CharField(max_length=255)
 
     def __unicode__(self):
         return u"%s" % (self._type)
 
 class AttackPattern(models.Model):
-    ttp_ref = models.ForeignKey(TTP)
+    ttp_ref = models.ForeignKey(TTP, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -140,8 +140,8 @@ class Campaign(models.Model):
         return u"%s" % (self.name)
 
 class RelationCampaignTTP(models.Model):
-    campaign = models.ForeignKey(Campaign)
-    ttp = models.ForeignKey(TTP)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
+    ttp = models.ForeignKey(TTP, on_delete=models.CASCADE)
     relationship = models.CharField(max_length=255)
 
 class ThreatActor(models.Model):
@@ -168,13 +168,13 @@ class ThreatActor(models.Model):
         return u"%s" % (self.name)
 
 class ObservedTTP(models.Model):
-    ta = models.ForeignKey(ThreatActor)
-    ttp = models.ForeignKey(TTP)
+    ta = models.ForeignKey(ThreatActor, on_delete=models.CASCADE)
+    ttp = models.ForeignKey(TTP, on_delete=models.CASCADE)
     relationship = models.CharField(max_length=255)
 
 class TA_Types(models.Model):
     ta_type = models.CharField(max_length=255)
-    actor = models.ForeignKey(ThreatActor)
+    actor = models.ForeignKey(ThreatActor, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return u"%s -> %s" % (self.actor.name, self.ta_type)
@@ -184,7 +184,7 @@ class TA_Types(models.Model):
 
 class TA_Roles(models.Model):
     role = models.CharField(max_length=255)
-    actor = models.ForeignKey(ThreatActor)
+    actor = models.ForeignKey(ThreatActor, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return u"%s" % (self.role)
@@ -195,7 +195,7 @@ class TA_Roles(models.Model):
 class TA_Alias(models.Model):
     alias = models.CharField(max_length=255)
     namespace = models.ManyToManyField('Namespace', blank=True)
-    actor = models.ForeignKey(ThreatActor)
+    actor = models.ForeignKey(ThreatActor, on_delete=models.CASCADE)
     alias_type = models.CharField(max_length=255, default='UnofficialName')
 
     def __unicode__(self):
@@ -500,8 +500,8 @@ class HTTPClientRequest(models.Model):
     request_uri = models.CharField(max_length=1024, null=True, blank=True)
     request_version = models.CharField(max_length=10, null=True, blank=True)
     user_agent = models.CharField(max_length=255, null=True, blank=True)
-    domain_name = models.ForeignKey(URI_Object, null=True, blank=True)
-    port = models.ForeignKey(Port_Object, null=True, blank=True)
+    domain_name = models.ForeignKey(URI_Object, null=True, blank=True, on_delete=models.CASCADE)
+    port = models.ForeignKey(Port_Object, null=True, blank=True, on_delete=models.CASCADE)
 
     def __unicode__(self):
         if self.request_uri and self.domain_name:
@@ -510,13 +510,13 @@ class HTTPClientRequest(models.Model):
             return u"HTTPClientRequest Object"
 
 class HTTPSession_Object(models.Model):
-    client_request = models.ForeignKey(HTTPClientRequest, null=True, blank=True)
+    client_request = models.ForeignKey(HTTPClientRequest, null=True, blank=True, on_delete=models.CASCADE)
     # http server response not implemented
     observables = models.ManyToManyField(Observable)
 
 
 class DNSQuestion(models.Model):
-    qname = models.ForeignKey(URI_Object)
+    qname = models.ForeignKey(URI_Object, on_delete=models.CASCADE)
     qtype = models.CharField(max_length=255, null=True, blank=True)
     qclass = models.CharField(max_length=255, null=True, blank=True)
 
@@ -525,7 +525,7 @@ class DNSQuestion(models.Model):
 
 class DNSQuery_Object(models.Model):
     successful = models.BooleanField(default=False)
-    question = models.ForeignKey(DNSQuestion)
+    question = models.ForeignKey(DNSQuestion, on_delete=models.CASCADE)
     observables = models.ManyToManyField(Observable)
 
 class ImportedFunction(models.Model):

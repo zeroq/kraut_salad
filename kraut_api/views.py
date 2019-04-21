@@ -1,7 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.http import JsonResponse, HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework import status
@@ -11,26 +11,27 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from kraut_parser.models import Indicator, Observable, Campaign, ThreatActor, Package, ObservableComposition, File_Object, TTP, RelatedTTP, MalwareInstance, AttackPattern
 from kraut_parser.models import Address_Object, URI_Object
+from kraut_api.paginators import CustomPaginator
 # Indicator
-from kraut_api.serializers import IndicatorSerializer, PaginatedIndicatorSerializer, PaginatedIndicatorCommentSerializer
+from kraut_api.serializers import IndicatorSerializer, IndSerializer, Ind2Serializer, IndicatorCommentSerializer
 # Observable
-from kraut_api.serializers import ObservableSerializer, PaginatedObservableSerializer, PaginatedObservableCommentSerializer
+from kraut_api.serializers import ObservableSerializer, ObsSerializer, ObservableCommentSerializer, ObservableCompositionSerializer
 # Campaign
-from kraut_api.serializers import CampaignSerializer, PaginatedCampaignSerializer, PaginatedCampaignCommentSerializer
+from kraut_api.serializers import CampaignSerializer, CampSerializer, CampaignCommentSerializer
 # Threat Actor
-from kraut_api.serializers import ThreatActorSerializer, PaginatedThreatActorSerializer, PaginatedActorCommentSerializer
+from kraut_api.serializers import ThreatActorSerializer, TASerializer, ActorCommentSerializer
 # Package
-from kraut_api.serializers import PackageSerializer, PaginatedPackageSerializer, PaginatedIndicator2Serializer, PaginatedCompositionSerializer, PaginatedPackageCommentSerializer
+from kraut_api.serializers import PackageSerializer, PackSerializer, PackageCommentSerializer
 # Incident
-from kraut_api.serializers import PaginatedContactSerializer, PaginatedHandlerSerializer, PaginatedFileObjectSerializer, PaginatedIncidentSerializer
+from kraut_api.serializers import IncidentSerializer, ContactSerializer, HandlerSerializer
 # Objects
-from kraut_api.serializers import PaginatedAddressObjectSerializer, PaginatedURIObjectSerializer
+from kraut_api.serializers import AddressObjectSerializer, URIObjectSerializer, FileObjectSerializer
 # TTPs
-from kraut_api.serializers import PaginatedTTPSerializer, PaginatedTTPCommentSerializer
-# Malware Instance
-from kraut_api.serializers import PaginatedMalwareInstanceSerializer, PaginatedAttackPatternSerializer
+from kraut_api.serializers import TTPSerializer, TTPCommentSerializer
+# Malware Instance and Attack Pattern
+from kraut_api.serializers import MalwareInstanceSerializer, AttackPatternSerializer
 # Sharing Servers
-from kraut_api.serializers import PaginatedServersSerializer, PaginatedCollectionSerializer
+from kraut_api.serializers import CollectionSerializer, ServersSerializer
 #
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
 from kraut_incident.models import Contact, Handler, Incident
@@ -178,8 +179,9 @@ def package_quick(request, pk, otype, format=None):
 @permission_classes((IsAuthenticated,))
 def package_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -217,14 +219,15 @@ def package_list(request, format=None):
                 Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            pack = paginator.page(page)
-        except:
-            pack = paginator.page(1)
+        #paginator = Paginator(queryset, max_items)
+        #try:
+        #    pack = paginator.page(page)
+        #except:
+        #    pack = paginator.page(1)
+        pack = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedPackageSerializer(pack, context=serializer_context)
-        return Response(serializer.data)
+        serializer = PackSerializer(instance=pack, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -245,8 +248,9 @@ def package_detail(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def package_detail_observables(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -284,14 +288,10 @@ def package_detail_observables(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(observable_type__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            observables = paginator.page(page)
-        except:
-            observables = paginator.page(1)
+        observables = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedObservableSerializer(observables, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ObsSerializer(instance=observables, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -299,8 +299,9 @@ def package_detail_observables(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def package_detail_indicators(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -339,14 +340,10 @@ def package_detail_indicators(request, pk, format=None):
                 Q(indicator_types__itype__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            indicators = paginator.page(page)
-        except:
-            indicators = paginator.page(1)
+        indicators = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedIndicator2Serializer(indicators, context=serializer_context)
-        return Response(serializer.data)
+        serializer = Ind2Serializer(instance=indicators, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -354,8 +351,9 @@ def package_detail_indicators(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def package_detail_campaigns(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -394,14 +392,10 @@ def package_detail_campaigns(request, pk, format=None):
                 Q(status__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            indicators = paginator.page(page)
-        except:
-            indicators = paginator.page(1)
+        indicators = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedCampaignSerializer(indicators, context=serializer_context)
-        return Response(serializer.data)
+        serializer = CampSerializer(instance=indicators, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -409,8 +403,9 @@ def package_detail_campaigns(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def package_detail_ttps(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -448,14 +443,10 @@ def package_detail_ttps(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            ttps = paginator.page(page)
-        except:
-            ttps = paginator.page(1)
+        ttps = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedTTPSerializer(ttps, context=serializer_context)
-        return Response(serializer.data)
+        serializer = TTPSerializer(instance=ttps, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -463,8 +454,9 @@ def package_detail_ttps(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def package_detail_threatactors(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -502,14 +494,10 @@ def package_detail_threatactors(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            threatactors = paginator.page(page)
-        except:
-            threatactors = paginator.page(1)
+        threatactors = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedThreatActorSerializer(threatactors, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ThreatActorSerializer(instance=threatactors, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -521,8 +509,9 @@ def package_detail_threatactors(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def threatactor_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -560,14 +549,10 @@ def threatactor_list(request, format=None):
                 Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            tas = paginator.page(page)
-        except:
-            tas = paginator.page(1)
+        tas = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedThreatActorSerializer(tas, context=serializer_context)
-        return Response(serializer.data)
+        serializer = TASerializer(instance=tas, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -588,8 +573,9 @@ def threatactor_detail(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def threatactor_detail_campaigns(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -628,14 +614,10 @@ def threatactor_detail_campaigns(request, pk, format=None):
                 Q(status__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            campaigns = paginator.page(page)
-        except:
-            campaigns = paginator.page(1)
+        campaigns = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedCampaignSerializer(campaigns, context=serializer_context)
-        return Response(serializer.data)
+        serializer = CampSerializer(instance=campaigns, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -687,8 +669,9 @@ def threatactor_detail_related_packages(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def threatactor_detail_observed_ttps(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -726,14 +709,10 @@ def threatactor_detail_observed_ttps(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            ttps = paginator.page(page)
-        except:
-            ttps = paginator.page(1)
+        ttps = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedTTPSerializer(ttps, context=serializer_context)
-        return Response(serializer.data)
+        serializer = TTPSerializer(instance=ttps, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -744,8 +723,9 @@ def threatactor_detail_observed_ttps(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def ttp_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -781,14 +761,10 @@ def ttp_list(request, format=None):
                 Q(namespace__namespace__istartswith=search_value)|
                 Q(ttp_id__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            ttps = paginator.page(page)
-        except:
-            ttps = paginator.page(1)
+        ttps = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedTTPSerializer(ttps, context=serializer_context)
-        return Response(serializer.data)
+        serializer = TTPSerializer(instance=ttps, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -859,8 +835,9 @@ def malware_instances_list(request, format=None):
     """ api function to list all malware instances
     """
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -895,14 +872,10 @@ def malware_instances_list(request, format=None):
             queryset = queryset.filter(
                 Q(name__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            mwinstances = paginator.page(page)
-        except:
-            mwinstances = paginator.page(1)
+        mwinstance = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedMalwareInstanceSerializer(mwinstances, context=serializer_context)
-        return Response(serializer.data)
+        serializer = MalwareInstanceSerializer(instance=mwinstance, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -910,8 +883,9 @@ def malware_instances_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def ttp_malware_instances(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -946,14 +920,10 @@ def ttp_malware_instances(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(subname__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            mw = paginator.page(page)
-        except:
-            mw = paginator.page(1)
+        mw = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedMalwareInstanceSerializer(mw, context=serializer_context)
-        return Response(serializer.data)
+        serializer = MalwareInstanceSerializer(instance=mw, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -967,8 +937,9 @@ def attack_patterns_list(request, format=None):
     """ api function to list all attack paterns
     """
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1003,14 +974,10 @@ def attack_patterns_list(request, format=None):
             queryset = queryset.filter(
                 Q(name__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            atp = paginator.page(page)
-        except:
-            atp = paginator.page(1)
+        atp = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedAttackPatternSerializer(atp, context=serializer_context)
-        return Response(serializer.data)
+        serializer = AttackPatternSerializer(instance=atp, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -1018,8 +985,9 @@ def attack_patterns_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def ttp_attack_patterns(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1055,14 +1023,10 @@ def ttp_attack_patterns(request, pk, format=None):
                 Q(description__istartswith=search_value)|
                 Q(capec_id__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            mw = paginator.page(page)
-        except:
-            mw = paginator.page(1)
+        mw = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedAttackPatternSerializer(mw, context=serializer_context)
-        return Response(serializer.data)
+        serializer = AttackPatternSerializer(instance=mw, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1074,8 +1038,9 @@ def ttp_attack_patterns(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def campaign_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1111,14 +1076,10 @@ def campaign_list(request, format=None):
                 Q(name__icontains=search_value)|
                 Q(namespace__namespace__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            tas = paginator.page(page)
-        except:
-            tas = paginator.page(1)
+        tas = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedCampaignSerializer(tas, context=serializer_context)
-        return Response(serializer.data)
+        serializer = CampSerializer(instance=tas, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -1197,8 +1158,9 @@ def campaign_detail_related_packages(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def campaign_detail_related_ttps(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1236,14 +1198,10 @@ def campaign_detail_related_ttps(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            ttps = paginator.page(page)
-        except:
-            ttps = paginator.page(1)
+        ttps = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedTTPSerializer(ttps, context=serializer_context)
-        return Response(serializer.data)
+        serializer = TTPSerializer(instance=ttps, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################### INDICATOR #####################
@@ -1254,8 +1212,9 @@ def campaign_detail_related_ttps(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def indicator_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1292,14 +1251,10 @@ def indicator_list(request, format=None):
                 Q(namespace__namespace__istartswith=search_value)|
                 Q(indicator_id__contains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            tas = paginator.page(page)
-        except:
-            tas = paginator.page(1)
+        tas = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedIndicatorSerializer(tas, context=serializer_context)
-        return Response(serializer.data)
+        serializer = IndSerializer(instance=tas, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1322,8 +1277,9 @@ def indicator_detail(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def indicator_detail_related_indicators(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1362,22 +1318,19 @@ def indicator_detail_related_indicators(request, pk, format=None):
                 Q(indicator_types__itype__istartswith=search_value)|
                 Q(confidence__value__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            indicators = paginator.page(page)
-        except:
-            indicators = paginator.page(1)
+        indicators = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedIndicator2Serializer(indicators, context=serializer_context)
-        return Response(serializer.data)
+        serializer = Ind2Serializer(instance=indicators, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, ))
 @permission_classes((IsAuthenticated,))
 def indicator_detail_observables(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1415,22 +1368,19 @@ def indicator_detail_observables(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(observable_type__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            observables = paginator.page(page)
-        except:
-            observables = paginator.page(1)
+        observables = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedObservableSerializer(observables, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ObservableSerializer(instance=observables, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, ))
 @permission_classes((IsAuthenticated,))
 def indicator_detail_ttps(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1468,14 +1418,10 @@ def indicator_detail_ttps(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(short_description__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            ttps = paginator.page(page)
-        except:
-            ttps = paginator.page(1)
+        ttps = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedTTPSerializer(ttps, context=serializer_context)
-        return Response(serializer.data)
+        serializer = TTPSerializer(instance=ttps, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET'])
@@ -1483,8 +1429,9 @@ def indicator_detail_ttps(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def indicator_detail_compositions(request, pk, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1522,14 +1469,10 @@ def indicator_detail_compositions(request, pk, format=None):
                 Q(name__icontains=search_value)|
                 Q(operator__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            compositions = paginator.page(page)
-        except:
-            compositions = paginator.page(1)
+        compositions = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedCompositionSerializer(compositions, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ObservableCompositionSerializer(instance=compositions, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 @authentication_classes((SessionAuthentication, ))
@@ -1607,8 +1550,9 @@ def composition_details_d3(request, pk, format=None):
 @permission_classes((IsAuthenticated,))
 def observable_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1648,14 +1592,10 @@ def observable_list(request, format=None):
                 Q(namespace__namespace__istartswith=search_value)|
                 Q(observable_id__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            observables = paginator.page(page)
-        except:
-            observables = paginator.page(1)
+        observables = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedObservableSerializer(observables, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ObsSerializer(instance=observables, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -1870,8 +1810,9 @@ def object_ip_list(request, format=None):
     """Return a list of IP addresses
     """
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1905,14 +1846,10 @@ def object_ip_list(request, format=None):
                 Q(address_value__icontains=search_value)|
                 Q(category__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            handler = paginator.page(page)
-        except:
-            handler = paginator.page(1)
+        handler = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedAddressObjectSerializer(handler, context=serializer_context)
-        return Response(serializer.data)
+        serializer = AddressObjectSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -1922,8 +1859,9 @@ def object_hash_list(request, format=None):
     """Return a list of file hashes
     """
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -1957,14 +1895,10 @@ def object_hash_list(request, format=None):
                 Q(md5_hash__icontains=search_value)|
                 Q(sha256_hash__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            handler = paginator.page(page)
-        except:
-            handler = paginator.page(1)
+        handler = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedFileObjectSerializer(handler, context=serializer_context)
-        return Response(serializer.data)
+        serializer = FileObjectSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -1974,8 +1908,9 @@ def object_domain_list(request, format=None):
     """Return a list of domains
     """
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -2009,14 +1944,10 @@ def object_domain_list(request, format=None):
                 Q(uri_value__icontains=search_value)|
                 Q(uri_type__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            handler = paginator.page(page)
-        except:
-            handler = paginator.page(1)
+        handler = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedURIObjectSerializer(handler, context=serializer_context)
-        return Response(serializer.data)
+        serializer = URIObjectSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -2027,8 +1958,9 @@ def object_domain_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def handler_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -2062,14 +1994,10 @@ def handler_list(request, format=None):
                 Q(firstname__istartswith=search_value)|
                 Q(lastname__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            handler = paginator.page(page)
-        except:
-            handler = paginator.page(1)
+        handler = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedHandlerSerializer(handler, context=serializer_context)
-        return Response(serializer.data)
+        serializer = HandlerSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -2080,8 +2008,9 @@ def handler_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def contact_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -2115,14 +2044,10 @@ def contact_list(request, format=None):
                 Q(firstname__istartswith=search_value)|
                 Q(lastname__istartswith=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            contact = paginator.page(page)
-        except:
-            contact = paginator.page(1)
+        handler = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedContactSerializer(contact, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ContactSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################### INCIDENTS #####################
@@ -2132,8 +2057,9 @@ def contact_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def incident_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             # number of items to retrieve
             if 'length' in request.query_params:
@@ -2169,14 +2095,10 @@ def incident_list(request, format=None):
                 Q(status__name__istartswith=search_value)|
                 Q(category__name__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            incident = paginator.page(page)
-        except:
-            incident = paginator.page(1)
+        incident = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedIncidentSerializer(incident, context=serializer_context)
-        return Response(serializer.data)
+        serializer = IncidentSerializer(instance=incident, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################### SHARING #####################
@@ -2186,8 +2108,9 @@ def incident_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def taxii_server_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             if 'length' in request.query_params: max_items = int(request.query_params['length'])
             if 'start' in request.query_params: page = int(int(request.query_params['start'])/int(max_items))+1
@@ -2214,14 +2137,10 @@ def taxii_server_list(request, format=None):
                 Q(name__icontains=search_value)|
                 Q(host__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            servers = paginator.page(page)
-        except:
-            servers = paginator.page(1)
+        servers = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedServersSerializer(servers, context=serializer_context)
-        return Response(serializer.data)
+        serializer = ServersSerializer(instance=servers, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -2229,8 +2148,9 @@ def taxii_server_list(request, format=None):
 @permission_classes((IsAuthenticated,))
 def taxii_collection_list(request, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             if 'length' in request.query_params: max_items = int(request.query_params['length'])
             if 'start' in request.query_params: page = int(int(request.query_params['start'])/int(max_items))+1
@@ -2256,14 +2176,10 @@ def taxii_collection_list(request, format=None):
             queryset = queryset.filter(
                 Q(name__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            collections = paginator.page(page)
-        except:
-            collections = paginator.page(1)
+        collections = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
-        serializer = PaginatedCollectionSerializer(collections, context=serializer_context)
-        return Response(serializer.data)
+        serializer = CollectionSerializer(instance=collections, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -2302,8 +2218,9 @@ def taxii_feed_information(request, format=None):
 @permission_classes((IsAuthenticated,))
 def list_comments(request, object_type, format=None):
     if request.method == 'GET':
+        paginator = CustomPaginator()
         max_items = 10
-        page = request.QUERY_PARAMS.get('page')
+        page = request.query_params.get('page')
         if request.query_params:
             if 'length' in request.query_params: max_items = int(request.query_params['length'])
             if 'start' in request.query_params: page = int(int(request.query_params['start'])/int(max_items))+1
@@ -2342,25 +2259,28 @@ def list_comments(request, object_type, format=None):
             queryset = queryset.filter(
                 Q(ctext__icontains=search_value)
             )
-        paginator = Paginator(queryset, max_items)
-        try:
-            comments = paginator.page(page)
-        except:
-            comments = paginator.page(1)
+        comments = paginator.paginate_queryset(queryset, request)
         serializer_context = {'request': request}
         if object_type == 'threatactors':
-            serializer = PaginatedActorCommentSerializer(comments, context=serializer_context)
+            serializer = ActorCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
         elif object_type == 'packages':
-            serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
+            serializer = PackageCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
         elif object_type == 'campaigns':
-            serializer = PaginatedCampaignCommentSerializer(comments, context=serializer_context)
+            serializer = CampaignCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
         elif object_type == 'ttps':
-            serializer = PaginatedTTPCommentSerializer(comments, context=serializer_context)
+            serializer = TTPCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
         elif object_type == 'indicators':
-            serializer = PaginatedIndicatorCommentSerializer(comments, context=serializer_context)
+            serializer = IndicatorCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
         elif object_type == 'observables':
-            serializer = PaginatedObservableCommentSerializer(comments, context=serializer_context)
+            serializer = ObservableCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
         else:
-            serializer = PaginatedPackageCommentSerializer(comments, context=serializer_context)
-        return Response(serializer.data)
+            serializer = PackageCommentSerializer(instance=comments, context=serializer_context, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
