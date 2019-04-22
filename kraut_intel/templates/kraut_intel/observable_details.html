@@ -346,9 +346,15 @@ path.link {
         </a>
     </li>
     {% endif %}
+    {% if observable.observable_type == 'EmailMessageObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#emailobj" aria-controls="emailobj" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;E-Mail Object
+        </a>
+    {% endif %}
     <!-- MISSING
         CodeObjectType
-        EmailMessageObjectType
+        EmailMessageObjectType (started)
     -->
   </ul>
 
@@ -549,6 +555,25 @@ path.link {
         <div id="tree-container" class="panel-body">
         </div>
     </div>
+    <!-- EMAIL OBJECT -->
+    {% if observable.observable_type == 'EmailMessageObjectType' %}
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'emailobj'%}active{% endif %}" id="emailobj">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                <tr><td><b>Date</b></td><td>{{ object.email_date }}</td></tr>
+                <tr><td><b>Subject</b></td><td>{{ object.subject }}</td></tr>
+                <tr><td><b>Message ID</b></td><td>{{ object.message_id }}</td></tr>
+                <tr><td><b>Mime Version</b></td><td>{{ object.mime_version }}</td></tr>
+                <tr><td><b>Content Type</b></td><td>{{ object.content_type }}</td></tr>
+                <tr><td><b>User Agent</b></td><td>{{ object.user_agent }}</td></tr>
+                <tr><td><b>X-Mailer</b></td><td>{{ object.x_mailer }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
     <!-- WINDOWS EXECUTABLE OBJECT -->
     <div role="tabpanel" class="tab-pane {% if active_tab == 'winexeobj'%}active{% endif %}" id="winexeobj">
         <br/>

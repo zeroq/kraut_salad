@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="page-header"><i class="fa fa-sitemap fa-3x pull-left"></i><h2>Basic Search Results</h2>results for your search term ...</div>
+{% if messages %}{% for message in messages %}<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}{% endif %}
+
+{% if sterm %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Search Results</h3>
+    </div>
+    <div class="panel-body">
+        <div role="tabpanel">
+            <table id="uri_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+                <thead><tr><th>Name</th><th>Value</th></tr></thead>
+                <tbody>
+                    {% for item in result %}
+                        <tr><td>{{ item.0 }}</td><td>{{ item.1 }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+    Nothing found!
+{% endif %}
+{% endblock%}

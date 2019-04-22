@@ -1148,6 +1148,8 @@ def observable(request, observable_id="1"):
                 context['composition_id'] = composition.id
         elif observable[0].observable_type == 'WindowsExecutableFileObjectType':
             context['active_tab'] = 'winexeobj'
+        elif observable[0].observable_type == 'EmailMessageObjectType':
+            context['active_tab'] = 'emailobj'
     return render(request, 'kraut_intel/observable_details.html', context)
 
 ##########################

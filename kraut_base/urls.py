@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^accounts/', include(('kraut_accounts.urls', 'accounts'), namespace='accounts')),
     url(r'^api/', include(('kraut_api.urls', 'api'), namespace='api')),
     url(r'^api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework')),
+    url(r'^search/', include(('kraut_search.urls', 'search'), namespace='search')),
     url(r'^admin/', admin.site.urls),
 ]
