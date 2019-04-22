@@ -125,6 +125,8 @@ class Command(BaseCommand):
             db_object = DNSQuery_Object.objects.get(id=object_id)
         elif object_type == 'WindowsExecutableFileObjectType':
             db_object = WindowsExecutable_Object.objects.get(id=object_id)
+        else:
+            print('No DB Object found?!')
         return db_object
 
     def determine_create_object(self, observable_object, object_type, object_data, object_id):
@@ -378,7 +380,6 @@ class Command(BaseCommand):
             else:
                 self.id_mapping['objects'][object_id] = [{'object_id': win_exec_obj.id, 'object_type': object_type}]
             object_list.append(win_exec_obj)
-            ### TODO: finish handling object type (imports, sections, exports)
         else:
             self.missed_objects[object_type] = True
         return object_list
@@ -1278,21 +1279,26 @@ class Command(BaseCommand):
                     file_list.append(os.path.join(item, fn))
         return file_list
 
+    def add_arguments(self, parser):
+        """add path/file argument
+        """
+        parser.add_argument('stix_xml', nargs='+', type=str)
+
     def handle(self, *args, **options):
         """iterate over files in given xml path or direct file and extract stix information
         returns: nothing
         """
-        if not os.path.exists(settings.MY_BACKUP_DIRECTORY):
-            os.makedirs(settings.MY_BACKUP_DIRECTORY)
-        # create daily subdirectory
-        backup_dir = os.path.join(settings.MY_BACKUP_DIRECTORY, time.strftime('%Y-%m-%d'))
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
+        if settings.ENABLE_BACKUP_STIX:
+            if not os.path.exists(settings.MY_BACKUP_DIRECTORY):
+                os.makedirs(settings.MY_BACKUP_DIRECTORY)
+            # create daily subdirectory
+            backup_dir = os.path.join(settings.MY_BACKUP_DIRECTORY, time.strftime('%Y-%m-%d'))
+            if not os.path.exists(backup_dir):
+                os.makedirs(backup_dir)
         parser = EntityParser()
-        file_list = self.check_file_or_directory(args)
+        file_list = self.check_file_or_directory(options['stix_xml'])
         for xml in file_list:
             result_list = self.iterate_xml(xml, parser)
-            #for stix_json_index in xrange(0, len(result_list)):
             for stix_json_index in xrange(len(result_list) - 1, -1, -1):
                 stix_json_tuple = result_list[stix_json_index]
                 stix_json = stix_json_tuple[0]
@@ -1590,10 +1596,11 @@ class Command(BaseCommand):
                         shutil.move(xml, backup_dir)
                     except Exception as e:
                         print("failed moving file to backup directory: %s" % (e))
-                try:
-                    os.remove(xml)
-                except Exception as e:
-                    print("failed removing stix xml file: %s" % (e))
+                if settings.DELETE_IMPORTED_STIX:
+                    try:
+                        os.remove(xml)
+                    except Exception as e:
+                        print("failed removing stix xml file: %s" % (e))
         self.stdout.write('------')
         # print all missing object references
         for item in self.missing_references:

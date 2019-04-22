@@ -134,3 +134,4 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 MY_IMPORT_DIRECTORY = os.path.join(BASE_DIR, 'imports')
 MY_BACKUP_DIRECTORY = os.path.join(BASE_DIR, 'backups')
 ENABLE_BACKUP_STIX = False
+DELETE_IMPORTED_STIX = False
