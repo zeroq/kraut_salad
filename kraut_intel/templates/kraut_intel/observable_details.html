@@ -347,14 +347,28 @@ path.link {
     </li>
     {% endif %}
     {% if observable.observable_type == 'EmailMessageObjectType' %}
-    <li role="presentation" class="active">
+    <li role="presentation" {% if active_tab == 'emailobj'%}class="active"{% endif %}>
         <a href="#emailobj" aria-controls="emailobj" role="tab" data-toggle="tab">
             <i class="fa fa-link"></i>&nbsp;&nbsp;E-Mail Object
         </a>
+    <li role="presentation" {% if active_tab == 'emailobj_header'%}class="active"{% endif %}>
+        <a href="#emailobj_header" aria-controls="emailobj_header" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Raw Header
+        </a>
+    </li>
+    <li role="presentation" {% if active_tab == 'emailobj_body'%}class="active"{% endif %}>
+        <a href="#emailobj_body" aria-controls="emailobj_body" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Raw Body
+        </a>
+    </li>
+    <li role="presentation" {% if active_tab == 'emailobj_att'%}class="active"{% endif %}>
+        <a href="#emailobj_att" aria-controls="emailobj_att" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Attachments
+        </a>
+    </li>
     {% endif %}
     <!-- MISSING
         CodeObjectType
-        EmailMessageObjectType (started)
     -->
   </ul>
 
@@ -569,6 +583,38 @@ path.link {
                 <tr><td><b>Content Type</b></td><td>{{ object.content_type }}</td></tr>
                 <tr><td><b>User Agent</b></td><td>{{ object.user_agent }}</td></tr>
                 <tr><td><b>X-Mailer</b></td><td>{{ object.x_mailer }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'emailobj_header'%}active{% endif %}" id="emailobj_header">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                <tr><td><textarea name="email_raw_header" class="form-control" rows="13">{{ object.raw_header }}</textarea></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'emailobj_body'%}active{% endif %}" id="emailobj_body">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                <tr><td><textarea name="email_raw_header" class="form-control" rows="13">{{ object.raw_body }}</textarea></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane {% if active_tab == 'emailobj_att'%}active{% endif %}" id="emailobj_att">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                {% for att in object.attachments.all %}
+                <tr><td>{{ att.md5_hash }}</td><td>{{ att.file_meta.first.file_name }}</td></tr>
+                {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
