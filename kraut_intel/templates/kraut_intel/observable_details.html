@@ -367,9 +367,13 @@ path.link {
         </a>
     </li>
     {% endif %}
-    <!-- MISSING
-        CodeObjectType
-    -->
+    {% if observable.observable_type == 'CodeObjectType' %}
+    <li role="presentation" class="active">
+        <a href="#codeobj" aria-controls="codeobj" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i>&nbsp;&nbsp;Code
+        </a>
+    </li>
+    {% endif %}
   </ul>
 
   <!-- Tab panes -->
@@ -569,6 +573,23 @@ path.link {
         <div id="tree-container" class="panel-body">
         </div>
     </div>
+    <!-- CODE OBJECT -->
+    {% if observable.observable_type == 'CodeObjectType' %}
+    <div role="tabpanel" class="tab-pane active" id="codeobj">
+        <br/>
+        <table class="table table-condensed table-borderless table-hover">
+            <tbody>
+                {% for object in objects %}
+                <tr><td><b>Custom Value</b></td><td>{{ object.custom_value }}</td></tr>
+                <tr><td><b>Custom Condition</b></td><td>{{ object.custom_condition }}</td></tr>
+                <tr><td><b>Purpose</b></td><td>{{ object.purpose }}</td></tr>
+                <tr><td><b>Code Language</b></td><td>{{ object.code_language }}</td></tr>
+                <tr><td><b>Code Segment</b></td><td>{{ object.code_segment }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
     <!-- EMAIL OBJECT -->
     {% if observable.observable_type == 'EmailMessageObjectType' %}
     <div role="tabpanel" class="tab-pane {% if active_tab == 'emailobj'%}active{% endif %}" id="emailobj">
