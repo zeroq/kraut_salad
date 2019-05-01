@@ -15,7 +15,7 @@
                 <thead><tr><th>Name</th><th>Value</th></tr></thead>
                 <tbody>
                     {% for item in result %}
-                        <tr><td>{{ item.0 }}</td><td>{{ item.1 }}</td></tr>
+                    <tr><td><a href="{% url 'intel:observable' observable_id=item.2 %}">{{ item.0 }}</a></td><td>{{ item.1 }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
