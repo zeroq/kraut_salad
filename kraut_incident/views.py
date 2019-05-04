@@ -25,7 +25,56 @@ def home(request):
 @login_required
 def list_incidents(request):
     context = {}
-    return render(request, 'kraut_incident/list.html', context)
+    return render(request, 'kraut_incident/incident_list.html', context)
+
+@login_required
+def update_incident_header(request, incident_id):
+    """Update incident header information
+    """
+    context = {}
+    return render(request, 'kraut_incident/incident_list.html', context)
+
+@login_required
+def comment_incident(request, incident_id):
+    context = {}
+    return render(request, 'kraut_incident/incident_list.html', context)
+
+
+
+@login_required
+def view_incident(request, incident_id):
+    """View details of incident
+    """
+    context = {'incident_id': incident_id, 'incident': None}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    context['incident'] = inc
+    context['severities'] = ['High', 'Medium', 'Low']
+    if inc.severity == 'h':
+        context['severity'] = 'High'
+    elif inc.severity == 'm':
+        context['severity'] = 'Medium'
+    else:
+        context['severity'] = 'Low'
+    if hasattr(request.user.userextension, 'namespaces'):
+        context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
+        context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)
+    else:
+        context['usernamespace'] = 'nospace'
+        context['namespaceicon'] = static('ns_icon/octalpus.png')
+    context['num_incident_handlers'] = inc.incident_handler.count()
+    context['num_incident_contacts'] = inc.contacts.count()
+    context['num_incident_tasks'] = inc.tasks.count()
+    if context['num_incident_tasks'] > 0:
+        context['tab'] = 'incident_tasks'
+    elif context['num_incident_contacts'] > 0:
+        context['tab'] = 'incident_contacts'
+    else:
+        context['tab'] = 'incident_handlers'
+    return render(request, 'kraut_incident/incident_details.html', context)
 
 @login_required
 def delete_incident(request, incident_id):
@@ -36,7 +85,7 @@ def delete_incident(request, incident_id):
         inc = Incident.objects.get(id=incident_id)
     except Incident.DoesNotExist:
         messages.error(request, 'The requested incident does not exist!')
-        return render(request, 'kraut_incident/list.html', context)
+        return render(request, 'kraut_incident/incident_list.html', context)
     inc.delete()
     messages.info(request, 'The incident was deleted successfully!')
     return HttpResponseRedirect(reverse('incidents:list'))
@@ -127,4 +176,4 @@ def new_incident(request):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
-    return render(request, 'kraut_incident/new.html', context)
+    return render(request, 'kraut_incident/incident_new.html', context)
