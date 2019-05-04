@@ -28,6 +28,20 @@ def list_incidents(request):
     return render(request, 'kraut_incident/list.html', context)
 
 @login_required
+def delete_incident(request, incident_id):
+    """Delete incident with given ID
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/list.html', context)
+    inc.delete()
+    messages.info(request, 'The incident was deleted successfully!')
+    return HttpResponseRedirect(reverse('incidents:list'))
+
+@login_required
 def create_handler(request):
     """This function is called from within the incident creation dialog to instantly add a new incident handler
     """

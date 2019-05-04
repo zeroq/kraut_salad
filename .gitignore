@@ -60,3 +60,9 @@ target/
 migrations/
 
 backups/
+
+test_*
+kraut_base/static/ns_icon/fireeye.jpg
+kraut_base/static/ns_icon/ninja.png
+kraut_base/static/ns_icon/siemens.png
+myapp_models.png
