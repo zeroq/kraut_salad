@@ -322,11 +322,20 @@ class ContactSerializer(serializers.ModelSerializer):
 class IncidentSerializer(serializers.ModelSerializer):
     status = serializers.StringRelatedField()
     category = serializers.StringRelatedField()
-    severity = serializers.StringRelatedField()
+    severity = serializers.SerializerMethodField()
 
     class Meta:
         model = Incident
         fields = ('id', 'incident_number', 'title', 'creation_time', 'last_modified', 'status', 'category', 'severity')
+
+    def get_severity(self, obj):
+        if obj.severity == 'h':
+            return 'High'
+        elif obj.severity == 'm':
+            return 'Medium'
+        elif obj.severity == 'l':
+            return 'Low'
+        return obj.severity
 
 ################### SHARING #####################
 
