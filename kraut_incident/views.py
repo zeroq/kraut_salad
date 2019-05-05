@@ -32,7 +32,26 @@ def update_incident_header(request, incident_id):
     """Update incident header information
     """
     context = {}
-    return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    if request.method == "POST":
+        inc_title = request.POST.get('incident_title', None)
+        inc_severity = request.POST.get('incident_severity', None)
+        inc_descr = request.POST.get('incident_description', None)
+        if inc_title:
+            inc.title = inc_title
+        if inc_severity:
+            if inc_severity == 'High': inc_severity = 'h'
+            if inc_severity == 'Medium': inc_severity = 'm'
+            if inc_severity == 'Low': inc_severity = 'l'
+            inc.severity = inc_severity
+        if inc_descr:
+            inc.description = inc_descr
+        inc.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
 
 @login_required
 def comment_incident(request, incident_id):
