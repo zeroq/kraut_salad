@@ -11,8 +11,8 @@ from django.contrib.auth.decorators import login_required
 
 from kraut_intel.utils import get_icon_for_namespace
 
-from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm
-from kraut_incident.models import Contact, Handler, Incident
+from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm, IncidentCommentForm
+from kraut_incident.models import Contact, Handler, Incident, IncidentComment
 from kraut_incident.utils import slicedict
 
 # Create your views here.
@@ -55,10 +55,49 @@ def update_incident_header(request, incident_id):
 
 @login_required
 def comment_incident(request, incident_id):
+    """Add comment to incident
+    """
     context = {}
-    return render(request, 'kraut_incident/incident_list.html', context)
+    if request.method == "POST":
+        form = IncidentCommentForm(request.POST)
+        if form.is_valid():
+            try:
+                inc = Incident.objects.get(id=incident_id)
+            except Incident.DoesNotExist:
+                messages.error(request, 'The requested incident does not exist!')
+                return render(request, 'kraut_incident/incident_list.html', context)
+            data = {
+                'ctext': form.cleaned_data['ctext'],
+                'author': request.user,
+                'incident_reference': inc
+            }
+            new_comment = IncidentComment.objects.get_or_create(**data)
+            messages.info(request, "Comment successfully added")
+        else:
+            if form.errors:
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, '%s: %s' % (field.name, error))
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
 
-
+@login_required
+def delete_comment_incident(request, incident_id, comment_id):
+    """Delete a comment for given incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        com = IncidentComment.objects.get(pk=int(comment_id), incident_reference=inc, author=request.user)
+    except IncidentComment.DoesNotExist:
+        messages.error(request, 'The requested comment does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    com.delete()
+    messages.info(request, 'Comment successfully deleted.')
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
 
 @login_required
 def view_incident(request, incident_id):
@@ -84,6 +123,12 @@ def view_incident(request, incident_id):
     else:
         context['usernamespace'] = 'nospace'
         context['namespaceicon'] = static('ns_icon/octalpus.png')
+    try:
+        comments = IncidentComment.objects.filter(incident_reference=inc).order_by('-creation_time')
+    except:
+        comments = None
+    context['comments'] = comments
+    context['commentform'] = IncidentCommentForm()
     context['num_incident_handlers'] = inc.incident_handler.count()
     context['num_incident_contacts'] = inc.contacts.count()
     context['num_incident_tasks'] = inc.tasks.count()

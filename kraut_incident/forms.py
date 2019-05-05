@@ -1,7 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.forms import ModelForm, widgets
-from kraut_incident.models import Incident, Contact, Handler
+from kraut_incident.models import Incident, Contact, Handler, IncidentComment
 
 class HandlerForm(ModelForm):
     class Meta:
@@ -40,3 +40,12 @@ class IncidentForm(ModelForm):
             'category': widgets.Select(attrs={'class': 'form-control'}),
             'severity': widgets.Select(attrs={'class': 'form-control'}),
         }
+
+class IncidentCommentForm(ModelForm):
+    class Meta:
+        model = IncidentComment
+        fields = ['ctext']
+
+    def __init__(self, *args, **kwargs):
+        super(IncidentCommentForm, self).__init__(*args, **kwargs)
+        self.fields['ctext'].widget.attrs.update({'class' : 'form-control', 'id': 'incidentComment'})

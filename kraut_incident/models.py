@@ -1,6 +1,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 from django.db import models
+from django.contrib.auth.models import User
 
 import random
 
@@ -159,3 +160,9 @@ class Incident(models.Model):
     def __unicode__(self):
         return u"%s" % (self.title)
 
+
+class IncidentComment(models.Model):
+    ctext = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    incident_reference = models.ForeignKey(Incident, on_delete=models.CASCADE)
