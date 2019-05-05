@@ -139,7 +139,9 @@
     <a class="btn btn-primary btn-sm" el="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#addIHModal" data-objectid="{{ incident.id }}">
         <i class="fa fa-plus-circle fa-sm"></i> Add Incident Handler
     </a>
-<a class="btn btn-primary btn-sm" href="{% url 'incidents:add_task' incident_id=incident.id %}"><i class="fa fa-plus-circle fa-sm"></i> Add Incident Contact</a>
+    <a class="btn btn-primary btn-sm" el="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#addCOModal" data-objectid="{{ incident.id }}">
+        <i class="fa fa-plus-circle fa-sm"></i> Add Incident Contact
+    </a>
 <a class="btn btn-primary btn-sm" href="{% url 'incidents:add_task' incident_id=incident.id %}"><i class="fa fa-plus-circle fa-sm"></i> Add Task</a>
 <a class="btn btn-primary btn-sm" href="{% url 'incidents:add_task' incident_id=incident.id %}"><i class="fa fa-plus-circle fa-sm"></i> Add Asset</a>
 </div><br/><br/>
@@ -214,7 +216,7 @@
                         <td>{{ co.firstname }} {{ co.lastname }}</td>
                         <td>{{ co.email }}</td>
                         <td>{{ co.phone }}</td>
-                        <td><a href="#"><i data-toggle="tooltip" data-placement="left" data-original-title="remove incident contact" class="fa fa-remove pull-right"></i></a></td>
+                        <td><a href="{% url 'incidents:remove_contact_incident' incident_id=incident_id contact_id=co.id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="remove incident contact" class="fa fa-remove pull-right"></i></a></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -295,26 +297,21 @@
         </div>
     </div>
 </div>
-<!-- Modal to add an existing campaign to the package -->
-<div class="modal bs-example-modal-lg" id="addCAModal" tabindex="-1" role="dialog" aria-labelledby="addCALabel" aria-hidden="true">
+<!-- Modal to add an existing contact to the incident -->
+<div class="modal bs-example-modal-lg" id="addCOModal" tabindex="-1" role="dialog" aria-labelledby="addCOLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addCALabel">Add Campaign</h4>
+                <h4 class="modal-title" id="addCALabel">Add Incident Contact</h4>
             </div>
                 <div class="modal-body">
-                    <table id="ca_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
+                    <table id="co_table" class="table table-condensed table-striped table-bordered" style="font-size: 0.9em;">
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>Add</th><th>Lastname</th><th>Firstname</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td></td>
-                            </tr>
-                        </tbody>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -451,6 +448,38 @@ $(document).ready( function () {
     });
 });
 
+$(document).ready( function () {
+    var cTable = $('#co_table').DataTable({
+        processing: true,
+        info: false,
+        bLengthChange: false,
+        serverSide: true,
+        oLanguage: {
+            sProcessing: "<img src='{% static 'images/loading.gif' %}'>",
+        },
+        order: [[ 1, "desc" ]],
+        ajax: {
+            processing: true,
+            url: "/api/incident/{{ incident.id }}/contacts/",
+            dataSrc: "results",
+            type: "GET",
+            dataType: "json"
+        },
+        columns: [
+            {
+                "data": 'id',
+                'sName': 'operations',
+                'bSortable': false,
+                'aTargets': [ 1 ],
+                "mRender": function (data, type, full) {
+                    return '<div class="checkbox"><input type="checkbox" id="ContactCheckBox_'+data+'" form="post-incident" value="'+data+'"></div>'
+                }
+            },
+            {'data': 'lastname', 'sName': 'lastname', 'aTargets': [ 2 ]},
+            {'data': 'firstname', 'sName': 'firstname', 'aTargets': [ 3 ]},
+        ],
+    });
+});
 
 $(function () {
     $('[data-toggle="popover"]').popover()

@@ -28,6 +28,25 @@ def list_incidents(request):
     return render(request, 'kraut_incident/incident_list.html', context)
 
 @login_required
+def remove_contact_incident(request, incident_id, contact_id):
+    """remove contact person from incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        contact = Contact.objects.get(id=contact_id)
+    except Handler.DoesNotExist:
+        messages.error(request, 'The requested incident contact does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    inc.contacts.remove(contact)
+    inc.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
 def remove_handler_incident(request, incident_id, handler_id):
     """remove handler from incident
     """
@@ -185,7 +204,7 @@ def view_incident(request, incident_id):
     elif context['num_incident_contacts'] > 0:
         context['tab'] = 'incident_contacts'
     else:
-        context['tab'] = 'incident_handlers'
+        context['tab'] = 'incident_handler'
     return render(request, 'kraut_incident/incident_details.html', context)
 
 @login_required

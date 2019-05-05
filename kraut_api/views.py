@@ -1961,7 +1961,6 @@ def handler_list_incident(request, incident_id, format=None):
         try:
             inc = Incident.objects.get(id=incident_id)
         except Exception as e:
-            print(e)
             return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
         paginator = CustomPaginator()
         max_items = 10
@@ -2054,6 +2053,58 @@ def handler_list(request, format=None):
 
 
 ################### INCIDENT CONTACTS #####################
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
+def contact_list_incident(request, incident_id, format=None):
+    if request.method == 'GET':
+        try:
+            inc = Incident.objects.get(id=incident_id)
+        except Exception as e:
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+        paginator = CustomPaginator()
+        max_items = 10
+        page = request.query_params.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_by_column = 'lastname'
+                order_direction = '-'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'lastname'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = Contact.objects.exclude(id__in=inc.contacts.all()).order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(firstname__istartswith=search_value)|
+                Q(lastname__istartswith=search_value)
+            )
+        handler = paginator.paginate_queryset(queryset, request)
+        serializer_context = {'request': request}
+        serializer = ContactSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, ))
