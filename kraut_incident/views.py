@@ -28,6 +28,53 @@ def list_incidents(request):
     return render(request, 'kraut_incident/incident_list.html', context)
 
 @login_required
+def remove_handler_incident(request, incident_id, handler_id):
+    """remove handler from incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        handler = Handler.objects.get(id=handler_id)
+    except Handler.DoesNotExist:
+        messages.error(request, 'The requested incident handler does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    inc.incident_handler.remove(handler)
+    inc.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
+def add_handler_incident(request, incident_id):
+    """add incident handler to incident
+    """
+    if request.method == 'POST':
+        try:
+            inc = Incident.objects.get(id=incident_id)
+        except Incident.DoesNotExist:
+            messages.error(request, 'The requested incident does not exist!')
+            return render(request, 'kraut_incident/incident_list.html', context)
+        handler_dict = slicedict(request.POST, 'HandlerCheckBox')
+        for key in handler_dict:
+            handler_id = int(handler_dict[key])
+            try:
+                ih = Handler.objects.get(id=handler_id)
+                inc.incident_handler.add(ih)
+            except Handler.DoesNotExist:
+                messages.error(request, 'Failed getting incident handler with ID: %s' % (handler_id))
+                return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+        inc.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
+def add_task(request, incident_id):
+    """add task to incident
+    """
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
 def update_incident_header(request, incident_id):
     """Update incident header information
     """
