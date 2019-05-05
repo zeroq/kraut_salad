@@ -33,6 +33,7 @@
         </div>
     </div>
 </div>
+{% if num_affected_assets > 0 %}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Affected Assets</h3>
@@ -40,6 +41,7 @@
     <div id="tree-container" class="panel-body">
     </div>
 </div>
+{% endif %}
 {% endspaceless %}
 {% endblock %}
 
@@ -176,13 +178,16 @@
         <br/>
         <table id="handler_table" class="table table-condensed" style="font-size: 0.9em;">
             <thead>
-                <tr><th>Name</th><th>Short Description</th></tr>
+                <tr><th>Name</th><th>E-Mail</th><th>Phone</th></tr>
             </thead>
             <tbody>
+                {% for ha in incident.incident_handler.all %}
                     <tr>
-                        <td></td>
-                        <td></td>
+                        <td>{{ ha.firstname }} {{ ha.lastname }}</td>
+                        <td>{{ ha.email }}</td>
+                        <td>{{ ha.phone }}</td>
                     </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -191,14 +196,16 @@
         <br/>
         <table id="contact_table" class="table table-condensed" style="font-size: 0.9em;">
             <thead>
-                <tr><th>Name</th><th>Confidence</th><th>Status</th></tr>
+                <tr><th>Name</th><th>E-Mail</th><th>Phone</th></tr>
             </thead>
             <tbody>
+                {% for co in incident.contacts.all %}
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ co.firstname }} {{ co.lastname }}</td>
+                        <td>{{ co.email }}</td>
+                        <td>{{ co.phone }}</td>
                     </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

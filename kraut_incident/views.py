@@ -68,6 +68,7 @@ def view_incident(request, incident_id):
     context['num_incident_handlers'] = inc.incident_handler.count()
     context['num_incident_contacts'] = inc.contacts.count()
     context['num_incident_tasks'] = inc.tasks.count()
+    context['num_affected_assets'] = inc.affected_assets.count()
     if context['num_incident_tasks'] > 0:
         context['tab'] = 'incident_tasks'
     elif context['num_incident_contacts'] > 0:
