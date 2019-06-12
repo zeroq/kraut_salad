@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from kraut_intel.utils import get_icon_for_namespace
 
 from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm, IncidentCommentForm
-from kraut_incident.models import Contact, Handler, Incident, IncidentComment, TemplateTask, Task
+from kraut_incident.models import Contact, Handler, Incident, IncidentComment, TemplateTask, Task, Incident_Status
 from kraut_incident.utils import slicedict
 
 import datetime
@@ -270,6 +270,25 @@ def delete_comment_incident(request, incident_id, comment_id):
     com.delete()
     messages.info(request, 'Comment successfully deleted.')
     return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
+def close_incident(request, incident_id):
+    """Close an incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    for t in inc.tasks.all():
+        if t.status == 'op':
+            messages.error(request, 'The incident has still open tasks!')
+            return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+    ist = Incident_Status.objects.get(name='Closed')
+    inc.status = ist
+    inc.save()
+    return render(request, 'kraut_incident/incident_list.html', context)
 
 @login_required
 def view_incident(request, incident_id):

@@ -135,6 +135,12 @@
 </div>
 {% endspaceless %}
 
+<div>
+<div>
+    <a class="btn btn-primary btn-sm alert-success" el="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#closeIHModal" data-objectid="{{ incident.id }}">
+        <i class="fa fa-close fa-sm"></i> Close Incident
+    </a>
+</div>
 <div class="pull-right">
     <a class="btn btn-primary btn-sm" el="tooltip" data-placement="top" data-original-title="View" href="#" data-toggle="modal" data-target="#addIHModal" data-objectid="{{ incident.id }}">
         <i class="fa fa-plus-circle fa-sm"></i> Add Incident Handler
@@ -146,7 +152,9 @@
         <i class="fa fa-plus-circle fa-sm"></i> Add Task
     </a>
 <a class="btn btn-primary btn-sm" href="{% url 'incidents:add_task' incident_id=incident.id %}"><i class="fa fa-plus-circle fa-sm"></i> Add Asset</a>
-</div><br/><br/>
+</div>
+</div>
+<br/><br/>
 
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -280,6 +288,27 @@
 </div>
 {% endif %}
 
+<!-- Modal to close an incident -->
+<div class="modal bs-example-modal-lg" id="closeIHModal" tabindex="-1" role="dialog" aria-labelledby="closeIHLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="closeIHLabel">Close Incident?</h4>
+            </div>
+                <form method="post" action="{% url 'incidents:close_incident' incident_id=incident_id %}" id="post-handler">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    Do you really want to close this incident?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+                </form>
+        </div>
+    </div>
+</div>
 <!-- Modal to add an existing incident handler to the incident -->
 <div class="modal bs-example-modal-lg" id="addIHModal" tabindex="-1" role="dialog" aria-labelledby="addIHLabel" aria-hidden="true">
     <div class="modal-dialog">
