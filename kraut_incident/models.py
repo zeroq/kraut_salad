@@ -60,6 +60,9 @@ class Task(models.Model):
     status = models.CharField(max_length=2, choices=status_choices, default='op')
     responsible = models.ManyToManyField(Contact, blank=True)
 
+    class Meta:
+        ordering = ['-status']
+
 class Account(models.Model):
     """Describe an account
     """

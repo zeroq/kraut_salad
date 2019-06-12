@@ -229,14 +229,19 @@
         <br/>
         <table id="task_table" class="table table-condensed" style="font-size: 0.9em;">
             <thead>
-                <tr><th>Name</th><th>Status</th><th>Short Description</th></tr>
+                <tr><th>Name</th><th>Status</th><th>Short Description</th><th></th></tr>
             </thead>
             <tbody>
                 {% for t in incident.tasks.all %}
                 <tr>
                     <td>{{ t.name }}</td>
-                    <td>{{ t.get_status_display }}</td>
+                    <td>{% if  t.get_status_display == 'Open' %}<span class="badge progress-bar-danger">Open</span>{% else %}<span class="label progress-bar-success">{{ t.get_status_display }}</span>{% endif %}</td>
                     <td>{{ t.description }}</td>
+                    <td>
+                        <a href="{% url 'incidents:remove_task_incident' incident_id=incident_id task_id=t.id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="remove task" class="fa fa-trash pull-right"></i></a>
+                        <a href="{% url 'incidents:abort_task_incident' incident_id=incident_id task_id=t.id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="cancel task" class="fa fa-remove pull-right"></i></a>
+                        <a href="{% url 'incidents:resolve_task_incident' incident_id=incident_id task_id=t.id %}"><i data-toggle="tooltip" data-placement="left" data-original-title="close task" class="fa fa-check pull-right"></i></a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

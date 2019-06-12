@@ -15,6 +15,8 @@ from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm, Inciden
 from kraut_incident.models import Contact, Handler, Incident, IncidentComment, TemplateTask, Task
 from kraut_incident.utils import slicedict
 
+import datetime
+
 # Create your views here.
 
 @login_required
@@ -26,6 +28,65 @@ def home(request):
 def list_incidents(request):
     context = {}
     return render(request, 'kraut_incident/incident_list.html', context)
+
+@login_required
+def abort_task_incident(request, incident_id, task_id):
+    """abort a task from an incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        task = Task.objects.get(id=task_id)
+    except Task.DoesNotExist:
+        messages.error(request, 'The requested task does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    task.status = 'ab'
+    task.finish_time = datetime.datetime.now()
+    task.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
+def resolve_task_incident(request, incident_id, task_id):
+    """resolve a task from an incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        task = Task.objects.get(id=task_id)
+    except Task.DoesNotExist:
+        messages.error(request, 'The requested task does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    task.status = 'do'
+    task.finish_time = datetime.datetime.now()
+    task.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
+def remove_task_incident(request, incident_id, task_id):
+    """remove a task from an incident
+    """
+    context = {}
+    try:
+        inc = Incident.objects.get(id=incident_id)
+    except Incident.DoesNotExist:
+        messages.error(request, 'The requested incident does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    try:
+        task = Task.objects.get(id=task_id)
+    except Task.DoesNotExist:
+        messages.error(request, 'The requested task does not exist!')
+        return render(request, 'kraut_incident/incident_list.html', context)
+    inc.tasks.remove(task)
+    inc.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
 
 @login_required
 def remove_contact_incident(request, incident_id, contact_id):
