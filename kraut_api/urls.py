@@ -55,6 +55,7 @@ urlpatterns = [
     # incident
     url(r'^incident/contacts/$', views.contact_list),
     url(r'^incident/handlers/$', views.handler_list),
+    url(r'^incident/tasks/$', views.template_tasks),
     url(r'^incident/(?P<incident_id>[0-9]+)/handlers/$', views.handler_list_incident),
     url(r'^incident/(?P<incident_id>[0-9]+)/contacts/$', views.contact_list_incident),
     url(r'^incidents/$', views.incident_list),

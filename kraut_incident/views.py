@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from kraut_intel.utils import get_icon_for_namespace
 
 from kraut_incident.forms import IncidentForm, ContactForm, HandlerForm, IncidentCommentForm
-from kraut_incident.models import Contact, Handler, Incident, IncidentComment
+from kraut_incident.models import Contact, Handler, Incident, IncidentComment, TemplateTask, Task
 from kraut_incident.utils import slicedict
 
 # Create your views here.
@@ -66,6 +66,28 @@ def remove_handler_incident(request, incident_id, handler_id):
     return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
 
 @login_required
+def add_contact_incident(request, incident_id):
+    """add incident contact to incident
+    """
+    if request.method == 'POST':
+        try:
+            inc = Incident.objects.get(id=incident_id)
+        except Incident.DoesNotExist:
+            messages.error(request, 'The requested incident does not exist!')
+            return render(request, 'kraut_incident/incident_list.html', context)
+        co_dict = slicedict(request.POST, 'ContactCheckBox')
+        for key in co_dict:
+            co_id = int(co_dict[key])
+            try:
+                co = Contact.objects.get(id=co_id)
+                inc.contacts.add(co)
+            except Contact.DoesNotExist:
+                messages.error(request, 'Failed getting incident contact with ID: %s' % (co_id))
+                return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+        inc.save()
+    return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+
+@login_required
 def add_handler_incident(request, incident_id):
     """add incident handler to incident
     """
@@ -91,6 +113,29 @@ def add_handler_incident(request, incident_id):
 def add_task(request, incident_id):
     """add task to incident
     """
+    if request.method == 'POST':
+        try:
+            inc = Incident.objects.get(id=incident_id)
+        except Incident.DoesNotExist:
+            messages.error(request, 'The requested incident does not exist!')
+            return render(request, 'kraut_incident/incident_list.html', context)
+        task_dict = slicedict(request.POST, 'TaskCheckBox')
+        for key in task_dict:
+            task_id = int(task_dict[key])
+            try:
+                tt = TemplateTask.objects.get(id=task_id)
+                template = {
+                    "name": tt.name,
+                    "description": tt.description
+                }
+                t = Task(**template)
+                t.save()
+                inc.tasks.add(t)
+            except:
+                messages.error(request, 'Failed getting incident task with ID: %s' % (task_id))
+                return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
+        messages.info(request, 'Task "%s" added' % (t.name))
+        inc.save()
     return HttpResponseRedirect(reverse("incidents:view_incident", kwargs={'incident_id': incident_id}))
 
 @login_required
@@ -177,12 +222,7 @@ def view_incident(request, incident_id):
         return render(request, 'kraut_incident/incident_list.html', context)
     context['incident'] = inc
     context['severities'] = ['High', 'Medium', 'Low']
-    if inc.severity == 'h':
-        context['severity'] = 'High'
-    elif inc.severity == 'm':
-        context['severity'] = 'Medium'
-    else:
-        context['severity'] = 'Low'
+    context['severity'] = inc.get_severity_display()
     if hasattr(request.user.userextension, 'namespaces'):
         context['usernamespace'] = request.user.userextension.namespaces.last().namespace.split(':')[0]
         context['namespaceicon'] = get_icon_for_namespace(request.user.userextension.namespaces.last().namespace)

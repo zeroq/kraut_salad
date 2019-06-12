@@ -39,6 +39,12 @@ class Contact(models.Model):
     class Meta:
         unique_together = (("firstname", "lastname", "email"),)
 
+class TemplateTask(models.Model):
+    """Describe a template for a task to attach to an incident
+    """
+    name = models.CharField(max_length=255, default="Template Task")
+    description = models.TextField(null=True, blank=True, default="Task Description")
+
 class Task(models.Model):
     """Describe a task to be performed
     """

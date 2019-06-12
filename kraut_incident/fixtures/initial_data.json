@@ -126,5 +126,29 @@
             "name": "Phishing/Scam/Spam",
             "description": "This category includes all incidents related to phishing, scam, or spam emails."
         }
+    },
+    {
+        "model": "kraut_incident.templatetask",
+        "pk": 1,
+        "fields": {
+            "name": "Reinstall System(s)",
+            "description": "Initiate reinstallation of affected assets (e.g. because of compromise)."
+        }
+    },
+    {
+        "model": "kraut_incident.templatetask",
+        "pk": 2,
+        "fields": {
+            "name": "Forensic Copy",
+            "description": "Create forensically sound images of affected assets."
+        }
+    },
+    {
+        "model": "kraut_incident.templatetask",
+        "pk": 3,
+        "fields": {
+            "name": "Collect Logfiles",
+            "description": "Collect specific log files from affected assets."
+        }
     }
 ]

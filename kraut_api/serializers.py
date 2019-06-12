@@ -5,7 +5,7 @@ from kraut_parser.models import Indicator, Indicator_Type, Observable, ThreatAct
 from kraut_parser.models import MalwareInstance, AttackPattern
 from kraut_intel.utils import get_icon_for_namespace
 from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment, TTPComment, IndicatorComment, ObservableComment
-from kraut_incident.models import Contact, Handler, Incident
+from kraut_incident.models import Contact, Handler, Incident, TemplateTask
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 
 import datetime
@@ -318,6 +318,11 @@ class ContactSerializer(serializers.ModelSerializer):
         fields = ('id', 'firstname', 'lastname')
 
 ################### INCIDENT #####################
+
+class TemplateTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateTask
+        fields = ('id', 'name', 'description')
 
 class IncidentSerializer(serializers.ModelSerializer):
     status = serializers.StringRelatedField()

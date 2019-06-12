@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^incident/(?P<incident_id>\d+)/update/header/$', views.update_incident_header, name='update_incident_header'),
     url(r'^incident/(?P<incident_id>\d+)/add/task/$', views.add_task, name='add_task'),
     url(r'^incident/(?P<incident_id>\d+)/add/handler/$', views.add_handler_incident, name='add_handler_incident'),
+    url(r'^incident/(?P<incident_id>\d+)/add/contact/$', views.add_contact_incident, name='add_contact_incident'),
     url(r'^incident/(?P<incident_id>\d+)/remove/handler/(?P<handler_id>\d+)/$', views.remove_handler_incident, name='remove_handler_incident'),
     url(r'^incident/(?P<incident_id>\d+)/remove/contact/(?P<contact_id>\d+)/$', views.remove_contact_incident, name='remove_contact_incident'),
     url(r'^incident/(?P<incident_id>\d+)/add/comment/$', views.comment_incident, name='comment_incident'),

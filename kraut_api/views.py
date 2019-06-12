@@ -23,7 +23,7 @@ from kraut_api.serializers import ThreatActorSerializer, TASerializer, ActorComm
 # Package
 from kraut_api.serializers import PackageSerializer, PackSerializer, PackageCommentSerializer
 # Incident
-from kraut_api.serializers import IncidentSerializer, ContactSerializer, HandlerSerializer
+from kraut_api.serializers import IncidentSerializer, ContactSerializer, HandlerSerializer, TemplateTaskSerializer
 # Objects
 from kraut_api.serializers import AddressObjectSerializer, URIObjectSerializer, FileObjectSerializer
 # TTPs
@@ -34,7 +34,7 @@ from kraut_api.serializers import MalwareInstanceSerializer, AttackPatternSerial
 from kraut_api.serializers import CollectionSerializer, ServersSerializer
 #
 from kraut_parser.utils import get_object_for_observable, get_related_objects_for_object
-from kraut_incident.models import Contact, Handler, Incident
+from kraut_incident.models import Contact, Handler, Incident, TemplateTask
 from kraut_intel.models import PackageComment, NamespaceIcon, ThreatActorComment, CampaignComment, TTPComment, IndicatorComment, ObservableComment
 from kraut_sharing.models import TAXII_Remote_Server, TAXII_Remote_Collection
 from kraut_sharing.forms import DiscoveryForm
@@ -2050,6 +2050,53 @@ def handler_list(request, format=None):
         serializer = HandlerSerializer(instance=handler, context=serializer_context, many=True)
         return paginator.get_paginated_response(serializer.data)
     return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, ))
+@permission_classes((IsAuthenticated,))
+def template_tasks(request, format=None):
+    if request.method == 'GET':
+        paginator = CustomPaginator()
+        max_items = 10
+        page = request.query_params.get('page')
+        if request.query_params:
+            # number of items to retrieve
+            if 'length' in request.query_params:
+                max_items = int(request.query_params['length'])
+            # page to show
+            if 'start' in request.query_params:
+                page = int(int(request.query_params['start'])/int(max_items))+1
+            # order
+            if 'order[0][column]' in request.query_params and 'order[0][dir]' in request.query_params:
+                order_by_column = request.query_params['columns['+str(request.query_params['order[0][column]'])+'][data]']
+                if request.query_params['order[0][dir]'] == 'desc':
+                    order_direction = '-'
+                else:
+                    order_direction = ''
+            else:
+                order_by_column = 'name'
+                order_direction = '-'
+            # search
+            if 'search[value]' in request.query_params:
+                search_value = request.query_params['search[value]']
+            else:
+                search_value = None
+        else:
+            order_by_column = 'name'
+            order_direction = '-'
+            search_value = None
+        # construct queryset
+        queryset = TemplateTask.objects.all().order_by('%s%s' % (order_direction, order_by_column))
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__icontains=search_value)
+            )
+        handler = paginator.paginate_queryset(queryset, request)
+        serializer_context = {'request': request}
+        serializer = TemplateTaskSerializer(instance=handler, context=serializer_context, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 ################### INCIDENT CONTACTS #####################
