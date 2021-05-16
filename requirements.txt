@@ -22,7 +22,7 @@ ipaddr==2.1.11
 ipython==3.1.0
 Jinja2==2.11.3
 kombu==3.0.34
-libtaxii==1.1.106
+libtaxii==1.1.118
 lxml==4.6.3
 Markdown==2.4.1
 MarkupSafe==1.1.1
