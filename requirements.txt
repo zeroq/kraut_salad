@@ -3,7 +3,7 @@ anyjson==0.3.3
 argh==0.26.1
 billiard==3.3.0.20
 cabby==0.1.4
-celery==3.1.18
+celery==5.2.2
 certifi==2019.3.9
 chardet==3.0.4
 colorlog==2.6.0
