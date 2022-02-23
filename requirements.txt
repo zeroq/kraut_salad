@@ -27,7 +27,7 @@ lxml==4.6.3
 Markdown==2.4.1
 MarkupSafe==1.1.1
 maxminddb==1.2.0
-mkdocs==0.11.1
+mkdocs==1.2.3
 omnijson==0.1.2
 pathtools==0.1.2
 pydotplus==2.0.2
